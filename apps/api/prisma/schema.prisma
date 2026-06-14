@@ -15,21 +15,21 @@ datasource db {
 // ============================================================================
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id           String   @id @default(cuid())
+  email        String   @unique
   passwordHash String
-  nickname  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  nickname     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relations
-  cashBalance        CashBalance?
-  wallets            Wallet[]
-  trades             Trade[]
-  balanceHistories   BalanceHistory[]
-  alertRules         AlertRule[]
-  notifications      Notification[]
-  slackIntegration   SlackIntegration?
+  cashBalance      CashBalance?
+  wallets          Wallet[]
+  trades           Trade[]
+  balanceHistories BalanceHistory[]
+  alertRules       AlertRule[]
+  notifications    Notification[]
+  slackIntegration SlackIntegration?
 
   @@map("users")
 }
@@ -71,19 +71,19 @@ model Wallet {
 }
 
 model BalanceHistory {
-  id           String   @id @default(cuid())
-  userId       String
-  marketId     String?
-  changeType   String   // TRADE_BUY, TRADE_SELL, INITIAL_GRANT, ADJUSTMENT
-  quantityDelta Decimal @db.Decimal(18, 8)
-  cashDelta    Decimal  @db.Decimal(18, 8)
-  reason       String?
-  tradeId      String?
-  createdAt    DateTime @default(now())
+  id            String   @id @default(cuid())
+  userId        String
+  marketId      String?
+  changeType    String // TRADE_BUY, TRADE_SELL, INITIAL_GRANT, ADJUSTMENT
+  quantityDelta Decimal  @db.Decimal(18, 8)
+  cashDelta     Decimal  @db.Decimal(18, 8)
+  reason        String?
+  tradeId       String?
+  createdAt     DateTime @default(now())
 
   // Relations
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  trade  Trade?  @relation(fields: [tradeId], references: [id], onDelete: SetNull)
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trade Trade? @relation(fields: [tradeId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([tradeId])
@@ -95,20 +95,21 @@ model BalanceHistory {
 // ============================================================================
 
 model Market {
-  id           String   @id @default(cuid())
-  code         String   @unique
-  symbol       String   @unique
-  koreanName   String
-  englishName  String
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  code        String   @unique
+  symbol      String   @unique
+  koreanName  String
+  englishName String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
   wallets           Wallet[]
   trades            Trade[]
   alertRules        AlertRule[]
   snapshots         MarketSnapshot[]
+  notifications     Notification[]
   newsMarketTags    NewsMarketTag[]
   predictionReviews PredictionReview[]
 
@@ -119,7 +120,7 @@ model Trade {
   id          String   @id @default(cuid())
   userId      String
   marketId    String
-  type        String   // BUY, SELL
+  type        String // BUY, SELL
   price       Decimal  @db.Decimal(18, 8)
   quantity    Decimal  @db.Decimal(18, 8)
   totalAmount Decimal  @db.Decimal(18, 8)
@@ -128,9 +129,9 @@ model Trade {
   createdAt   DateTime @default(now())
 
   // Relations
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  market            Market            @relation(fields: [marketId], references: [id], onDelete: Restrict)
-  balanceHistories  BalanceHistory[]
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  market           Market           @relation(fields: [marketId], references: [id], onDelete: Restrict)
+  balanceHistories BalanceHistory[]
 
   @@index([userId])
   @@index([marketId])
@@ -139,13 +140,13 @@ model Trade {
 }
 
 model MarketSnapshot {
-  id                 String   @id @default(cuid())
-  marketId           String
-  tradePrice         Decimal  @db.Decimal(18, 8)
-  signedChangeRate   Decimal  @db.Decimal(8, 4)
-  accTradeVolume24h  Decimal  @db.Decimal(18, 2)
-  snapshotAt         DateTime
-  createdAt          DateTime @default(now())
+  id                String   @id @default(cuid())
+  marketId          String
+  tradePrice        Decimal  @db.Decimal(18, 8)
+  signedChangeRate  Decimal  @db.Decimal(8, 4)
+  accTradeVolume24h Decimal  @db.Decimal(18, 2)
+  snapshotAt        DateTime
+  createdAt         DateTime @default(now())
 
   // Relations
   market Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
@@ -161,7 +162,7 @@ model MarketSnapshot {
 
 model NewsArticle {
   id          String   @id @default(cuid())
-  source      String   // naver, etc.
+  source      String // naver, etc.
   title       String
   url         String   @unique
   publisher   String?
@@ -174,8 +175,8 @@ model NewsArticle {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  marketTags  NewsMarketTag[]
-  analyses    NewsAnalysis[]
+  marketTags NewsMarketTag[]
+  analyses   NewsAnalysis[]
 
   @@index([publishedAt])
   @@index([source])
@@ -183,12 +184,12 @@ model NewsArticle {
 }
 
 model NewsMarketTag {
-  id         String   @id @default(cuid())
+  id            String   @id @default(cuid())
   newsArticleId String
-  marketId   String
-  symbol     String
-  confidence Decimal  @db.Decimal(5, 4)
-  createdAt  DateTime @default(now())
+  marketId      String
+  symbol        String
+  confidence    Decimal  @db.Decimal(5, 4)
+  createdAt     DateTime @default(now())
 
   // Relations
   newsArticle NewsArticle @relation(fields: [newsArticleId], references: [id], onDelete: Cascade)
@@ -200,20 +201,20 @@ model NewsMarketTag {
 }
 
 model NewsAnalysis {
-  id            String   @id @default(cuid())
-  newsArticleId String
-  provider      String   // HERMES, GEMINI
-  sentiment     String   // POSITIVE, NEUTRAL, NEGATIVE
-  confidence    Decimal  @db.Decimal(5, 4)
-  investmentScore Decimal @db.Decimal(5, 4)
-  keywords      String[] @default([])
-  reason        String   @db.Text
-  modelVersion  String
-  analyzedAt    DateTime
-  createdAt     DateTime @default(now())
+  id              String   @id @default(cuid())
+  newsArticleId   String
+  provider        String // HERMES, GEMINI
+  sentiment       String // POSITIVE, NEUTRAL, NEGATIVE
+  confidence      Decimal  @db.Decimal(5, 4)
+  investmentScore Decimal  @db.Decimal(5, 4)
+  keywords        String[] @default([])
+  reason          String   @db.Text
+  modelVersion    String
+  analyzedAt      DateTime
+  createdAt       DateTime @default(now())
 
   // Relations
-  newsArticle    NewsArticle      @relation(fields: [newsArticleId], references: [id], onDelete: Cascade)
+  newsArticle      NewsArticle       @relation(fields: [newsArticleId], references: [id], onDelete: Cascade)
   predictionReview PredictionReview?
 
   @@unique([newsArticleId, provider, modelVersion])
@@ -224,18 +225,18 @@ model NewsAnalysis {
 }
 
 model NewsAnalysisRun {
-  id          String   @id @default(cuid())
-  provider    String   // HERMES, GEMINI
-  status      String   // PENDING, RUNNING, SUCCEEDED, FAILED
-  targetDate  DateTime
-  requestedBy String   // SCHEDULE, MANUAL
-  totalCount  Int      @default(0)
-  successCount Int     @default(0)
-  failedCount Int      @default(0)
+  id           String    @id @default(cuid())
+  provider     String // HERMES, GEMINI
+  status       String // PENDING, RUNNING, SUCCEEDED, FAILED
+  targetDate   DateTime
+  requestedBy  String // SCHEDULE, MANUAL
+  totalCount   Int       @default(0)
+  successCount Int       @default(0)
+  failedCount  Int       @default(0)
   errorMessage String?
-  startedAt   DateTime?
-  finishedAt  DateTime?
-  createdAt   DateTime @default(now())
+  startedAt    DateTime?
+  finishedAt   DateTime?
+  createdAt    DateTime  @default(now())
 
   @@index([provider])
   @@index([status])
@@ -244,18 +245,18 @@ model NewsAnalysisRun {
 }
 
 model PredictionReview {
-  id                String   @id @default(cuid())
-  newsAnalysisId    String   @unique
-  marketId          String
-  basePrice         Decimal  @db.Decimal(18, 8)
-  futurePrice       Decimal  @db.Decimal(18, 8)
-  timeHorizon       String   // 1H, 4H, 1D
-  predictedDirection String  // UP, DOWN, FLAT
-  actualDirection   String   // UP, DOWN, FLAT
-  isMatched         Boolean
-  errorRate         Decimal  @db.Decimal(5, 4)
-  reviewedAt        DateTime
-  createdAt         DateTime @default(now())
+  id                 String   @id @default(cuid())
+  newsAnalysisId     String   @unique
+  marketId           String
+  basePrice          Decimal  @db.Decimal(18, 8)
+  futurePrice        Decimal  @db.Decimal(18, 8)
+  timeHorizon        String // 1H, 4H, 1D
+  predictedDirection String // UP, DOWN, FLAT
+  actualDirection    String // UP, DOWN, FLAT
+  isMatched          Boolean
+  errorRate          Decimal  @db.Decimal(5, 4)
+  reviewedAt         DateTime
+  createdAt          DateTime @default(now())
 
   // Relations
   newsAnalysis NewsAnalysis @relation(fields: [newsAnalysisId], references: [id], onDelete: Cascade)
@@ -267,14 +268,14 @@ model PredictionReview {
 }
 
 model LearningSample {
-  id               String   @id @default(cuid())
-  newsAnalysisId   String?
+  id                 String   @id @default(cuid())
+  newsAnalysisId     String?
   predictionReviewId String?
-  inputSnapshot    Json
-  expectedOutput   Json
-  actualOutput     Json
-  feedbackLabel    String   // GOOD, BAD, NEEDS_REVIEW
-  createdAt        DateTime @default(now())
+  inputSnapshot      Json
+  expectedOutput     Json
+  actualOutput       Json
+  feedbackLabel      String // GOOD, BAD, NEEDS_REVIEW
+  createdAt          DateTime @default(now())
 
   @@index([feedbackLabel])
   @@map("learning_samples")
@@ -285,23 +286,23 @@ model LearningSample {
 // ============================================================================
 
 model AlertRule {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   userId          String
   marketId        String
-  type            String   // PRICE_CHANGE_RATE, PROFIT_RATE_TARGET, LOSS_RATE_LIMIT, VOLUME_SPIKE, NEWS_SENTIMENT
-  threshold       Decimal  @db.Decimal(8, 4)
-  comparison      String   // GTE, LTE
-  enabled         Boolean  @default(true)
-  sendInApp       Boolean  @default(true)
-  sendSlack       Boolean  @default(false)
-  cooldownSeconds Int      @default(0)
+  type            String // PRICE_CHANGE_RATE, PROFIT_RATE_TARGET, LOSS_RATE_LIMIT, VOLUME_SPIKE, NEWS_SENTIMENT
+  threshold       Decimal   @db.Decimal(8, 4)
+  comparison      String // GTE, LTE
+  enabled         Boolean   @default(true)
+  sendInApp       Boolean   @default(true)
+  sendSlack       Boolean   @default(false)
+  cooldownSeconds Int       @default(0)
   lastTriggeredAt DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   // Relations
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  market        Market        @relation(fields: [marketId], references: [id], onDelete: Restrict)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  market        Market         @relation(fields: [marketId], references: [id], onDelete: Restrict)
   notifications Notification[]
 
   @@unique([userId, marketId, type])
@@ -312,37 +313,39 @@ model AlertRule {
 }
 
 model Notification {
-  id         String   @id @default(cuid())
-  userId     String
+  id          String    @id @default(cuid())
+  userId      String
   alertRuleId String?
-  marketId   String?
-  title      String
-  message    String   @db.Text
-  severity   String   // INFO, WARNING, CRITICAL
-  payload    Json?
-  readAt     DateTime?
-  createdAt  DateTime @default(now())
+  marketId    String?
+  title       String
+  message     String    @db.Text
+  severity    String // INFO, WARNING, CRITICAL
+  payload     Json?
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
 
   // Relations
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  alertRule         AlertRule?        @relation(fields: [alertRuleId], references: [id], onDelete: SetNull)
-  deliveries        NotificationDelivery[]
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alertRule  AlertRule?             @relation(fields: [alertRuleId], references: [id], onDelete: SetNull)
+  market     Market?                @relation(fields: [marketId], references: [id], onDelete: SetNull)
+  deliveries NotificationDelivery[]
 
   @@index([userId])
   @@index([alertRuleId])
+  @@index([marketId])
   @@index([readAt])
   @@index([createdAt])
   @@map("notifications")
 }
 
 model NotificationDelivery {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   notificationId String
-  channel        String   // WEBSOCKET, SLACK
-  status         String   // PENDING, SENT, FAILED
+  channel        String // WEBSOCKET, SLACK
+  status         String // PENDING, SENT, FAILED
   errorMessage   String?
   sentAt         DateTime?
-  createdAt      DateTime @default(now())
+  createdAt      DateTime  @default(now())
 
   // Relations
   notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
@@ -358,15 +361,15 @@ model NotificationDelivery {
 // ============================================================================
 
 model SlackIntegration {
-  id                String   @id @default(cuid())
-  userId            String   @unique
+  id                  String    @id @default(cuid())
+  userId              String    @unique
   webhookUrlEncrypted String
-  channelName       String?
-  enabled           Boolean  @default(false)
-  lastTestedAt      DateTime?
-  lastErrorMessage  String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  channelName         String?
+  enabled             Boolean   @default(false)
+  lastTestedAt        DateTime?
+  lastErrorMessage    String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../common/prisma/prisma.service';
-import type { SignupRequest, LoginRequest, AuthResponse } from '@dobbit/shared';
+import type { SignupRequest, LoginRequest, AuthResponse, TokenPayload } from '@dobbit/shared';
 
 @Injectable()
 export class AuthService {
@@ -10,49 +10,50 @@ export class AuthService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async signup(request: SignupRequest): Promise<AuthResponse> {
+  signup(request: SignupRequest): Promise<AuthResponse> {
     const token = this.jwtService.sign({ userId: 'dummy' });
-    return {
+    return Promise.resolve({
       accessToken: token,
       user: {
         id: 'dummy',
         email: request.email,
         nickname: request.nickname,
       },
-    };
+    });
   }
 
-  async login(request: LoginRequest): Promise<AuthResponse> {
+  login(request: LoginRequest): Promise<AuthResponse> {
     const token = this.jwtService.sign({ userId: 'dummy' });
-    return {
+    return Promise.resolve({
       accessToken: token,
       user: {
         id: 'dummy',
         email: request.email,
         nickname: 'user',
       },
-    };
+    });
   }
 
-  async refresh(refreshToken: string): Promise<AuthResponse> {
+  refresh(refreshToken: string): Promise<AuthResponse> {
+    void refreshToken;
     const token = this.jwtService.sign({ userId: 'dummy' });
-    return {
+    return Promise.resolve({
       accessToken: token,
       user: {
         id: 'dummy',
         email: 'user@example.com',
         nickname: 'user',
       },
-    };
+    });
   }
 
-  async logout(): Promise<{ message: string }> {
-    return { message: 'Logged out successfully' };
+  logout(): Promise<{ message: string }> {
+    return Promise.resolve({ message: 'Logged out successfully' });
   }
 
-  async validateToken(token: string): Promise<any> {
+  validateToken(token: string): TokenPayload | null {
     try {
-      return this.jwtService.verify(token);
+      return this.jwtService.verify<TokenPayload>(token);
     } catch {
       return null;
     }

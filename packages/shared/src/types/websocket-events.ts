@@ -3,7 +3,7 @@
 // ============================================================================
 
 export interface MarketTickerUpdatedEvent {
-  type: 'market.ticker.updated';
+  type: "market.ticker.updated";
   marketCode: string;
   tradePrice: number;
   signedChangeRate: number;
@@ -12,7 +12,7 @@ export interface MarketTickerUpdatedEvent {
 }
 
 export interface MarketOrderbookUpdatedEvent {
-  type: 'market.orderbook.updated';
+  type: "market.orderbook.updated";
   marketCode: string;
   units: Array<{
     askPrice: number;
@@ -28,11 +28,11 @@ export interface MarketOrderbookUpdatedEvent {
 // ============================================================================
 
 export interface TradeExecutedEvent {
-  type: 'trade.executed';
+  type: "trade.executed";
   tradeId: string;
   userId: string;
   marketCode: string;
-  side: 'BUY' | 'SELL';
+  side: "BUY" | "SELL";
   price: number;
   quantity: number;
   totalAmount: number;
@@ -44,7 +44,7 @@ export interface TradeExecutedEvent {
 // ============================================================================
 
 export interface WalletUpdatedEvent {
-  type: 'wallet.updated';
+  type: "wallet.updated";
   userId: string;
   marketCode: string;
   quantity: number;
@@ -60,21 +60,22 @@ export interface WalletUpdatedEvent {
 // ============================================================================
 
 export interface NotificationCreatedEvent {
-  type: 'notification.created';
+  type: "notification.created";
   notificationId: string;
   userId: string;
   marketCode?: string;
   title: string;
   message: string;
-  severity: 'INFO' | 'WARNING' | 'CRITICAL';
-  channels: Array<'WEBSOCKET' | 'SLACK'>;
+  severity: "INFO" | "WARNING" | "CRITICAL";
+  channels: Array<"WEBSOCKET" | "SLACK">;
   createdAt: string;
 }
 
 export interface NotificationDeliveryFailedEvent {
-  type: 'notification.delivery.failed';
+  type: "notification.delivery.failed";
   notificationId: string;
-  channel: 'SLACK';
+  userId: string;
+  channel: "SLACK";
   reason: string;
   failedAt: string;
 }

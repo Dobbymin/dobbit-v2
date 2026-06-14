@@ -1,9 +1,23 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { TokenPayload } from '@dobbit/shared';
+
+interface SocketAuth {
+  token?: string;
+}
+
+interface AuthenticatedSocketData {
+  userId?: string;
+}
+
+type AuthenticatedSocket = Socket & {
+  data: unknown;
+  handshake: Socket['handshake'] & {
+    auth: SocketAuth;
+  };
+};
 
 @Injectable()
 export class WsJwtGuard implements CanActivate {
@@ -15,12 +29,10 @@ export class WsJwtGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const client: Socket = context.switchToWs().getClient();
+    const client = context.switchToWs().getClient<AuthenticatedSocket>();
 
     try {
-      const token =
-        client.handshake.auth.token ||
-        this.extractTokenFromHeader(client.handshake.headers.authorization);
+      const token = client.handshake.auth.token ?? this.extractTokenFromHeader(client.handshake.headers.authorization);
 
       if (!token) {
         client.emit('error', { message: 'Unauthorized: No token provided' });
@@ -28,15 +40,15 @@ export class WsJwtGuard implements CanActivate {
         return false;
       }
 
-      const payload = await this.jwtService.verifyAsync<TokenPayload>(token, {
+      const payload: TokenPayload = await this.jwtService.verifyAsync<TokenPayload>(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
       });
 
-      client.data.userId = payload.sub;
+      const socketData = client.data as AuthenticatedSocketData;
+      socketData.userId = payload.sub;
       return true;
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`JWT verification failed: ${errorMessage}`);
       client.emit('error', { message: 'Unauthorized: Invalid token' });
       client.disconnect();

@@ -1,0 +1,29 @@
+{
+  "jsxSingleQuote": true,
+  "printWidth": 120,
+  "singleAttributePerLine": false,
+
+  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
+
+  "tailwindStylesheet": "./app/globals.css",
+
+  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
+  "importOrder": [
+    "^next/(.*)$",
+    "^react/(.*)$",
+    "^react$",
+    "<THIRD_PARTY_MODULES>",
+    "\\.(png|jpe?g|gif|svg|webp)$",
+    "^@/app/(.*)$",
+    "^@/views/(.*)$",
+    "^@/widgets/(.*)$",
+    "^@/features/(.*)$",
+    "^@/entities/(.*)$",
+    "^@/shared/(.*)$",
+    "^\\.\\.(?:/|$)",
+    "^\\.(?:/|$)"
+  ],
+
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
+}

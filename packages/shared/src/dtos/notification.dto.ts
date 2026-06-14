@@ -1,6 +1,6 @@
-export type NotificationSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
-export type NotificationChannel = 'WEBSOCKET' | 'SLACK';
-export type DeliveryStatus = 'PENDING' | 'SENT' | 'FAILED';
+export type NotificationSeverity = "INFO" | "WARNING" | "CRITICAL";
+export type NotificationChannel = "WEBSOCKET" | "SLACK";
+export type DeliveryStatus = "PENDING" | "SENT" | "FAILED";
 
 export interface NotificationDelivery {
   channel: NotificationChannel;
@@ -31,4 +31,9 @@ export interface NotificationListResponse {
   page: number;
   limit: number;
   total: number;
+}
+
+export interface MarkNotificationReadResponse {
+  id: string;
+  readAt: string;
 }

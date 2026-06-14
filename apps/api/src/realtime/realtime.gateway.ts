@@ -19,6 +19,14 @@ interface PrivateJoinResponse {
   userId: string;
 }
 
+interface PrivateSocketData {
+  userId?: string;
+}
+
+type PrivateSocket = Socket & {
+  data: unknown;
+};
+
 @WebSocketGateway({
   cors: {
     origin: process.env.CLIENT_URL || 'http://localhost:3000',
@@ -41,33 +49,29 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   @SubscribeMessage('market:join')
-  handleMarketJoin(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: MarketJoinDto,
-  ): void {
+  handleMarketJoin(@ConnectedSocket() client: Socket, @MessageBody() data: MarketJoinDto): void {
     const channel = `market:${data.marketCode}`;
-    client.join(channel);
+    void client.join(channel);
     this.logger.debug(`Client ${client.id} joined channel: ${channel}`);
   }
 
   @SubscribeMessage('market:leave')
-  handleMarketLeave(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: MarketJoinDto,
-  ): void {
+  handleMarketLeave(@ConnectedSocket() client: Socket, @MessageBody() data: MarketJoinDto): void {
     const channel = `market:${data.marketCode}`;
-    client.leave(channel);
+    void client.leave(channel);
     this.logger.debug(`Client ${client.id} left channel: ${channel}`);
   }
 
   @UseGuards(WsJwtGuard)
   @SubscribeMessage('private:join')
-  handlePrivateJoin(
-    @ConnectedSocket() client: Socket,
-  ): PrivateJoinResponse {
-    const userId = client.data.userId;
+  handlePrivateJoin(@ConnectedSocket() client: PrivateSocket): PrivateJoinResponse {
+    const socketData = client.data as PrivateSocketData;
+    const userId = socketData.userId;
+    if (!userId) {
+      return { userId: '' };
+    }
     const channel = `user:${userId}`;
-    client.join(channel);
+    void client.join(channel);
     this.logger.debug(`Client ${client.id} joined private channel: ${channel}`);
     return { userId };
   }

@@ -7,27 +7,31 @@ export class UpbitApiClient {
 
   constructor(private readonly http: HttpService) {}
 
-  async getMarkets(): Promise<any[]> {
+  getMarkets(): Promise<unknown[]> {
     // TODO: Implement Upbit markets API call
     // GET /v1/market/all
-    return [];
+    return Promise.resolve([]);
   }
 
-  async getTicker(marketCode: string): Promise<any> {
+  getTicker(marketCode: string): Promise<unknown> {
+    void marketCode;
     // TODO: Implement Upbit ticker API call
     // GET /v1/ticker?markets=KRW-BTC
-    return null;
+    return Promise.resolve(null);
   }
 
-  async getCandles(marketCode: string, count: number = 1): Promise<any[]> {
+  getCandles(marketCode: string, count = 1): Promise<unknown[]> {
+    void marketCode;
+    void count;
     // TODO: Implement Upbit candles API call
     // GET /v1/candles/minutes/1
-    return [];
+    return Promise.resolve([]);
   }
 
-  async getOrderbook(marketCode: string): Promise<any> {
+  getOrderbook(marketCode: string): Promise<unknown> {
+    void marketCode;
     // TODO: Implement Upbit orderbook API call
     // GET /v1/orderbook
-    return null;
+    return Promise.resolve(null);
   }
 }

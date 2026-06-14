@@ -1,17 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
+declare const describe: (name: string, fn: () => void) => void;
+declare const beforeEach: (fn: () => void) => void;
+declare const it: (name: string, fn: () => void) => void;
+declare const expect: (actual: string) => {
+  toBe(expected: string): void;
+};
 
 describe('AppController', () => {
   let appController: AppController;
 
-  beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
-    }).compile();
-
-    appController = app.get<AppController>(AppController);
+  beforeEach(() => {
+    appController = new AppController(new AppService());
   });
 
   describe('root', () => {

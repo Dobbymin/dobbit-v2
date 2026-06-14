@@ -6,23 +6,26 @@ import type { CashBalanceResponse, WalletHolding, WalletSummaryResponse } from '
 export class WalletService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getCashBalance(userId: string): Promise<CashBalanceResponse> {
-    return {
+  getCashBalance(userId: string): Promise<CashBalanceResponse> {
+    void userId;
+    return Promise.resolve({
       amount: 0,
-    };
+    });
   }
 
-  async getHoldings(userId: string): Promise<WalletHolding[]> {
-    return [];
+  getHoldings(userId: string): Promise<WalletHolding[]> {
+    void userId;
+    return Promise.resolve<WalletHolding[]>([]);
   }
 
-  async getAssetSummary(userId: string): Promise<WalletSummaryResponse> {
-    return {
+  getAssetSummary(userId: string): Promise<WalletSummaryResponse> {
+    void userId;
+    return Promise.resolve({
       cashAmount: 0,
       totalAssetAmount: 0,
       totalEvaluatedAmount: 0,
       totalProfitAmount: 0,
       totalProfitRate: 0,
-    };
+    });
   }
 }

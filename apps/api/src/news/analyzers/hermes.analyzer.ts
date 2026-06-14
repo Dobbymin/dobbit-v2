@@ -3,16 +3,17 @@ import { NewsAnalyzer, AnalysisResult } from './news-analyzer';
 
 @Injectable()
 export class HermesAnalyzer extends NewsAnalyzer {
-  async analyze(content: string): Promise<AnalysisResult> {
+  analyze(content: string): Promise<AnalysisResult> {
+    void content;
     // TODO: Implement Hermes agent analysis
     // 1. Call Hermes agent API with content
     // 2. Parse response
     // 3. Return analysis result
-    return {
+    return Promise.resolve({
       sentiment: 'neutral',
       keywords: [],
       summary: '',
       relatedMarkets: [],
-    };
+    });
   }
 }

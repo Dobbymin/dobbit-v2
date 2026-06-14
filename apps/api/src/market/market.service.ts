@@ -10,24 +10,27 @@ export class MarketService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async getMarkets(): Promise<Market[]> {
+  getMarkets(): Promise<Market[]> {
     // TODO: Implement market list fetching from Upbit or cache
-    return [];
+    return Promise.resolve<Market[]>([]);
   }
 
-  async getCurrentPrice(marketCode: string): Promise<CurrentPrice | null> {
+  getCurrentPrice(marketCode: string): Promise<CurrentPrice | null> {
+    void marketCode;
     // TODO: Implement current price fetching from Upbit API
     // Upbit API: https://docs.upbit.com/reference/candle-minute1
-    return null;
+    return Promise.resolve(null);
   }
 
-  async syncMarkets(): Promise<void> {
+  syncMarkets(): Promise<void> {
     // TODO: Implement market sync from Upbit
     // Fetch all markets and update database
+    return Promise.resolve();
   }
 
-  async syncMarketSnapshots(): Promise<void> {
+  syncMarketSnapshots(): Promise<void> {
     // TODO: Implement market snapshot sync
     // Periodically store current prices in database
+    return Promise.resolve();
   }
 }

@@ -6,19 +6,31 @@ import type { TradeResponse } from '@dobbit/shared';
 export class TradeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async buyOrder(userId: string, marketCode: string, quantity: number, price: number): Promise<TradeResponse> {
-    return {} as TradeResponse;
+  buyOrder(userId: string, marketCode: string, quantity: number, price: number): Promise<TradeResponse> {
+    void userId;
+    void marketCode;
+    void quantity;
+    void price;
+    return Promise.resolve({} as TradeResponse);
   }
 
-  async sellOrder(userId: string, marketCode: string, quantity: number, price: number): Promise<TradeResponse> {
-    return {} as TradeResponse;
+  sellOrder(userId: string, marketCode: string, quantity: number, price: number): Promise<TradeResponse> {
+    void userId;
+    void marketCode;
+    void quantity;
+    void price;
+    return Promise.resolve({} as TradeResponse);
   }
 
-  async cancelOrder(tradeId: string): Promise<TradeResponse> {
-    return {} as TradeResponse;
+  cancelOrder(tradeId: string): Promise<TradeResponse> {
+    void tradeId;
+    return Promise.resolve({} as TradeResponse);
   }
 
-  async getTradeHistory(userId: string, limit: number = 50, offset: number = 0): Promise<TradeResponse[]> {
-    return [];
+  getTradeHistory(userId: string, limit = 50, offset = 0): Promise<TradeResponse[]> {
+    void userId;
+    void limit;
+    void offset;
+    return Promise.resolve<TradeResponse[]>([]);
   }
 }

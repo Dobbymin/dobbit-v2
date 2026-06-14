@@ -7,6 +7,25 @@ description: "Dobbit v2 마일스톤 실행 오케스트레이터. 'Milestone N 
 
 Dobbit v2의 마일스톤을 planner → implementer → verifier 파이프라인으로 실행한다.
 
+## 절대 규칙: Claude Code는 코드를 직접 작성하지 않는다
+
+**이 규칙은 요청 규모와 무관하게 예외 없이 적용된다.**
+
+Claude Code(오케스트레이터)가 절대 하면 안 되는 것:
+- `Edit`, `Write` 도구로 소스 파일 생성·수정
+- `Bash`로 소스 파일을 변경하는 명령 실행
+- "간단한 수정이니까 직접 하겠다"는 판단
+
+모든 파일 변경은 반드시 **implementer → Codex(`codex:rescue`)** 경로로 위임한다.
+
+Claude Code가 직접 해도 되는 것:
+- 파일 **읽기** (`Read`, `Bash cat/grep`)
+- `CLAUDE.md`, `SKILL.md` 등 **하네스 문서** 수정
+- `pnpm typecheck` 같은 **검증 명령** 실행
+- Obsidian 작업 로그 **기록**
+
+---
+
 ## Phase 0: 컨텍스트 확인
 
 시작 전 기존 작업 상태를 확인한다.
@@ -106,6 +125,34 @@ verifier로부터 "verify_done" 수신 후 결과 수집.
 ### Obsidian 기록
 - [작업 로그 파일 경로]
 ```
+
+## Phase 6: 팀 정리 (에이전트 종료)
+
+종합 보고 완료 후 반드시 팀을 정리한다. 이 Phase를 생략하면 에이전트가 백그라운드에서 계속 실행된다.
+
+### Step 1: 각 에이전트에 종료 요청
+
+```
+SendMessage(to: "planner",     type: "shutdown_request", content: "마일스톤 완료, 팀 정리")
+SendMessage(to: "implementer", type: "shutdown_request", content: "마일스톤 완료, 팀 정리")
+SendMessage(to: "verifier",    type: "shutdown_request", content: "마일스톤 완료, 팀 정리")
+```
+
+세 메시지를 동시에(병렬로) 전송한다.
+
+### Step 2: shutdown_approved 수신 확인
+
+각 에이전트로부터 `shutdown_approved` 응답을 기다린다. 3개 모두 수신되면 다음 단계로 진행한다.
+
+### Step 3: TeamDelete
+
+```
+TeamDelete()
+```
+
+팀 디렉토리(`~/.claude/teams/dobbit-team/`)와 태스크 디렉토리를 삭제한다.
+
+> 주의: TeamDelete는 활성 멤버가 남아있으면 실패한다. Step 2에서 모든 승인을 확인한 뒤에만 호출한다.
 
 ## 에러 핸들링
 
