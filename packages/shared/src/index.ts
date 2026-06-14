@@ -44,3 +44,4 @@ export * from './dtos/news.dto';
 // WebSocket Event Types
 // ============================================================================
 export * from './types/websocket-events';
+export * from './types/websocket-channels';

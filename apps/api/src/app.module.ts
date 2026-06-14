@@ -8,6 +8,7 @@ import { TradeModule } from './trade/trade.module';
 import { WalletModule } from './wallet/wallet.module';
 import { AlertModule } from './alert/alert.module';
 import { NewsModule } from './news/news.module';
+import { RealtimeModule } from './realtime/realtime.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { NewsModule } from './news/news.module';
     WalletModule,
     AlertModule,
     NewsModule,
+    RealtimeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
