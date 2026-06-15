@@ -1,7 +1,6 @@
 "use client";
 
-import { Badge, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui";
-import { formatPrice } from "@/shared/libs/format";
+import { Badge, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, formatPrice } from "@/shared";
 
 import { useWalletAssets } from "../model";
 

@@ -2,10 +2,8 @@
 
 import { useRouter } from "next/navigation";
 
+import { ROUTES_PATH, useAuthStore } from "@/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-import { ROUTES_PATH } from "@/shared/constants";
-import { useAuthStore } from "@/shared/store";
 
 import { logoutApi } from "../api";
 

@@ -1,3 +1,4 @@
+import { apiClient } from "@/shared";
 import type {
   MarkNotificationReadResponse,
   NotificationListResponse,
@@ -5,8 +6,6 @@ import type {
   SlackTestResponse,
   SlackWebhookUpsertRequest,
 } from "@dobbit/shared";
-
-import { apiClient } from "@/shared/api";
 
 export const getNotifications = (unreadOnly?: boolean): Promise<NotificationListResponse> => {
   const params = unreadOnly ? "?unreadOnly=true" : "";

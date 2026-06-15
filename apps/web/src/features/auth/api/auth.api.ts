@@ -1,6 +1,6 @@
-import type { User } from "@/entities/user";
+import { apiClient } from "@/shared";
 
-import { apiClient } from "@/shared/api";
+import type { User } from "@/entities/user";
 
 export type LoginRequest = {
   email: string;

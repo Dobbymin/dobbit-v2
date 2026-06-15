@@ -1,7 +1,6 @@
 import Link from "next/link";
 
-import { Button } from "@/shared/components/ui";
-import { ROUTES_PATH } from "@/shared/constants";
+import { Button, ROUTES_PATH } from "@/shared";
 
 export const LogoButton = () => {
   return (

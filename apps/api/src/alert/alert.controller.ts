@@ -20,7 +20,7 @@ type AuthenticatedRequest = {
   };
 };
 
-@Controller('alert')
+@Controller('api/alert')
 @UseGuards(JwtAuthGuard)
 export class AlertController {
   constructor(private readonly alertService: AlertService) {}

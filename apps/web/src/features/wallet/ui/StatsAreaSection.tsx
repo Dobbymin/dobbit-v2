@@ -1,7 +1,6 @@
 "use client";
 
-import { Badge } from "@/shared/components/ui";
-import { formatPrice } from "@/shared/libs/format";
+import { Badge, formatPrice } from "@/shared";
 
 import { useWalletSummary } from "../model";
 

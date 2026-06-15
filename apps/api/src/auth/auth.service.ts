@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../common/prisma/prisma.service';
 import type { SignupRequest, LoginRequest, AuthResponse, TokenPayload } from '@dobbit/shared';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -10,41 +11,95 @@ export class AuthService {
     private readonly prisma: PrismaService,
   ) {}
 
-  signup(request: SignupRequest): Promise<AuthResponse> {
-    const token = this.jwtService.sign({ userId: 'dummy' });
-    return Promise.resolve({
-      accessToken: token,
-      user: {
-        id: 'dummy',
+  async signup(request: SignupRequest): Promise<AuthResponse> {
+    // Check if user already exists
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: request.email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(request.password, 10);
+
+    // Create user
+    const user = await this.prisma.user.create({
+      data: {
         email: request.email,
-        nickname: request.nickname,
+        passwordHash,
+        nickname: request.nickname || '사용자',
       },
     });
+
+    // Generate JWT
+    const accessToken = this.jwtService.sign({ sub: user.id, email: user.email });
+
+    return {
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        nickname: user.nickname,
+      },
+    };
   }
 
-  login(request: LoginRequest): Promise<AuthResponse> {
-    const token = this.jwtService.sign({ userId: 'dummy' });
-    return Promise.resolve({
-      accessToken: token,
-      user: {
-        id: 'dummy',
-        email: request.email,
-        nickname: 'user',
-      },
+  async login(request: LoginRequest): Promise<AuthResponse> {
+    // Find user by email
+    const user = await this.prisma.user.findUnique({
+      where: { email: request.email },
     });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // Verify password
+    const passwordMatch = await bcrypt.compare(request.password, user.passwordHash);
+
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // Generate JWT
+    const accessToken = this.jwtService.sign({ sub: user.id, email: user.email });
+
+    return {
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        nickname: user.nickname,
+      },
+    };
   }
 
-  refresh(refreshToken: string): Promise<AuthResponse> {
-    void refreshToken;
-    const token = this.jwtService.sign({ userId: 'dummy' });
-    return Promise.resolve({
-      accessToken: token,
-      user: {
-        id: 'dummy',
-        email: 'user@example.com',
-        nickname: 'user',
-      },
+  async refresh(refreshToken: string): Promise<AuthResponse> {
+    // Verify and decode the token
+    const payload = this.jwtService.verify<TokenPayload>(refreshToken);
+
+    // Get user from DB
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
     });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Generate new JWT
+    const accessToken = this.jwtService.sign({ sub: user.id, email: user.email });
+
+    return {
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        nickname: user.nickname,
+      },
+    };
   }
 
   logout(): Promise<{ message: string }> {

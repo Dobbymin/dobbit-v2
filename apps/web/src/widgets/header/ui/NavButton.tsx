@@ -5,9 +5,7 @@ import { usePathname } from "next/navigation";
 
 import type { ReactNode } from "react";
 
-import { Button } from "@/shared/components/ui";
-import type { RoutePath } from "@/shared/constants";
-import { cn } from "@/shared/libs/utils";
+import { Button, type RoutePath, cn } from "@/shared";
 
 type NavButtonProps = {
   href: RoutePath;

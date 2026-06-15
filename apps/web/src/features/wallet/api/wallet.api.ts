@@ -1,6 +1,6 @@
-import type { WalletAsset, WalletSummary } from "@/entities/wallet";
+import { apiClient } from "@/shared";
 
-import { apiClient } from "@/shared/api";
+import type { WalletAsset, WalletSummary } from "@/entities/wallet";
 
 export type DepositRequest = {
   amount: number;

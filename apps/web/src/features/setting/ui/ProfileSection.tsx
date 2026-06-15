@@ -2,11 +2,10 @@
 
 import { useEffect } from "react";
 
+import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from "@/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from "@/shared/components/ui";
 
 import { useProfile, useUpdateNickname } from "../model";
 

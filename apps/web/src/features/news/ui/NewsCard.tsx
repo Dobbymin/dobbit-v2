@@ -1,6 +1,6 @@
-import type { NewsSentiment } from "@/entities/news";
+import { Badge } from "@/shared";
 
-import { Badge } from "@/shared/components/ui";
+import type { NewsSentiment } from "@/entities/news";
 
 import type { NewsListItem } from "../api";
 

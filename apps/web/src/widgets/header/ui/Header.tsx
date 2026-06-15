@@ -1,4 +1,4 @@
-import { ROUTES_PATH } from "@/shared/constants";
+import { ROUTES_PATH } from "@/shared";
 
 import { LogoButton } from "./LogoButton";
 import { NavButton } from "./NavButton";

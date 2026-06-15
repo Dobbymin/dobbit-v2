@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { MarketService } from './market.service';
 import { Market, CurrentPrice } from '@dobbit/shared';
 
-@Controller('market')
+@Controller('api/market')
 export class MarketController {
   constructor(private readonly marketService: MarketService) {}
 

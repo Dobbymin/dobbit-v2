@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 
+import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, ROUTES_PATH } from "@/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from "@/shared/components/ui";
-import { ROUTES_PATH } from "@/shared/constants";
 
 import { useSignup } from "../model";
 

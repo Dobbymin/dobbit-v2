@@ -1,9 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
 import {
   Button,
   Dialog,
@@ -20,8 +16,11 @@ import {
   FormLabel,
   FormMessage,
   Input,
-} from "@/shared/components/ui";
-import { formatPrice } from "@/shared/libs/format";
+  formatPrice,
+} from "@/shared";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { useDeposit, useWalletSummary } from "../model";
 

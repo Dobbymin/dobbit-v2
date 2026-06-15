@@ -1,6 +1,6 @@
-import type { MarketTicker } from "@/entities/market";
+import { apiClient } from "@/shared";
 
-import { apiClient } from "@/shared/api";
+import type { MarketTicker } from "@/entities/market";
 
 export type MarketListQuery = {
   quote?: "KRW";

@@ -2,13 +2,10 @@
 
 import Link from "next/link";
 
+import { Button, ROUTES_PATH, useAuthStore } from "@/shared";
 import { LogIn, LogOut, Settings, UserPlus } from "lucide-react";
 
 import { useLogout } from "@/features/auth";
-
-import { Button } from "@/shared/components/ui";
-import { ROUTES_PATH } from "@/shared/constants";
-import { useAuthStore } from "@/shared/store";
 
 export const UserMenuButton = () => {
   const accessToken = useAuthStore((state) => state.accessToken);

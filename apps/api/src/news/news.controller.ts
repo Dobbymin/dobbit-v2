@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { NewsArticleResponse, NewsAnalysisResponse, PredictionReviewResponse } from '@dobbit/shared';
 
-@Controller('news')
+@Controller('api/news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 

@@ -1,6 +1,6 @@
-import type { NewsItem, NewsSentiment } from "@/entities/news";
+import { apiClient } from "@/shared";
 
-import { apiClient } from "@/shared/api";
+import type { NewsItem, NewsSentiment } from "@/entities/news";
 
 export type NewsApiSentiment = NewsSentiment | "POSITIVE" | "NEUTRAL" | "NEGATIVE";
 

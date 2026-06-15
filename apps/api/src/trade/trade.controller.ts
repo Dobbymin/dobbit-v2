@@ -22,7 +22,7 @@ interface UserRequest extends Request {
   };
 }
 
-@Controller('trade')
+@Controller('api/trade')
 @UseGuards(JwtAuthGuard)
 export class TradeController {
   constructor(private readonly tradeService: TradeService) {}

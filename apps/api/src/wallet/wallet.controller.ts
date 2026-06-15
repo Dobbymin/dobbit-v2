@@ -10,7 +10,7 @@ interface UserRequest extends Request {
   };
 }
 
-@Controller('wallet')
+@Controller('api/wallet')
 @UseGuards(JwtAuthGuard)
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
