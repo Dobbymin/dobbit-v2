@@ -1,7 +1,7 @@
-import type { CandleResponse } from "@dobbit/shared";
+import type { CandleResponse, Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
 import { describe, expect, it } from "vitest";
 
-import { toCandleSeries, updateLastCandleWithTicker } from "../src/features/market/model/libs/candle-series";
+import { toCandleSeries, toMarketRow, updateLastCandleWithTicker } from "../src/features/market/model/libs";
 
 describe("toCandleSeries", () => {
   const mockCandles: CandleResponse[] = [
@@ -153,5 +153,112 @@ describe("updateLastCandleWithTicker", () => {
 
     expect(updated[0]).toEqual(mockSeries[0]);
     expect(updated[1]).toEqual(mockSeries[1]);
+  });
+});
+
+describe("toMarketRow", () => {
+  const mockMarket: Market = {
+    id: "1",
+    code: "KRW-BTC",
+    symbol: "BTC",
+    koreanName: "비트코인",
+    englishName: "Bitcoin",
+    isActive: true,
+  };
+
+  const mockInactiveMarket: Market = {
+    id: "2",
+    code: "KRW-INACTIVE",
+    symbol: "INA",
+    koreanName: "비활성",
+    englishName: "Inactive",
+    isActive: false,
+  };
+
+  const mockTicker: MarketTickerUpdatedEvent = {
+    type: "market.ticker.updated",
+    marketCode: "KRW-BTC",
+    tradePrice: 98501000,
+    signedChangeRate: -0.0069,
+    accTradeVolume24h: 150000,
+    timestamp: "2026-06-15T20:30:00.000Z",
+  };
+
+  const mockPositiveTicker: MarketTickerUpdatedEvent = {
+    type: "market.ticker.updated",
+    marketCode: "KRW-BTC",
+    tradePrice: 100000000,
+    signedChangeRate: 0.0541,
+    accTradeVolume24h: 200000,
+    timestamp: "2026-06-15T20:31:00.000Z",
+  };
+
+  it("should map market and ticker to display row", () => {
+    const row = toMarketRow(mockMarket, mockTicker);
+
+    expect(row).toEqual({
+      code: "KRW-BTC",
+      koreanName: "비트코인",
+      symbolPair: "BTC/KRW",
+      tradePrice: "₩98,501,000",
+      changeRate: "-0.69%",
+      changeTone: "decrease",
+      isActive: true,
+    });
+  });
+
+  it("should format tradePrice with formatPrice when ticker exists", () => {
+    const row = toMarketRow(mockMarket, mockTicker);
+
+    expect(row.tradePrice).toBe("₩98,501,000");
+    expect(row.tradePrice).not.toBe("-");
+  });
+
+  it("should show tradePrice as dash when ticker is null", () => {
+    const row = toMarketRow(mockMarket, null);
+
+    expect(row.tradePrice).toBe("-");
+  });
+
+  it("should calculate positive changeRate correctly", () => {
+    const row = toMarketRow(mockMarket, mockPositiveTicker);
+
+    expect(row.changeRate).toBe("+5.41%");
+    expect(row.changeTone).toBe("increase");
+  });
+
+  it("should calculate negative changeRate correctly", () => {
+    const row = toMarketRow(mockMarket, mockTicker);
+
+    expect(row.changeRate).toBe("-0.69%");
+    expect(row.changeTone).toBe("decrease");
+  });
+
+  it("should show 0.00% and decrease tone when ticker is null and market is active", () => {
+    const row = toMarketRow(mockMarket, null);
+
+    expect(row.changeRate).toBe("0.00%");
+    expect(row.changeTone).toBe("decrease");
+  });
+
+  it("should show 중지 when market is inactive and ticker is null", () => {
+    const row = toMarketRow(mockInactiveMarket, null);
+
+    expect(row.changeRate).toBe("중지");
+    expect(row.changeTone).toBe("decrease");
+  });
+
+  it("should convert symbol to symbolPair format", () => {
+    const row = toMarketRow(mockMarket, mockTicker);
+
+    expect(row.symbolPair).toBe("BTC/KRW");
+  });
+
+  it("should preserve market isActive status", () => {
+    const activeRow = toMarketRow(mockMarket, mockTicker);
+    const inactiveRow = toMarketRow(mockInactiveMarket, null);
+
+    expect(activeRow.isActive).toBe(true);
+    expect(inactiveRow.isActive).toBe(false);
   });
 });

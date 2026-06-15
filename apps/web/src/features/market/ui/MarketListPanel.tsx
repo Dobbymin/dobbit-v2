@@ -3,6 +3,8 @@
 import { Input, cn } from "@/shared";
 import type { Market } from "@dobbit/shared";
 
+import { toMarketRow, useMarketTickers } from "../model";
+
 type MarketListPanelProps = {
   markets: Market[];
   selectedMarketCode: string;
@@ -78,17 +80,15 @@ export const MarketListPanel = ({
   onSearchKeywordChange,
   onSelectMarket,
 }: MarketListPanelProps) => {
+  // Subscribe to real-time tickers for all markets
+  const tickers = useMarketTickers(markets.length > 0 ? markets.map((m) => m.code) : []);
+
   const rows: MarketDisplayRow[] =
     markets.length > 0
-      ? markets.map((market) => ({
-          code: market.code,
-          koreanName: market.koreanName,
-          symbolPair: `${market.symbol}/KRW`,
-          tradePrice: "-",
-          changeRate: market.isActive ? "0.00%" : "중지",
-          changeTone: "decrease",
-          isActive: market.isActive,
-        }))
+      ? markets.map((market) => {
+          const tickerData = tickers[market.code];
+          return toMarketRow(market, tickerData);
+        })
       : fallbackRows;
 
   const filteredRows = rows.filter((row) => {
