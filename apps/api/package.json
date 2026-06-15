@@ -7,7 +7,8 @@
     "dev": "nest start --watch",
     "build": "nest build",
     "start": "node dist/main",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
