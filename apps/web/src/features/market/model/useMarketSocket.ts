@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import type { MarketTickerUpdatedEvent } from "@dobbit/shared";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { getSocket } from '@/shared/api';
+import { getSocket } from "@/shared/api";
 
 export const useMarketSocket = (marketCode: string) => {
   const [ticker, setTicker] = useState<MarketTickerUpdatedEvent | null>(null);
@@ -46,4 +46,4 @@ export const useMarketSocket = (marketCode: string) => {
   }, [marketCode, queryClient]);
 
   return { ticker, isConnected };
-}
+};

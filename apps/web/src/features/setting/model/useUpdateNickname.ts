@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { updateNicknameApi, type UpdateNicknameRequest } from "../api";
+import { type UpdateNicknameRequest, updateNicknameApi } from "../api";
 
 import { settingKeys } from "./setting-query-keys";
 

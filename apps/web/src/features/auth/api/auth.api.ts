@@ -1,4 +1,5 @@
 import type { User } from "@/entities/user";
+
 import { apiClient } from "@/shared/api";
 
 export type LoginRequest = {

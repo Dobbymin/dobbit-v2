@@ -26,7 +26,7 @@ export const getSocket = (): Socket => {
   publicSocketInstance = io(WS_URL, SOCKET_OPTS);
 
   return publicSocketInstance;
-}
+};
 
 export const getAuthSocket = (token: string): Socket => {
   if (typeof window === "undefined") {
@@ -40,4 +40,4 @@ export const getAuthSocket = (token: string): Socket => {
   privateSocketInstance = io(WS_URL, { ...SOCKET_OPTS, auth: { token } });
 
   return privateSocketInstance;
-}
+};

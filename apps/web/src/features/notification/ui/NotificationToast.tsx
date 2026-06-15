@@ -44,4 +44,4 @@ export const NotificationToast = ({ toasts, onDismiss }: Props) => {
       ))}
     </div>
   );
-}
+};

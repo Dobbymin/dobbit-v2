@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
-
 import { usePathname } from "next/navigation";
 
+import type { ReactNode } from "react";
+
 import { Button } from "@/shared/components/ui";
-import { cn } from "@/shared/libs/utils";
 import type { RoutePath } from "@/shared/constants";
+import { cn } from "@/shared/libs/utils";
 
 type NavButtonProps = {
   href: RoutePath;

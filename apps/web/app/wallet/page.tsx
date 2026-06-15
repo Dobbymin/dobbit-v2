@@ -1,4 +1,4 @@
-import { WalletPage } from '@/views';
+import { WalletPage } from "@/views";
 
 export default function Page() {
   return <WalletPage />;

@@ -7,7 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ROUTES_PATH } from "@/shared/constants";
 import { useAuthStore } from "@/shared/store";
 
-import { loginApi, type LoginRequest } from "../api";
+import { type LoginRequest, loginApi } from "../api";
 
 export const useLogin = () => {
   const router = useRouter();

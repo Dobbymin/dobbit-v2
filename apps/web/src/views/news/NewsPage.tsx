@@ -1,5 +1,6 @@
-import { NewsListSection } from '@/features/news';
-import { AppLayout } from '@/widgets';
+import { AppLayout } from "@/widgets";
+
+import { NewsListSection } from "@/features/news";
 
 export default function NewsPage() {
   return (

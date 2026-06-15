@@ -1,6 +1,7 @@
-import { ProfileSection } from '@/features/setting';
-import { SlackIntegrationSettings } from '@/features/notification';
-import { AppLayout } from '@/widgets';
+import { AppLayout } from "@/widgets";
+
+import { SlackIntegrationSettings } from "@/features/notification";
+import { ProfileSection } from "@/features/setting";
 
 export default function SettingPage() {
   return (

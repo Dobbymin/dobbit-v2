@@ -1,4 +1,4 @@
-import { NewsPage } from '@/views';
+import { NewsPage } from "@/views";
 
 export default function Page() {
   return <NewsPage />;

@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getNewsApi, type NewsListQuery } from "../api";
+import { type NewsListQuery, getNewsApi } from "../api";
 
 import { newsKeys } from "./news-query-keys";
 

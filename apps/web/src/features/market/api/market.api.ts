@@ -1,4 +1,5 @@
 import type { MarketTicker } from "@/entities/market";
+
 import { apiClient } from "@/shared/api";
 
 export type MarketListQuery = {

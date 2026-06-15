@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getMarketsApi, getTickerApi, type MarketListQuery } from "../api";
+import { type MarketListQuery, getMarketsApi, getTickerApi } from "../api";
 
 import { marketKeys } from "./market-query-keys";
 

@@ -1,4 +1,5 @@
 import type { NewsSentiment } from "@/entities/news";
+
 import { Badge } from "@/shared/components/ui";
 
 import type { NewsListItem } from "../api";
@@ -28,7 +29,7 @@ export const NewsCard = ({ item }: NewsCardProps) => {
     <article className='rounded-lg border bg-card p-5'>
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <div className='min-w-0'>
-          <h3 className='text-base font-semibold leading-6'>
+          <h3 className='text-base leading-6 font-semibold'>
             <a className='hover:underline' href={item.url} rel='noreferrer' target='_blank'>
               {item.title}
             </a>

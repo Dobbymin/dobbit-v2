@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { depositApi, type DepositRequest } from "../api";
+import { type DepositRequest, depositApi } from "../api";
 
 import { walletKeys } from "./wallet-query-keys";
 

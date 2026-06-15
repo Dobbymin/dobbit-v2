@@ -1,4 +1,4 @@
-import { SettingPage } from '@/views';
+import { SettingPage } from "@/views";
 
 export default function Page() {
   return <SettingPage />;

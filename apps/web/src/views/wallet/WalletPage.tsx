@@ -1,5 +1,6 @@
-import { CashSection, HeldAssetsListSection, StatsAreaSection } from '@/features/wallet';
-import { AppLayout } from '@/widgets';
+import { AppLayout } from "@/widgets";
+
+import { CashSection, HeldAssetsListSection, StatsAreaSection } from "@/features/wallet";
 
 export default function WalletPage() {
   return (

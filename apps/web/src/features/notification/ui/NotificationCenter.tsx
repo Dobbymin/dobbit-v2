@@ -76,4 +76,4 @@ export const NotificationCenter = ({ notifications, unreadCount, onMarkAsRead, i
       )}
     </div>
   );
-}
+};
