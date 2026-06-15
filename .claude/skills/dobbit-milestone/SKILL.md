@@ -32,10 +32,11 @@ Claude Code가 직접 해도 되는 것:
 
 ```bash
 ls /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/_workspace/ 2>/dev/null || echo "신규 실행"
+cat /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/_workspace/progress.md 2>/dev/null || echo "진행 이력 없음"
 ```
 
 - `_workspace/` 없음 → **초기 실행**
-- `_workspace/` 있고 사용자가 "다시"/"수정" 요청 → **부분 재실행** (해당 단계만)
+- `progress.md`에 중단된 Phase가 기록되어 있으면 → **해당 Phase부터 재개**
 - `_workspace/` 있고 새 마일스톤 → `_workspace/`를 `_workspace_prev/`로 이동 후 **새 실행**
 
 ## Phase 1: 팀 구성
@@ -47,6 +48,13 @@ TeamCreate(
   team_name: "dobbit-team",
   members: ["planner", "implementer", "verifier"]
 )
+```
+
+팀 구성 직후 진행 상태를 파일에 기록한다:
+
+```bash
+mkdir -p /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/_workspace
+echo "Phase 1 완료 — 팀 구성됨 $(date)" >> /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/_workspace/progress.md
 ```
 
 각 에이전트 정의 파일:
@@ -71,7 +79,11 @@ CLAUDE.md: /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/CLAUDE.md
 )
 ```
 
-planner로부터 "plan_ready" 수신 후 다음 단계로 진행.
+planner로부터 "plan_ready" 수신 후:
+
+```bash
+echo "Phase 2 완료 — plan.md 작성됨 $(date)" >> /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/_workspace/progress.md
+```
 
 ## Phase 3: 구현 (implementer)
 
@@ -86,7 +98,11 @@ plan.md 경로: /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/_workspace/plan.
 )
 ```
 
-implementer로부터 "impl_done" 수신 후 다음 단계로 진행.
+implementer로부터 "impl_done" 수신 후:
+
+```bash
+echo "Phase 3 완료 — 구현 완료 $(date)" >> /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/_workspace/progress.md
+```
 
 ## Phase 4: 검증 (verifier)
 
@@ -103,7 +119,11 @@ Obsidian 로그 경로: /Users/gimgangmin/Desktop/Dev/wiki/workspace/project/por
 )
 ```
 
-verifier로부터 "verify_done" 수신 후 결과 수집.
+verifier로부터 "verify_done" 수신 후:
+
+```bash
+echo "Phase 4 완료 — 검증 완료 $(date)" >> /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/_workspace/progress.md
+```
 
 ## Phase 5: 종합 보고
 
@@ -126,44 +146,53 @@ verifier로부터 "verify_done" 수신 후 결과 수집.
 - [작업 로그 파일 경로]
 ```
 
-## Phase 6: 팀 정리 (에이전트 종료)
+## Phase 6: 팀 정리 ← 절대 생략 금지
 
-종합 보고 완료 후 반드시 팀을 정리한다. 이 Phase를 생략하면 에이전트가 백그라운드에서 계속 실행된다.
+**이 Phase는 성공, 실패, 에러 여부와 관계없이 반드시 실행한다.**
+Phase 2~5 중 어디서 실패하더라도 Phase 6으로 점프하여 팀을 정리한다.
 
-### Step 1: 각 에이전트에 종료 요청
+### TeamDelete 직접 호출
 
-```
-SendMessage(to: "planner",     type: "shutdown_request", content: "마일스톤 완료, 팀 정리")
-SendMessage(to: "implementer", type: "shutdown_request", content: "마일스톤 완료, 팀 정리")
-SendMessage(to: "verifier",    type: "shutdown_request", content: "마일스톤 완료, 팀 정리")
-```
-
-세 메시지를 동시에(병렬로) 전송한다.
-
-### Step 2: shutdown_approved 수신 확인
-
-각 에이전트로부터 `shutdown_approved` 응답을 기다린다. 3개 모두 수신되면 다음 단계로 진행한다.
-
-### Step 3: TeamDelete
+에이전트에게 종료 메시지를 보내거나 응답을 기다리지 않는다. 오케스트레이터가 즉시 호출한다:
 
 ```
 TeamDelete()
 ```
 
-팀 디렉토리(`~/.claude/teams/dobbit-team/`)와 태스크 디렉토리를 삭제한다.
+### TeamDelete 실패 시
 
-> 주의: TeamDelete는 활성 멤버가 남아있으면 실패한다. Step 2에서 모든 승인을 확인한 뒤에만 호출한다.
+TeamDelete가 실패하면 사용자에게 다음을 안내한다:
+
+```
+팀 자동 정리에 실패했습니다.
+Claude Code UI의 "실행 중" 목록에서 planner, implementer, verifier 에이전트 옆
+체크박스를 클릭하여 직접 종료해 주세요.
+```
+
+### 정리 완료 기록
+
+```bash
+echo "Phase 6 완료 — 팀 정리됨 $(date)" >> /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/_workspace/progress.md
+```
+
+---
 
 ## 에러 핸들링
 
-- **planner 실패**: 실행 계획서 경로 재확인 후 1회 재시도
-- **Codex 실패**: impl_result.md에 실패 내용 기록, verifier에게 전달하여 판정
-- **검증 실패**: verify_result.md 내용을 사용자에게 보고, 재실행 여부 확인
+모든 에러 상황에서 Phase 6(팀 정리)을 반드시 실행한다.
+
+- **planner 실패**: 실행 계획서 경로 재확인 후 1회 재시도 → 재실패 시 Phase 6으로 점프
+- **Codex 실패**: impl_result.md에 실패 내용 기록 후 Phase 4(검증)로 진행 → Phase 6으로 점프
+- **검증 실패**: verify_result.md 내용을 사용자에게 보고 → Phase 6으로 점프
+- **세션 컨텍스트 초과 우려**: Phase마다 progress.md에 상태 기록. 다음 세션에서 Phase 0이 progress.md를 읽어 재개 지점을 파악
 
 ## 테스트 시나리오
 
 **정상 흐름:**
-1. "Milestone 2 진행해줘" → planner가 plan.md 작성 → implementer가 Codex 위임 → verifier가 검증 + Obsidian 기록 → 완료 보고
+1. "Milestone 2 진행해줘" → planner가 plan.md 작성 → implementer가 Codex 위임 → verifier가 검증 + Obsidian 기록 → 완료 보고 → **Phase 6: TeamDelete 즉시 호출**
 
 **에러 흐름:**
-1. Codex 빌드 오류 → impl_result.md에 실패 기록 → verifier가 오류 내용 포함하여 Obsidian 기록 → 사용자에게 오류 내용 보고
+1. Codex 빌드 오류 → impl_result.md에 실패 기록 → verifier가 오류 포함하여 Obsidian 기록 → 사용자에게 보고 → **Phase 6: TeamDelete 즉시 호출**
+
+**세션 재시작 흐름:**
+1. 이전 세션에서 Phase 3(구현 중) 중단 → 새 세션에서 스킬 재실행 → Phase 0이 progress.md 확인 → "Phase 3 재개"로 시작

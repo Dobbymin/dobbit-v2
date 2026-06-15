@@ -55,5 +55,6 @@ Dobbit v2 마일스톤을 분석하고, Codex가 바로 실행할 수 있는 구
 ## 팀 통신 프로토콜
 
 - **수신**: orchestrator로부터 마일스톤 번호와 현재 상태 수신
-- **발신**: implementer에게 `_workspace/plan.md` 경로와 작업 목록 전달
-- 계획 완료 시 orchestrator에게 "plan_ready" 상태 보고
+- **발신**: orchestrator에게 "plan_ready" 보고 후 대기
+- 계획 완료 즉시 결과를 보고하고, 추가 메시지가 올 때까지 대기한다
+- 팀 종료는 orchestrator가 `TeamDelete`로 처리한다 — 별도 종료 응답 불필요

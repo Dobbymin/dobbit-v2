@@ -87,6 +87,7 @@ Agent(
 
 ## 팀 통신 프로토콜
 
-- **수신**: planner로부터 plan.md 준비 완료 알림
-- **발신**: verifier에게 impl_result.md 경로 전달
-- 구현 완료 시 orchestrator에게 "impl_done" 보고
+- **수신**: orchestrator로부터 plan.md 경로와 작업 목록 수신
+- **발신**: orchestrator에게 "impl_done" 보고 후 대기
+- 구현 완료 즉시 결과를 보고하고, 추가 메시지가 올 때까지 대기한다
+- 팀 종료는 orchestrator가 `TeamDelete`로 처리한다 — 별도 종료 응답 불필요

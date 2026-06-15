@@ -62,6 +62,7 @@ Obsidian 로그 경로: `/Users/gimgangmin/Desktop/Dev/wiki/workspace/project/po
 
 ## 팀 통신 프로토콜
 
-- **수신**: implementer로부터 구현 완료 알림
-- **발신**: orchestrator에게 검증 결과 요약 전달
-- 검증 완료 시 orchestrator에게 "verify_done" + 판정 결과 보고
+- **수신**: orchestrator로부터 plan.md, impl_result.md 경로 수신
+- **발신**: orchestrator에게 "verify_done" + 판정 결과 보고 후 대기
+- 검증 완료 즉시 결과를 보고하고, 추가 메시지가 올 때까지 대기한다
+- 팀 종료는 orchestrator가 `TeamDelete`로 처리한다 — 별도 종료 응답 불필요
