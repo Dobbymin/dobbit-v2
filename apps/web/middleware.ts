@@ -1,10 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/signup"];
+const PUBLIC_PATHS = ["/", "/market", "/news", "/login", "/signup"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isPublicPath = PUBLIC_PATHS.includes(pathname);
+  const isPublicPath = PUBLIC_PATHS.some(
+    (path) => pathname === path || (path !== "/" && pathname.startsWith(`${path}/`)),
+  );
   const accessToken = request.cookies.get("access_token")?.value;
 
   if (!accessToken && !isPublicPath) {

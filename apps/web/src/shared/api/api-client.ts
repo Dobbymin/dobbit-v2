@@ -35,7 +35,7 @@ const redirectToLogin = () => {
     return;
   }
 
-  window.location.assign("/(auth)/login");
+  window.location.assign("/login");
 };
 
 export const apiClient = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {

@@ -1,6 +1,5 @@
 import { apiClient } from "@/shared";
-
-import type { MarketTicker } from "@/entities/market";
+import type { CandleResponse, CurrentPrice, Market } from "@dobbit/shared";
 
 export type MarketListQuery = {
   quote?: "KRW";
@@ -22,8 +21,11 @@ const toQueryString = (query?: MarketListQuery) => {
   return value ? `?${value}` : "";
 };
 
-export const getMarketsApi = (query?: MarketListQuery): Promise<MarketTicker[]> =>
-  apiClient<MarketTicker[]>(`/markets${toQueryString(query)}`);
+export const getMarketsApi = (query?: MarketListQuery): Promise<Market[]> =>
+  apiClient<Market[]>(`/market/markets${toQueryString(query)}`);
 
-export const getTickerApi = (marketCode: string): Promise<MarketTicker> =>
-  apiClient<MarketTicker>(`/markets/${encodeURIComponent(marketCode)}`);
+export const getTickerApi = (marketCode: string): Promise<CurrentPrice | null> =>
+  apiClient<CurrentPrice | null>(`/market/markets/${encodeURIComponent(marketCode)}/price`);
+
+export const getCandlesApi = (marketCode: string, unit: number = 1, count: number = 200): Promise<CandleResponse[]> =>
+  apiClient<CandleResponse[]>(`/market/markets/${encodeURIComponent(marketCode)}/candles?unit=${unit}&count=${count}`);

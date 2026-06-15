@@ -3,7 +3,6 @@
 import Link from "next/link";
 
 import { Button, ROUTES_PATH, useAuthStore } from "@/shared";
-import { LogIn, LogOut, Settings, UserPlus } from "lucide-react";
 
 import { useLogout } from "@/features/auth";
 
@@ -13,34 +12,39 @@ export const UserMenuButton = () => {
 
   if (!accessToken) {
     return (
-      <div className='flex flex-wrap items-center gap-2'>
-        <Button asChild size='sm' variant='ghost'>
-          <Link href={ROUTES_PATH.LOGIN}>
-            <LogIn aria-hidden className='size-4' />
-            로그인
-          </Link>
-        </Button>
-        <Button asChild size='sm'>
-          <Link href={ROUTES_PATH.SIGNUP}>
-            <UserPlus aria-hidden className='size-4' />
-            회원가입
-          </Link>
-        </Button>
+      <div className='flex items-center justify-end'>
+        <Link
+          className='text-sm font-semibold text-white transition-colors hover:text-primary'
+          href={ROUTES_PATH.LOGIN}
+        >
+          Login
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className='flex flex-wrap items-center gap-2'>
-      <Button asChild size='sm' variant='ghost'>
-        <Link href={ROUTES_PATH.SETTING}>
-          <Settings aria-hidden className='size-4' />
-          설정
-        </Link>
-      </Button>
-      <Button disabled={logout.isPending} onClick={() => logout.mutate()} size='sm' type='button' variant='outline'>
-        <LogOut aria-hidden className='size-4' />
-        로그아웃
+    <div className='flex items-center justify-end gap-5'>
+      <Link
+        className='text-sm font-semibold text-text-muted-dark transition-colors hover:text-white'
+        href={ROUTES_PATH.WALLET}
+      >
+        Wallet
+      </Link>
+      <Link
+        className='text-sm font-semibold text-text-muted-dark transition-colors hover:text-white'
+        href={ROUTES_PATH.SETTING}
+      >
+        Setting
+      </Link>
+      <Button
+        className='h-auto border-0 bg-transparent p-0 text-sm font-semibold text-text-muted-dark shadow-none hover:bg-transparent hover:text-white'
+        disabled={logout.isPending}
+        onClick={() => logout.mutate()}
+        type='button'
+        variant='ghost'
+      >
+        Logout
       </Button>
     </div>
   );
