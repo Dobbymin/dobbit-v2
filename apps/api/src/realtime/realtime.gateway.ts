@@ -39,6 +39,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   server: Server;
 
   private readonly logger = new Logger(RealtimeGateway.name);
+  private readonly activeMarkets = new Map<string, number>();
 
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
@@ -53,6 +54,11 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     const channel = `market:${data.marketCode}`;
     void client.join(channel);
     this.logger.debug(`Client ${client.id} joined channel: ${channel}`);
+
+    // Increment reference count for this market
+    const currentCount = this.activeMarkets.get(data.marketCode) || 0;
+    this.activeMarkets.set(data.marketCode, currentCount + 1);
+    this.logger.debug(`Market ${data.marketCode} subscription count: ${currentCount + 1}`);
   }
 
   @SubscribeMessage('market:leave')
@@ -60,6 +66,19 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     const channel = `market:${data.marketCode}`;
     void client.leave(channel);
     this.logger.debug(`Client ${client.id} left channel: ${channel}`);
+
+    // Decrement reference count for this market
+    const currentCount = this.activeMarkets.get(data.marketCode) || 0;
+    if (currentCount > 1) {
+      this.activeMarkets.set(data.marketCode, currentCount - 1);
+    } else {
+      this.activeMarkets.delete(data.marketCode);
+    }
+    this.logger.debug(`Market ${data.marketCode} subscription count: ${Math.max(0, currentCount - 1)}`);
+  }
+
+  getActiveMarkets(): string[] {
+    return Array.from(this.activeMarkets.keys());
   }
 
   @UseGuards(WsJwtGuard)

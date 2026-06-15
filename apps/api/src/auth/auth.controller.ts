@@ -32,7 +32,10 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Body('refreshToken') refreshToken: string, @Res({ passthrough: true }) res: Response): Promise<AuthResponse> {
+  async refresh(
+    @Body('refreshToken') refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthResponse> {
     const response = await this.authService.refresh(refreshToken);
     res.cookie('access_token', response.accessToken, {
       httpOnly: true,
