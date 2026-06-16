@@ -54,6 +54,30 @@ services:
     networks:
       - dobbit_network
 
+  api:
+    container_name: dobbit_api
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://dobbit:dobbit@postgres:5432/dobbit_dev?schema=public
+      PORT: 8080
+      NODE_ENV: production
+      CLIENT_URL: https://dobbit.dobbymin.cloud
+      REDIS_URL: redis://redis:6379
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:3003:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dobbit_network
+
 volumes:
   postgres_data:
   redis_data:
