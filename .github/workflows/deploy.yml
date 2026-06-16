@@ -1,0 +1,32 @@
+name: Deploy to Raspberry Pi
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-pi
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, dobbit-pi]
+    defaults:
+      run:
+        working-directory: /home/dobbymin/project/dobbit-v2
+    steps:
+      - name: Sync repository
+        run: |
+          git fetch --prune origin
+          git reset --hard origin/main
+
+      - name: Build & deploy (docker compose)
+        run: |
+          docker compose -f docker/docker-compose.deploy.yml up -d --build
+
+      - name: Verify deployment
+        run: |
+          docker compose -f docker/docker-compose.deploy.yml ps
+          sleep 8
+          curl -fsS http://127.0.0.1:3002 >/dev/null && echo "web container responding (127.0.0.1:3002)"
