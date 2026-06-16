@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { Search } from "lucide-react";
+
 import { Input, cn } from "@/shared";
 import type { Market } from "@dobbit/shared";
 
@@ -80,6 +83,23 @@ export const MarketListPanel = ({
   onSearchKeywordChange,
   onSelectMarket,
 }: MarketListPanelProps) => {
+  // 로컬 입력 state
+  const [localSearchKeyword, setLocalSearchKeyword] = useState(searchKeyword);
+
+  // 300ms debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearchKeywordChange(localSearchKeyword);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [localSearchKeyword, onSearchKeywordChange]);
+
+  // 외부에서 searchKeyword가 변경되면 로컬 state도 동기화
+  useEffect(() => {
+    setLocalSearchKeyword(searchKeyword);
+  }, [searchKeyword]);
+
   // Subscribe to real-time tickers for all markets
   const tickers = useMarketTickers(markets.length > 0 ? markets.map((m) => m.code) : []);
 
@@ -92,7 +112,7 @@ export const MarketListPanel = ({
       : fallbackRows;
 
   const filteredRows = rows.filter((row) => {
-    const keyword = searchKeyword.trim().toLowerCase();
+    const keyword = localSearchKeyword.trim().toLowerCase();
 
     if (!keyword) {
       return true;
@@ -108,13 +128,19 @@ export const MarketListPanel = ({
   return (
     <aside className='flex min-h-[520px] flex-col border-r border-white/10 bg-surface-dark/60 lg:min-h-[calc(100vh-80px)]'>
       <div className='border-b border-white/10 p-4'>
-        <Input
-          aria-label='마켓 검색'
-          className='h-10 rounded-md border-white/10 bg-[#121212] text-sm text-text-dark placeholder:text-text-muted-dark focus-visible:ring-primary/50'
-          onChange={(event) => onSearchKeywordChange(event.target.value)}
-          placeholder='코인명 / 심볼 검색'
-          value={searchKeyword}
-        />
+        <div className='relative'>
+          <Input
+            aria-label='마켓 검색'
+            className='h-10 rounded-lg border-white/10 bg-[#121212] pl-9 text-sm text-text-dark placeholder:text-text-muted-dark focus-visible:ring-primary/50'
+            onChange={(event) => setLocalSearchKeyword(event.target.value)}
+            placeholder='코인명 / 심볼 검색'
+            value={localSearchKeyword}
+          />
+          <Search
+            className='absolute left-3 top-1/2 -translate-y-1/2 text-text-muted-dark'
+            size={16}
+          />
+        </div>
         {isLoading ? (
           <span aria-live='polite' className='sr-only'>
             마켓 동기화 중

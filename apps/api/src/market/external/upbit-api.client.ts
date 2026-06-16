@@ -27,6 +27,11 @@ interface UpbitCandle {
   candle_acc_trade_volume: number;
 }
 
+interface CandleInterval {
+  type: 'seconds' | 'minutes' | 'weeks' | 'months' | 'years';
+  unit?: number;
+}
+
 @Injectable()
 export class UpbitApiClient {
   private readonly baseUrl = 'https://api.upbit.com/v1';
@@ -64,16 +69,28 @@ export class UpbitApiClient {
     }
   }
 
-  async getCandles(marketCode: string, unit = 1, count = 200): Promise<UpbitCandle[]> {
+  async getCandles(
+    marketCode: string,
+    interval: CandleInterval = { type: 'minutes', unit: 1 },
+    count = 200
+  ): Promise<UpbitCandle[]> {
     try {
+      let url = `${this.baseUrl}/candles`;
+
+      if (interval.type === 'minutes') {
+        url += `/minutes/${interval.unit ?? 1}`;
+      } else {
+        url += `/${interval.type}`;
+      }
+
       const response = await firstValueFrom(
-        this.http.get<UpbitCandle[]>(`${this.baseUrl}/candles/minutes/${unit}`, {
+        this.http.get<UpbitCandle[]>(url, {
           params: { market: marketCode, count },
         }),
       );
       return response.data || [];
     } catch (error) {
-      console.error('Failed to fetch candles:', error);
+      console.error(`Failed to fetch ${interval.type} candles:`, error);
       return [];
     }
   }

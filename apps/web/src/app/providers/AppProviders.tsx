@@ -1,7 +1,17 @@
 "use client";
 
-import { QueryProvider } from "./QueryProvider";
+import { type PropsWithChildren } from "react";
 
-export const AppProviders = ({ children }: { children: React.ReactNode }) => {
-  return <QueryProvider>{children}</QueryProvider>;
+import { Toaster } from "@/shared";
+
+import { AuthInitializer, QueryProvider } from "./components";
+
+export const AppProviders = ({ children }: PropsWithChildren) => {
+  return (
+    <QueryProvider>
+      <AuthInitializer />
+      {children}
+      <Toaster richColors position='top-center' />
+    </QueryProvider>
+  );
 };

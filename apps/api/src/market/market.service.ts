@@ -3,6 +3,11 @@ import { PrismaService } from '../common/prisma/prisma.service';
 import { Market, CurrentPrice, CandleResponse, MarketTickerUpdatedEvent } from '@dobbit/shared';
 import { UpbitApiClient } from './external/upbit-api.client';
 
+interface CandleInterval {
+  type: 'seconds' | 'minutes' | 'weeks' | 'months' | 'years';
+  unit?: number;
+}
+
 @Injectable()
 export class MarketService {
   private readonly logger = new Logger(MarketService.name);
@@ -53,9 +58,13 @@ export class MarketService {
     }
   }
 
-  async getCandles(code: string, unit = 1, count = 200): Promise<CandleResponse[]> {
+  async getCandles(
+    code: string,
+    interval: CandleInterval = { type: 'minutes', unit: 1 },
+    count = 200
+  ): Promise<CandleResponse[]> {
     try {
-      const candles = await this.upbitApiClient.getCandles(code, unit, count);
+      const candles = await this.upbitApiClient.getCandles(code, interval, count);
 
       if (!candles || candles.length === 0) {
         return [];

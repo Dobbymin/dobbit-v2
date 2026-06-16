@@ -1,5 +1,7 @@
 import { apiClient } from "@/shared";
 import type { CandleResponse, CurrentPrice, Market } from "@dobbit/shared";
+import type { CandleInterval } from "../model/libs";
+import { DEFAULT_CANDLE_INTERVAL } from "../model/libs";
 
 export type MarketListQuery = {
   quote?: "KRW";
@@ -27,5 +29,20 @@ export const getMarketsApi = (query?: MarketListQuery): Promise<Market[]> =>
 export const getTickerApi = (marketCode: string): Promise<CurrentPrice | null> =>
   apiClient<CurrentPrice | null>(`/market/markets/${encodeURIComponent(marketCode)}/price`);
 
-export const getCandlesApi = (marketCode: string, unit: number = 1, count: number = 200): Promise<CandleResponse[]> =>
-  apiClient<CandleResponse[]>(`/market/markets/${encodeURIComponent(marketCode)}/candles?unit=${unit}&count=${count}`);
+export const getCandlesApi = (
+  marketCode: string,
+  interval: CandleInterval = DEFAULT_CANDLE_INTERVAL,
+  count: number = 200
+): Promise<CandleResponse[]> => {
+  const params = new URLSearchParams();
+  params.set("type", interval.type);
+  params.set("count", String(count));
+
+  if (interval.unit !== undefined) {
+    params.set("unit", String(interval.unit));
+  }
+
+  return apiClient<CandleResponse[]>(
+    `/market/markets/${encodeURIComponent(marketCode)}/candles?${params.toString()}`
+  );
+};

@@ -24,6 +24,9 @@ export const useMarketSocket = (marketCode: string) => {
     };
 
     const handleTickerUpdate = (event: MarketTickerUpdatedEvent) => {
+      // 현재 구독 중인 marketCode와 일치할 때만 반영
+      if (event.marketCode !== marketCode) return;
+
       setTicker(event);
       queryClient.setQueryData(["market", "ticker", marketCode], event);
     };

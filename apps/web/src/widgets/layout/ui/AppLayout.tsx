@@ -1,12 +1,8 @@
-import type { ReactNode } from "react";
+import type { PropsWithChildren } from "react";
 
 import { Header } from "@/widgets/header";
 
-type AppLayoutProps = {
-  children: ReactNode;
-};
-
-export const AppLayout = ({ children }: AppLayoutProps) => {
+export const AppLayout = ({ children }: PropsWithChildren) => {
   return (
     <div className='min-h-screen bg-background text-foreground'>
       <Header />

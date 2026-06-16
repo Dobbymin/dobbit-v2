@@ -1,21 +1,43 @@
 import { create } from "zustand";
+import { combine, devtools } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
-import { authToken } from "@/shared/api";
-
-type AuthState = {
+export type AccessTokenState = {
   accessToken: string | null;
+  isInitialized: boolean;
   setAccessToken: (token: string) => void;
   clearAccessToken: () => void;
+  setInitialized: () => void;
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: authToken.get(),
-  setAccessToken: (token) => {
-    authToken.set(token);
-    set({ accessToken: token });
-  },
-  clearAccessToken: () => {
-    authToken.clear();
-    set({ accessToken: null });
-  },
-}));
+const initialState: Omit<
+  AccessTokenState,
+  "setAccessToken" | "clearAccessToken" | "setInitialized"
+> = {
+  accessToken: null,
+  isInitialized: false,
+};
+
+export const useAuthStore = create<AccessTokenState>()(
+  devtools(
+    immer(
+      combine(initialState, (set) => ({
+        setAccessToken: (token: string) =>
+          set((state) => {
+            state.accessToken = token;
+          }),
+        clearAccessToken: () =>
+          set((state) => {
+            state.accessToken = null;
+          }),
+        setInitialized: () =>
+          set((state) => {
+            state.isInitialized = true;
+          }),
+      }))
+    ),
+    {
+      name: "auth-store",
+    }
+  )
+);

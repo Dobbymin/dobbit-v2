@@ -183,6 +183,46 @@ shared/
 - **Alert** — 리스크 조건 평가, WebSocket 인앱 알림, Slack Webhook 발송, cooldown 정책
 - **News** — 뉴스 수집, Hermes 에이전트 분석, Gemini fallback, PredictionReview, LearningSample
 
+## Upbit CLI 활용 규칙
+
+업비트 시세·잔고·주문·입출금·지갑·Travel Rule 관련 작업을 요청받으면 **`upbit` CLI(`upbit` 스킬)** 를 사용한다. 업비트 REST API 작업은 모두 `upbit` CLI로 처리한다. 옵션이 불확실하면 `upbit <resource> <command> --help`를 먼저 확인한다.
+
+### dobbit-v2에서의 사용 범위
+
+dobbit-v2는 **모의투자 서비스**이며, 서버(`apps/api` Market 모듈, `upbit-api.client.ts`)는 Upbit **공개 API만** 사용한다 — `market/all`, `ticker`, `candles/minutes/{unit}`, `orderbook`. 따라서 Upbit CLI는 아래 용도로 활용한다.
+
+- **서버 연동 검증·디버깅**: 서버가 반환한 현재가·변동률(`signed_change_rate`)·캔들이 Upbit 원본과 일치하는지 대조한다.
+- **공개 데이터 조회**: 마켓 목록·현재가·캔들·호가 확인 (신규 마켓 편입 검토, 캔들 unit 점검 등).
+
+> **실거래 금지**: dobbit-v2는 실제 자산을 거래하지 않는 모의투자 프로젝트다. 주문 생성/취소·출금·입금 등 **실제 자산을 변동시키는 CLI 명령은 기본적으로 사용하지 않는다.** 사용자가 명시적으로 실거래를 요청한 경우에만 아래 실행 확인 규칙을 따라 진행한다.
+
+### 공개 API (인증 불필요)
+
+`tickers`, `orderbooks`, `trades`, `candles`, `trading-pairs`, `wallet-status`
+
+### 인증 필요 API
+
+`accounts`, `api-keys`, `orders`, `withdraws`, `deposits`, `travel-rule`
+현재 `~/.upbit/config`가 미설정 상태이므로, 인증 필요 API는 사용자가 직접 키를 설정한 뒤에만 동작한다.
+
+### 보안 규칙
+
+API Key·Secret Key는 응답·코드·로그·커밋에 그대로 출력하거나 저장하지 않는다.
+
+### 실행 확인 규칙 (CONFIRM)
+
+실제 자산에 영향을 줄 수 있는 쓰기 작업을 실행하기 전에는 전체 명령을 보여주고 사용자가 `CONFIRM`을 입력하도록 요청한다. 대상: 주문 생성/취소, 출금 요청/취소, 원화 입금 요청, 입금 주소 생성, Travel Rule 입금 검증. `orders test-create`는 실제 주문을 생성하지 않으므로 CONFIRM이 불필요하다.
+
+### 마켓 형식
+
+업비트 마켓 형식은 `{QUOTE}-{BASE}`다 (예: `BTC/KRW` → `KRW-BTC`, `ETH/KRW` → `KRW-ETH`). dobbit-v2 서버·클라이언트도 동일 형식을 사용하며 KRW 마켓만 필터링한다.
+
+### 주문 규칙 (실거래 요청 시에만)
+
+- 시장가 매수: `ord_type=price`, `price`에 사용할 총 금액을 입력한다.
+- 시장가 매도: `ord_type=market`, `volume`에 매도할 자산 수량을 입력한다.
+- 신규 마켓 사용 전 `orders retrieve-chance`로 최소 주문금액을 확인하고, 실제 주문 전 `orders test-create`로 형식을 검증한다.
+
 ## 개발 기록 원칙
 
 - 큰 기술 결정은 **ADR**로 먼저 남긴다.

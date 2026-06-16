@@ -1,4 +1,4 @@
-import { authToken } from "./auth-token";
+import { getAccessToken, setAccessToken, clearAccessToken } from "@/shared/store/use-auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api";
 
@@ -9,7 +9,7 @@ type RequestOptions = RequestInit & {
 const doFetch = async (path: string, options: RequestOptions = {}): Promise<Response> => {
   const { skipAuthRefresh: _, ...init } = options;
   const headers = new Headers(init.headers);
-  const token = authToken.get();
+  const token = getAccessToken();
 
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
@@ -48,7 +48,7 @@ export const apiClient = async <T>(path: string, options: RequestOptions = {}): 
   const refreshed = await doFetch("/auth/refresh", { method: "POST", skipAuthRefresh: true });
 
   if (!refreshed.ok) {
-    authToken.clear();
+    clearAccessToken();
     redirectToLogin();
     return parseResponse<T>(response);
   }
@@ -56,12 +56,12 @@ export const apiClient = async <T>(path: string, options: RequestOptions = {}): 
   const { accessToken: newToken } = await parseResponse<{ accessToken: string }>(refreshed);
 
   if (!newToken) {
-    authToken.clear();
+    clearAccessToken();
     redirectToLogin();
     return parseResponse<T>(response);
   }
 
-  authToken.set(newToken);
+  setAccessToken(newToken);
 
   const retryResponse = await doFetch(path, options);
   return parseResponse<T>(retryResponse);
