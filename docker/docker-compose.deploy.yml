@@ -1,0 +1,63 @@
+services:
+  web:
+    container_name: dobbit_web
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.web
+      args:
+        NEXT_PUBLIC_API_BASE_URL: https://dobbit.dobbymin.cloud/api
+        NEXT_PUBLIC_API_URL: https://dobbit.dobbymin.cloud
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3002:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dobbit_network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: dobbit_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dobbit
+      POSTGRES_PASSWORD: dobbit
+      POSTGRES_DB: dobbit_dev
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dobbit -d dobbit_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dobbit_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: dobbit_redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dobbit_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  dobbit_network:
+    driver: bridge

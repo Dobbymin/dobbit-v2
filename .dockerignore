@@ -1,0 +1,12 @@
+node_modules
+.pnpm-store
+.next
+.turbo
+.git
+_workspace_prev
+*.log
+.env
+.env.*
+!.env.example
+!apps/api/.env.example
+!docker/.env.prod.example
