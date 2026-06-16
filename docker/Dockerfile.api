@@ -1,7 +1,7 @@
-FROM node:24-alpine AS builder
+FROM node:24-slim AS builder
 
 WORKDIR /app
-RUN apk add --no-cache openssl
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 RUN corepack enable
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
@@ -19,10 +19,10 @@ RUN pnpm --filter api exec prisma generate
 
 RUN pnpm turbo run build --filter=api...
 
-FROM node:24-alpine AS runner
+FROM node:24-slim AS runner
 
 WORKDIR /app
-RUN apk add --no-cache openssl
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 RUN corepack enable
 
 ENV NODE_ENV=production

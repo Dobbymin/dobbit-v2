@@ -23,10 +23,10 @@ jobs:
 
       - name: Build & deploy (docker compose)
         run: |
-          docker compose -f docker/docker-compose.deploy.yml up -d --build
+          docker compose -p dobbit-v2 -f docker/docker-compose.deploy.yml up -d --build
 
       - name: Verify deployment
         run: |
-          docker compose -f docker/docker-compose.deploy.yml ps
+          docker compose -p dobbit-v2 -f docker/docker-compose.deploy.yml ps
           sleep 8
           curl -fsS http://127.0.0.1:3002 >/dev/null && echo "web container responding (127.0.0.1:3002)"
