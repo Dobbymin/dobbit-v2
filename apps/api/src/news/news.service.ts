@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
+import { AlertService } from '../alert/alert.service';
 import { NaverNewsCollector } from './collectors/naver-news.collector';
 import { HermesAnalyzer } from './analyzers/hermes.analyzer';
 import { GeminiAnalyzer } from './analyzers/gemini.analyzer';
@@ -30,6 +31,7 @@ export class NewsService {
     private readonly naverCollector: NaverNewsCollector,
     private readonly hermesAnalyzer: HermesAnalyzer,
     private readonly geminiAnalyzer: GeminiAnalyzer,
+    private readonly alertService: AlertService,
   ) {}
 
   async ingest(requestedBy: string = 'SCHEDULE'): Promise<NewsIngestionRunResponse> {
@@ -97,13 +99,15 @@ export class NewsService {
             continue;
           }
 
+          const taggedMarkets: Array<{ id: string; code: string }> = [];
+
           if (analysis.relatedMarkets && analysis.relatedMarkets.length > 0) {
             for (const symbol of analysis.relatedMarkets) {
               const market = await this.prisma.market.findUnique({
                 where: { symbol },
               });
               if (market) {
-                await this.prisma.newsMarketTag.upsert({
+                const tag = await this.prisma.newsMarketTag.upsert({
                   where: {
                     newsArticleId_marketId: {
                       newsArticleId: article.id,
@@ -117,7 +121,11 @@ export class NewsService {
                     symbol,
                     confidence: new PrismaDecimal(0.8),
                   },
+                  include: { market: true },
                 });
+                if (!taggedMarkets.some((taggedMarket) => taggedMarket.id === tag.market.id)) {
+                  taggedMarkets.push({ id: tag.market.id, code: tag.market.code });
+                }
               }
             }
           }
@@ -128,7 +136,7 @@ export class NewsService {
             negative: 'NEGATIVE',
           };
 
-          await this.prisma.newsAnalysis.upsert({
+          const newsAnalysis = await this.prisma.newsAnalysis.upsert({
             where: {
               newsArticleId_provider_modelVersion: {
                 newsArticleId: article.id,
@@ -149,6 +157,22 @@ export class NewsService {
               analyzedAt: new Date(),
             },
           });
+
+          for (const market of taggedMarkets) {
+            try {
+              await this.alertService.evaluateNewsSentiment({
+                marketId: market.id,
+                marketCode: market.code,
+                investmentScore: Number(newsAnalysis.investmentScore),
+                sentiment: newsAnalysis.sentiment as 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE',
+                articleTitle: article.title,
+                newsAnalysisId: newsAnalysis.id,
+              });
+            } catch (alertErr) {
+              const message = alertErr instanceof Error ? alertErr.message : '알 수 없는 에러';
+              this.logger.warn(`뉴스 감성 알림 평가 실패 (${market.code}): ${message}`);
+            }
+          }
 
           successCount++;
         } catch (itemErr) {

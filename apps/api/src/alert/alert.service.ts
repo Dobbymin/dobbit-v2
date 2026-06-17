@@ -209,6 +209,65 @@ export class AlertService {
     };
   }
 
+  async evaluateNewsSentiment(params: {
+    marketId: string;
+    marketCode: string;
+    investmentScore: number;
+    sentiment: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE';
+    articleTitle: string;
+    newsAnalysisId?: string;
+  }): Promise<{ evaluatedRuleCount: number; triggeredRuleCount: number; skippedRuleCount: number }> {
+    void params.newsAnalysisId;
+
+    const rules = await this.prisma.alertRule.findMany({
+      where: {
+        marketId: params.marketId,
+        type: 'NEWS_SENTIMENT',
+        enabled: true,
+      },
+      include: { market: true },
+    });
+
+    let triggeredRuleCount = 0;
+    let skippedRuleCount = 0;
+
+    for (const rule of rules) {
+      if (this.isInCooldown(rule)) {
+        skippedRuleCount += 1;
+        continue;
+      }
+
+      const threshold = Number(rule.threshold);
+      if (!this.compare(params.investmentScore, threshold, rule.comparison)) continue;
+
+      triggeredRuleCount += 1;
+      await this.createNotification(
+        rule.userId,
+        rule.id,
+        params.marketId,
+        params.marketCode,
+        `${params.marketCode} 뉴스 감성 알림`,
+        this.getNewsSentimentMessage(
+          params.marketCode,
+          params.sentiment,
+          params.investmentScore,
+          threshold,
+          rule.comparison,
+          params.articleTitle,
+        ),
+        this.getNewsSentimentSeverity(params.investmentScore),
+        rule.sendInApp,
+        rule.sendSlack,
+      );
+    }
+
+    return {
+      evaluatedRuleCount: rules.length,
+      triggeredRuleCount,
+      skippedRuleCount,
+    };
+  }
+
   async createNotification(
     userId: string,
     alertRuleId: string,
@@ -385,6 +444,30 @@ export class AlertService {
   private getSeverity(type: string, comparison: string): 'INFO' | 'WARNING' | 'CRITICAL' {
     if (type === 'LOSS_RATE_LIMIT' || comparison === 'LTE') return 'CRITICAL';
     if (type === 'VOLUME_SPIKE') return 'WARNING';
+    return 'INFO';
+  }
+
+  private getNewsSentimentMessage(
+    marketCode: string,
+    sentiment: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE',
+    investmentScore: number,
+    threshold: number,
+    comparison: string,
+    articleTitle: string,
+  ): string {
+    const sentimentLabel = {
+      POSITIVE: '호재',
+      NEUTRAL: '중립',
+      NEGATIVE: '악재',
+    }[sentiment];
+    const direction = comparison === 'GTE' ? '이상' : '이하';
+
+    return `${marketCode} 관련 뉴스가 ${sentimentLabel}(투자지수 ${investmentScore.toFixed(2)})로 분석되었습니다. 기준 ${threshold.toFixed(2)} ${direction}. — ${articleTitle}`;
+  }
+
+  private getNewsSentimentSeverity(investmentScore: number): 'INFO' | 'WARNING' | 'CRITICAL' {
+    if (investmentScore <= -0.5) return 'CRITICAL';
+    if (investmentScore >= 0.5) return 'WARNING';
     return 'INFO';
   }
 
