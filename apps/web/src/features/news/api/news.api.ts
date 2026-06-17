@@ -12,7 +12,7 @@ export type NewsListQuery = {
   limit?: number;
 };
 
-export type NewsListItem = Omit<NewsItem, "sentiment"> & {
+export type NewsListItem = NewsItem & {
   sentiment?: NewsApiSentiment;
 };
 

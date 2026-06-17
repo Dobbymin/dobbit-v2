@@ -1,13 +1,111 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import axios, { AxiosInstance } from 'axios';
 import { NewsCollector, NewsItem } from './news-collector';
+
+interface NaverNewsItem {
+  title: string;
+  description: string;
+  originallink?: string;
+  link: string;
+  pubDate: string;
+}
+
+interface NaverNewsResponse {
+  items: NaverNewsItem[];
+}
 
 @Injectable()
 export class NaverNewsCollector extends NewsCollector {
-  collect(): Promise<NewsItem[]> {
-    // TODO: Implement Naver news collection
-    // 1. Query Naver news API or scrape
-    // 2. Filter for crypto/market related news
-    // 3. Parse and return items
-    return Promise.resolve<NewsItem[]>([]);
+  private readonly logger = new Logger(NaverNewsCollector.name);
+  private readonly http: AxiosInstance;
+  private readonly clientId: string;
+  private readonly clientSecret: string;
+  private readonly keywords = ['비트코인', '이더리움', '가상자산', '암호화폐', '블록체인'];
+
+  constructor(private readonly configService: ConfigService) {
+    super();
+    this.clientId = this.configService.get<string>('NAVER_CLIENT_ID') || '';
+    this.clientSecret = this.configService.get<string>('NAVER_CLIENT_SECRET') || '';
+    this.http = axios.create({
+      timeout: 10000,
+      baseURL: 'https://openapi.naver.com',
+    });
+  }
+
+  async collect(): Promise<NewsItem[]> {
+    if (!this.clientId || !this.clientSecret) {
+      this.logger.warn('NAVER_CLIENT_ID or NAVER_CLIENT_SECRET not configured. Returning empty result.');
+      return [];
+    }
+
+    const allItems: NewsItem[] = [];
+    const seenUrls = new Set<string>();
+
+    for (const keyword of this.keywords) {
+      try {
+        const items = await this.searchNews(keyword);
+        for (const item of items) {
+          if (!seenUrls.has(item.url)) {
+            seenUrls.add(item.url);
+            allItems.push(item);
+          }
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        this.logger.warn(`Failed to fetch news for keyword "${keyword}": ${errorMessage}`);
+      }
+    }
+
+    return allItems;
+  }
+
+  private async searchNews(keyword: string): Promise<NewsItem[]> {
+    try {
+      const response = await this.http.get<NaverNewsResponse>('/v1/search/news.json', {
+        params: {
+          query: keyword,
+          display: 100,
+          start: 1,
+          sort: 'date',
+        },
+        headers: {
+          'X-Naver-Client-Id': this.clientId,
+          'X-Naver-Client-Secret': this.clientSecret,
+        },
+      });
+
+      const items = response.data.items || [];
+      return items.map((item) => this.mapToNewsItem(item));
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 429) {
+          this.logger.warn(`Rate limit hit for keyword "${keyword}". Stopping.`);
+          throw new Error('Rate limited');
+        }
+      }
+      throw error;
+    }
+  }
+
+  private mapToNewsItem(item: NaverNewsItem): NewsItem {
+    return {
+      title: this.stripHtmlEntities(item.title),
+      content: this.stripHtmlEntities(item.description),
+      url: item.originallink || item.link,
+      source: 'NAVER',
+      publishedAt: new Date(item.pubDate),
+    };
+  }
+
+  private stripHtmlEntities(text: string): string {
+    return text
+      .replace(/<b>/g, '')
+      .replace(/<\/b>/g, '')
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&#39;/g, "'");
   }
 }

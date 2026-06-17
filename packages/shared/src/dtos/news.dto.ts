@@ -28,10 +28,13 @@ export interface NewsAnalysisResponse {
 
 export interface NewsItem extends NewsArticleResponse {
   marketCode?: string;
-  sentiment: NewsSentiment;
-  provider: NewsProvider;
-  confidence: number;
-  investmentScore: number;
+  content?: string;
+  sentiment?: NewsSentiment | null;
+  provider?: NewsProvider | null;
+  confidence?: number | null;
+  investmentScore?: number | null;
+  reason?: string | null;
+  keywords?: string[] | null;
 }
 
 export interface NewsDetailResponse extends NewsArticleResponse {
