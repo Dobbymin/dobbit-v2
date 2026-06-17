@@ -1,5 +1,6 @@
 import { AppLayout } from "@/widgets";
 
+import { NewsAlertSettings } from "@/features/alert";
 import { SlackIntegrationSettings } from "@/features/notification";
 import { ProfileSection } from "@/features/setting";
 
@@ -13,7 +14,10 @@ export default function SettingPage() {
         </div>
         <div className='grid gap-6 lg:grid-cols-[1fr_360px]'>
           <ProfileSection />
-          <SlackIntegrationSettings />
+          <div className='space-y-5'>
+            <SlackIntegrationSettings />
+            <NewsAlertSettings />
+          </div>
         </div>
       </div>
     </AppLayout>

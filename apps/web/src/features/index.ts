@@ -1,4 +1,5 @@
 export * from "./auth";
+export * from "./alert";
 export * from "./market";
 export * from "./wallet";
 export * from "./news";
