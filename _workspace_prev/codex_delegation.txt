@@ -1,0 +1,36 @@
+CODEX DELEGATION: Dashboard Chart Buttons Implementation
+
+참고 문서: /Users/gimgangmin/Desktop/Dev/project/dobbit-v2/_workspace/chart_buttons_plan.md
+
+상세한 작업 계획이 위 파일에 작성되어 있습니다.
+
+A. 캔들 시간 단위 8종 (서버 + 클라)
+- A-1: apps/api/src/market/external/upbit-api.client.ts
+- A-2: apps/api/src/market/market.service.ts  
+- A-3: apps/api/src/market/market.controller.ts
+- A-4: apps/web/src/features/market/model/libs/candle-intervals.ts (신규)
+- A-5: apps/web/src/features/market/api/market.api.ts
+- A-6: apps/web/src/features/market/model/market-query-keys.ts
+- A-7: apps/web/src/features/market/model/useCandles.ts
+- A-8: apps/web/src/features/market/ui/MarketChartPanel.tsx
+
+B. 지표(MA + Volume)
+- B-1: apps/web/src/features/market/model/libs/sma-calculator.ts (신규)
+- B-2: apps/web/src/features/market/ui/MarketChartPanel.tsx (수정)
+
+C. 차트설정(캔들/라인)
+- C-1: apps/web/src/features/market/ui/MarketChartPanel.tsx (수정)
+
+D. UI 컴포넌트
+- Popover 확인 (없으면 shadcn 추가)
+
+E. 배럴 export 규칙
+- apps/web/src/features/market/model/index.ts
+- apps/web/src/features/market/model/libs/index.ts 등
+
+최종 검증:
+- pnpm --filter api typecheck
+- pnpm --filter web typecheck
+- pnpm --filter web lint
+
+완료 후: 변경 파일 목록 + 검증 결과 보고
