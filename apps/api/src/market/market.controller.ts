@@ -7,6 +7,8 @@ interface CandleInterval {
   unit?: number;
 }
 
+type CandleType = CandleInterval['type'];
+
 @Controller('api/market')
 export class MarketController {
   constructor(private readonly marketService: MarketService) {}
@@ -29,10 +31,10 @@ export class MarketController {
     @Query('count') count: string = '200',
   ): Promise<CandleResponse[]> {
     // 화이트리스트 검증
-    const validTypes = ['seconds', 'minutes', 'weeks', 'months', 'years'];
+    const validTypes: CandleType[] = ['seconds', 'minutes', 'weeks', 'months', 'years'];
     const validMinutesUnits = [1, 5, 30, 60];
 
-    const candleType = validTypes.includes(type) ? type : 'minutes';
+    const candleType: CandleType = validTypes.includes(type as CandleType) ? (type as CandleType) : 'minutes';
     let candleUnit = parseInt(unit, 10) || 1;
 
     if (candleType === 'minutes') {
@@ -41,7 +43,7 @@ export class MarketController {
 
     const candleCount = Math.min(parseInt(count, 10) || 200, 500);
 
-    const interval: CandleInterval = { type: candleType as any, unit: candleUnit };
+    const interval: CandleInterval = { type: candleType, unit: candleUnit };
     return this.marketService.getCandles(code, interval, candleCount);
   }
 }

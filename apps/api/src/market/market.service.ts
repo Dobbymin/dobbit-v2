@@ -61,7 +61,7 @@ export class MarketService {
   async getCandles(
     code: string,
     interval: CandleInterval = { type: 'minutes', unit: 1 },
-    count = 200
+    count = 200,
   ): Promise<CandleResponse[]> {
     try {
       const candles = await this.upbitApiClient.getCandles(code, interval, count);

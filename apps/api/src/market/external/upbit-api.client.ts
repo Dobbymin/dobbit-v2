@@ -72,7 +72,7 @@ export class UpbitApiClient {
   async getCandles(
     marketCode: string,
     interval: CandleInterval = { type: 'minutes', unit: 1 },
-    count = 200
+    count = 200,
   ): Promise<UpbitCandle[]> {
     try {
       let url = `${this.baseUrl}/candles`;
