@@ -1,0 +1,45 @@
+name: News Ingest (daily)
+
+on:
+  schedule:
+    # 매일 10:00 KST (UTC 01:00)
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    inputs:
+      requestedBy:
+        description: 'SCHEDULE or MANUAL'
+        required: false
+        default: 'MANUAL'
+
+concurrency:
+  group: news-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: [self-hosted, dobbit-pi]
+    steps:
+      - name: Trigger news ingestion
+        run: |
+          REQUESTED_BY="${{ github.event.inputs.requestedBy || 'SCHEDULE' }}"
+
+          echo "Starting news ingestion (requestedBy: $REQUESTED_BY)..."
+
+          http_code=$(curl -sS -o /tmp/news_ingest_resp.json -w "%{http_code}" \
+            --max-time 600 \
+            -X POST "http://127.0.0.1:3003/api/news/ingest" \
+            -H "Content-Type: application/json" \
+            -H "X-Internal-Token: ${{ secrets.INTERNAL_CRON_TOKEN }}" \
+            -d "{\"requestedBy\":\"$REQUESTED_BY\"}")
+
+          echo "HTTP Status: $http_code"
+          echo "Response:"
+          cat /tmp/news_ingest_resp.json || true
+          echo
+
+          if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+            echo "::error::News ingest failed with HTTP $http_code"
+            exit 1
+          fi
+
+          echo "News ingestion completed successfully"
