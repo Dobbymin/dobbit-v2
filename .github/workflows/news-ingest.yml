@@ -43,3 +43,25 @@ jobs:
           fi
 
           echo "News ingestion completed successfully"
+
+      - name: Trigger prediction review
+        run: |
+          echo "Starting prediction review..."
+
+          http_code=$(curl -sS -o /tmp/news_review_resp.json -w "%{http_code}" \
+            --max-time 600 \
+            -X POST "http://127.0.0.1:3003/api/news/predictions/review" \
+            -H "Content-Type: application/json" \
+            -H "X-Internal-Token: ${{ secrets.INTERNAL_CRON_TOKEN }}")
+
+          echo "HTTP Status: $http_code"
+          echo "Response:"
+          cat /tmp/news_review_resp.json || true
+          echo
+
+          if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+            echo "::error::Prediction review failed with HTTP $http_code"
+            exit 1
+          fi
+
+          echo "Prediction review completed successfully"

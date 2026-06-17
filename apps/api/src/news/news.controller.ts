@@ -38,7 +38,13 @@ export class NewsController {
   }
 
   @Get('reviews')
-  async getReviews(@Query('limit') limit: number = 10): Promise<PredictionReviewResponse[]> {
-    return this.newsService.getPredictionReview(limit);
+  async getReviews(@Query('limit') limit: number = 50): Promise<PredictionReviewResponse[]> {
+    return this.newsService.getPredictionReview(Number(limit));
+  }
+
+  @Post('predictions/review')
+  @UseGuards(InternalTokenGuard)
+  async reviewPredictions(): Promise<{ reviewedCount: number; skippedCount: number }> {
+    return this.newsService.reviewPredictions();
   }
 }

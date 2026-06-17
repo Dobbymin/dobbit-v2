@@ -28,7 +28,7 @@ interface UpbitCandle {
 }
 
 interface CandleInterval {
-  type: 'seconds' | 'minutes' | 'weeks' | 'months' | 'years';
+  type: 'seconds' | 'minutes' | 'days' | 'weeks' | 'months' | 'years';
   unit?: number;
 }
 
@@ -73,6 +73,7 @@ export class UpbitApiClient {
     marketCode: string,
     interval: CandleInterval = { type: 'minutes', unit: 1 },
     count = 200,
+    to?: string,
   ): Promise<UpbitCandle[]> {
     try {
       let url = `${this.baseUrl}/candles`;
@@ -85,7 +86,7 @@ export class UpbitApiClient {
 
       const response = await firstValueFrom(
         this.http.get<UpbitCandle[]>(url, {
-          params: { market: marketCode, count },
+          params: to ? { market: marketCode, count, to } : { market: marketCode, count },
         }),
       );
       return response.data || [];

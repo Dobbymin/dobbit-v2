@@ -5,8 +5,14 @@ import { NaverNewsCollector } from './collectors/naver-news.collector';
 import { HermesAnalyzer } from './analyzers/hermes.analyzer';
 import { GeminiAnalyzer } from './analyzers/gemini.analyzer';
 import { AnalysisResult } from './analyzers/news-analyzer';
-import { NewsAnalysisResponse, PredictionReviewResponse, NewsItem } from '@dobbit/shared';
+import { NewsAnalysisResponse, PredictionDirection, PredictionReviewResponse, NewsItem } from '@dobbit/shared';
 import { Decimal as PrismaDecimal } from '@prisma/client/runtime/library';
+import { UpbitApiClient } from '../market/external/upbit-api.client';
+
+const REVIEW_TIME_HORIZON = '1D';
+const REVIEW_TIME_HORIZON_MS = 24 * 60 * 60 * 1000;
+const PREDICTED_DIRECTION_DEAD_BAND = { UP: 0.15, DOWN: -0.15 } as const;
+const ACTUAL_DIRECTION_DEAD_BAND = { UP: 0.005, DOWN: -0.005 } as const;
 
 interface NewsIngestionRunResponse {
   id: string;
@@ -32,6 +38,7 @@ export class NewsService {
     private readonly hermesAnalyzer: HermesAnalyzer,
     private readonly geminiAnalyzer: GeminiAnalyzer,
     private readonly alertService: AlertService,
+    private readonly upbitApiClient: UpbitApiClient,
   ) {}
 
   async ingest(requestedBy: string = 'SCHEDULE'): Promise<NewsIngestionRunResponse> {
@@ -278,12 +285,177 @@ export class NewsService {
     return Promise.resolve({} as NewsAnalysisResponse);
   }
 
-  getPredictionReview(limit = 10): Promise<PredictionReviewResponse[]> {
-    void limit;
-    return Promise.resolve<PredictionReviewResponse[]>([]);
+  async reviewPredictions(): Promise<{ reviewedCount: number; skippedCount: number }> {
+    const now = new Date();
+    const reviewablePublishedAt = new Date(now.getTime() - REVIEW_TIME_HORIZON_MS);
+
+    const analyses = await this.prisma.newsAnalysis.findMany({
+      where: {
+        predictionReview: null,
+        newsArticle: {
+          publishedAt: { lte: reviewablePublishedAt },
+          marketTags: { some: {} },
+        },
+      },
+      include: {
+        newsArticle: {
+          include: {
+            marketTags: {
+              include: { market: true },
+            },
+          },
+        },
+      },
+      orderBy: { analyzedAt: 'asc' },
+    });
+
+    let reviewedCount = 0;
+    let skippedCount = 0;
+
+    for (const analysis of analyses) {
+      try {
+        const marketTag = analysis.newsArticle.marketTags.reduce<
+          (typeof analysis.newsArticle.marketTags)[number] | null
+        >((selected, tag) => {
+          if (!selected) {
+            return tag;
+          }
+
+          return Number(tag.confidence) > Number(selected.confidence) ? tag : selected;
+        }, null);
+
+        if (!marketTag) {
+          this.logger.warn(`예측 리뷰 skip: 마켓 태그 없음 (newsAnalysisId=${analysis.id})`);
+          skippedCount++;
+          continue;
+        }
+
+        const publishedAt = analysis.newsArticle.publishedAt;
+        const reviewTargetAt = new Date(publishedAt.getTime() + REVIEW_TIME_HORIZON_MS);
+        const predictedDirection = this.getPredictedDirection(Number(analysis.investmentScore));
+        const basePrice = await this.getCandleTradePrice(
+          marketTag.market.code,
+          publishedAt.toISOString(),
+          analysis.id,
+          'base',
+        );
+        const futurePrice = await this.getCandleTradePrice(
+          marketTag.market.code,
+          reviewTargetAt.toISOString(),
+          analysis.id,
+          'future',
+        );
+
+        if (basePrice === null || futurePrice === null) {
+          skippedCount++;
+          continue;
+        }
+
+        const actualReturn = (futurePrice - basePrice) / basePrice;
+        const actualDirection = this.getActualDirection(actualReturn);
+        const errorRate = Math.min(Math.abs(actualReturn), 0.9999);
+
+        await this.prisma.predictionReview.create({
+          data: {
+            newsAnalysisId: analysis.id,
+            marketId: marketTag.marketId,
+            basePrice: new PrismaDecimal(basePrice),
+            futurePrice: new PrismaDecimal(futurePrice),
+            timeHorizon: REVIEW_TIME_HORIZON,
+            predictedDirection,
+            actualDirection,
+            isMatched: predictedDirection === actualDirection,
+            errorRate: new PrismaDecimal(errorRate.toFixed(4)),
+            reviewedAt: new Date(),
+          },
+        });
+
+        reviewedCount++;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '알 수 없는 에러';
+        this.logger.warn(`예측 리뷰 skip: 처리 실패 (newsAnalysisId=${analysis.id}): ${message}`);
+        skippedCount++;
+      }
+    }
+
+    return { reviewedCount, skippedCount };
+  }
+
+  async getPredictionReview(limit = 50): Promise<PredictionReviewResponse[]> {
+    const reviews = await this.prisma.predictionReview.findMany({
+      take: limit,
+      orderBy: { reviewedAt: 'desc' },
+      include: {
+        market: true,
+        newsAnalysis: true,
+      },
+    });
+
+    return reviews.map((review) => ({
+      id: review.id,
+      newsAnalysisId: review.newsAnalysisId,
+      marketCode: review.market.code,
+      provider: review.newsAnalysis.provider as PredictionReviewResponse['provider'],
+      predictedDirection: review.predictedDirection as PredictionDirection,
+      actualDirection: review.actualDirection as PredictionDirection,
+      isMatched: review.isMatched,
+      errorRate: Number(review.errorRate),
+      reviewedAt: review.reviewedAt.toISOString(),
+    }));
   }
 
   collectNews(): Promise<void> {
     return Promise.resolve();
+  }
+
+  private getPredictedDirection(investmentScore: number): PredictionDirection {
+    if (investmentScore >= PREDICTED_DIRECTION_DEAD_BAND.UP) {
+      return 'UP';
+    }
+
+    if (investmentScore <= PREDICTED_DIRECTION_DEAD_BAND.DOWN) {
+      return 'DOWN';
+    }
+
+    return 'FLAT';
+  }
+
+  private getActualDirection(actualReturn: number): PredictionDirection {
+    if (actualReturn >= ACTUAL_DIRECTION_DEAD_BAND.UP) {
+      return 'UP';
+    }
+
+    if (actualReturn <= ACTUAL_DIRECTION_DEAD_BAND.DOWN) {
+      return 'DOWN';
+    }
+
+    return 'FLAT';
+  }
+
+  private async getCandleTradePrice(
+    marketCode: string,
+    to: string,
+    newsAnalysisId: string,
+    priceLabel: 'base' | 'future',
+  ): Promise<number | null> {
+    try {
+      const candles = await this.upbitApiClient.getCandles(marketCode, { type: 'days' }, 1, to);
+      const tradePrice = candles[0]?.trade_price;
+
+      if (!Number.isFinite(tradePrice) || tradePrice <= 0) {
+        this.logger.warn(
+          `예측 리뷰 skip: 유효하지 않은 ${priceLabel} 가격 (newsAnalysisId=${newsAnalysisId}, market=${marketCode}, to=${to})`,
+        );
+        return null;
+      }
+
+      return tradePrice;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '알 수 없는 에러';
+      this.logger.warn(
+        `예측 리뷰 skip: ${priceLabel} 캔들 조회 실패 (newsAnalysisId=${newsAnalysisId}, market=${marketCode}, to=${to}): ${message}`,
+      );
+      return null;
+    }
   }
 }
