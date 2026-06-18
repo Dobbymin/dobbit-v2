@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { AlertService } from '../alert/alert.service';
 import { NaverNewsCollector } from './collectors/naver-news.collector';
 import { HermesAnalyzer } from './analyzers/hermes.analyzer';
 import { GeminiAnalyzer } from './analyzers/gemini.analyzer';
-import { AnalysisResult } from './analyzers/news-analyzer';
+import { AnalysisResult, DEFAULT_HERMES_MODEL } from './analyzers/news-analyzer';
 import { NewsAnalysisResponse, PredictionDirection, PredictionReviewResponse, NewsItem } from '@dobbit/shared';
 import { Decimal as PrismaDecimal } from '@prisma/client/runtime/library';
 import { UpbitApiClient } from '../market/external/upbit-api.client';
@@ -31,6 +32,8 @@ interface NewsIngestionRunResponse {
 @Injectable()
 export class NewsService {
   private readonly logger = new Logger(NewsService.name);
+  private readonly newsAnalyzerFallback: string;
+  private readonly hermesModel: string;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -39,7 +42,11 @@ export class NewsService {
     private readonly geminiAnalyzer: GeminiAnalyzer,
     private readonly alertService: AlertService,
     private readonly upbitApiClient: UpbitApiClient,
-  ) {}
+    private readonly config: ConfigService,
+  ) {
+    this.newsAnalyzerFallback = this.config.get<string>('NEWS_ANALYZER_FALLBACK', '');
+    this.hermesModel = this.config.get<string>('HERMES_MODEL', DEFAULT_HERMES_MODEL);
+  }
 
   async ingest(requestedBy: string = 'SCHEDULE'): Promise<NewsIngestionRunResponse> {
     const run = await this.prisma.newsAnalysisRun.create({
@@ -79,13 +86,23 @@ export class NewsService {
 
           let analysis: AnalysisResult | null = null;
           let provider: 'HERMES' | 'GEMINI' = 'HERMES';
-          let modelVersion = 'hermes-agent';
+          let modelVersion = this.hermesModel;
 
           try {
             analysis = await this.hermesAnalyzer.analyze(item.content);
             provider = 'HERMES';
-            modelVersion = 'hermes-agent';
-          } catch {
+            modelVersion = this.hermesModel;
+          } catch (hermesErr) {
+            if (this.newsAnalyzerFallback !== 'gemini') {
+              if (hermesErr instanceof Error) {
+                this.logger.warn(`분석 실패 (${item.url}): ${hermesErr.message}`);
+              } else {
+                this.logger.warn(`분석 실패 (${item.url}): 알 수 없는 에러`);
+              }
+              failedCount++;
+              continue;
+            }
+
             try {
               analysis = await this.geminiAnalyzer.analyze(item.content);
               provider = 'GEMINI';
