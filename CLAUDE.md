@@ -231,6 +231,30 @@ API Key·Secret Key는 응답·코드·로그·커밋에 그대로 출력하거�
 - Codex 구현 결과는 Claude Code가 검토 후 작업 로그에 요약한다.
 - 기록 위치: `workspace/project/portfolio-renewal/Dobbit/docs/` (Obsidian vault)
 
+## GitHub Issue-First Workflow
+
+기능 구현, 버그 수정, 리팩터링, chore 작업은 `.claude/skills/issue-first-github-workflow/SKILL.md`를 사용한다.
+
+기본 순서:
+
+1. GitHub issue 작성 또는 기존 issue 확인
+2. issue 번호 기반 branch 생성: `{type}/{issue_number}-{summary}`
+3. 구현 및 검증
+4. commit/push
+5. PR 작성, PR body에 `Closes #<issue_number>` 포함
+6. Gemini/Copilot 등 AI code review 진행
+7. 리뷰 타당성 검토 후 필요한 것만 반영
+8. review/check 완료 후 사용자 승인에 따라 `main` merge
+
+branch 예시:
+
+```text
+feat/12-news-cron-job
+fix/16-auth-token-refresh
+chore/24-add-issue-pr-template
+refactor/35-news-design
+```
+
 ## 커밋 컨벤션
 
 ```
