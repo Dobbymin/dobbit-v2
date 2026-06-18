@@ -77,12 +77,13 @@ if [[ -n "$pr_body_file" ]]; then
     exit 1
   fi
 
-  if grep -Eiq "\b(closes|fixes|resolves)[[:space:]]+#${issue_number}\b" "$pr_body_file"; then
+  closing_keyword_regex='\b(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)[[:space:]]+#'
+  if grep -Eiq "${closing_keyword_regex}${issue_number}\b" "$pr_body_file"; then
     echo "OK: PR body links issue #$issue_number"
   else
     cat >&2 <<EOF
 ERROR: PR body does not close the branch issue #$issue_number
-Add one of these lines to the PR body:
+Add a GitHub closing keyword to the PR body, for example:
   Closes #$issue_number
   Fixes #$issue_number
   Resolves #$issue_number

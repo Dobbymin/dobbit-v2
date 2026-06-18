@@ -59,12 +59,11 @@ Claude Code는 이 skill을 통해 작업을 시작할 때 issue를 먼저 확�
 
 ### 1. Repository 상태 확인
 
+먼저 read-only 확인을 수행한다.
+
 ```bash
 git status --short --branch
 git remote -v
-git fetch origin
-git checkout main
-git pull --ff-only origin main
 ```
 
 확인 사항:
@@ -72,6 +71,14 @@ git pull --ff-only origin main
 - 작업 tree가 예상한 상태인지
 - 원격 저장소가 `Dobbymin/dobbit-v2`인지
 - base branch가 `main`인지
+
+작업 tree와 원격 저장소가 예상과 일치하면 최신 `main`으로 이동한다.
+
+```bash
+git fetch origin
+git checkout main
+git pull --ff-only origin main
+```
 
 ### 2. Issue 생성 또는 확인
 
@@ -99,7 +106,7 @@ issue가 없으면 `.github/ISSUE_TEMPLATE/issue-template.md` 형식을 따른�
 ### 3. Branch 생성
 
 ```bash
-git checkout -b chore/2-add-claude-github-skill
+git checkout -b {type}/{issue_number}-{summary}
 ```
 
 허용 type:
@@ -152,7 +159,7 @@ pnpm test
 
 ```bash
 git add <changed-files>
-git commit -m "chore: add claude github workflow skill"
+git commit -m "<type>: <summary>"
 git push -u origin HEAD
 ```
 
@@ -165,7 +172,7 @@ PR은 `.github/pull_request_template.md`를 따른다.
 반드시 issue closing keyword를 포함한다.
 
 ```text
-Closes #2
+Closes #<issue_number>
 ```
 
 PR body에는 다음을 포함한다.
