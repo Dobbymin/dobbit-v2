@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, InternalServerErrorException, Post, Query, UseGuards } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { NewsAnalysisResponse, PredictionReviewResponse, NewsItem } from '@dobbit/shared';
 import { InternalTokenGuard } from '../common/guards/internal-token.guard';
@@ -29,7 +29,13 @@ export class NewsController {
   @Post('ingest')
   @UseGuards(InternalTokenGuard)
   async ingest(@Body('requestedBy') requestedBy: string = 'SCHEDULE'): Promise<NewsIngestionRunResponse> {
-    return this.newsService.ingest(requestedBy);
+    const result = await this.newsService.ingest(requestedBy);
+
+    if (result.status === 'FAILED') {
+      throw new InternalServerErrorException(result);
+    }
+
+    return result;
   }
 
   @Post('analyze')

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 export const DEFAULT_HERMES_MODEL = 'hermes-agent';
 export const NEWS_ANALYZER_SYSTEM_MESSAGE =
-  '뉴스를 투자 관점에서 분석하고 반드시 JSON 객체만 응답하세요. sentiment는 positive, negative, neutral 중 하나여야 하며 confidence는 0~1, investment_index는 -1~1 범위여야 합니다.';
+  'You are a financial news analysis engine. Return only valid JSON matching the requested schema. Do not include markdown. Do not use tools. Analyze only the provided news content.';
 
 export interface AnalysisResult {
   sentiment: 'positive' | 'negative' | 'neutral';

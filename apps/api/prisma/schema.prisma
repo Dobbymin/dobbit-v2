@@ -227,7 +227,7 @@ model NewsAnalysis {
 model NewsAnalysisRun {
   id           String    @id @default(cuid())
   provider     String // HERMES, GEMINI
-  status       String // PENDING, RUNNING, SUCCEEDED, FAILED
+  status       String // PENDING, RUNNING, SUCCEEDED, FAILED, PARTIAL_SUCCESS
   targetDate   DateTime
   requestedBy  String // SCHEDULE, MANUAL
   totalCount   Int       @default(0)

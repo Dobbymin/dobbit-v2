@@ -14,6 +14,7 @@ const REVIEW_TIME_HORIZON = '1D';
 const REVIEW_TIME_HORIZON_MS = 24 * 60 * 60 * 1000;
 const PREDICTED_DIRECTION_DEAD_BAND = { UP: 0.15, DOWN: -0.15 } as const;
 const ACTUAL_DIRECTION_DEAD_BAND = { UP: 0.005, DOWN: -0.005 } as const;
+type NewsAnalysisProvider = 'hermes' | 'hermes-with-gemini-fallback' | 'gemini';
 
 interface NewsIngestionRunResponse {
   id: string;
@@ -32,7 +33,7 @@ interface NewsIngestionRunResponse {
 @Injectable()
 export class NewsService {
   private readonly logger = new Logger(NewsService.name);
-  private readonly newsAnalyzerFallback: string;
+  private readonly newsAnalysisProvider: NewsAnalysisProvider;
   private readonly hermesModel: string;
 
   constructor(
@@ -44,7 +45,8 @@ export class NewsService {
     private readonly upbitApiClient: UpbitApiClient,
     private readonly config: ConfigService,
   ) {
-    this.newsAnalyzerFallback = this.config.get<string>('NEWS_ANALYZER_FALLBACK', '');
+    const newsAnalysisProvider = this.config.get<string>('NEWS_ANALYSIS_PROVIDER', 'hermes');
+    this.newsAnalysisProvider = this.isNewsAnalysisProvider(newsAnalysisProvider) ? newsAnalysisProvider : 'hermes';
     this.hermesModel = this.config.get<string>('HERMES_MODEL', DEFAULT_HERMES_MODEL);
   }
 
@@ -87,18 +89,27 @@ export class NewsService {
           let analysis: AnalysisResult | null = null;
           let provider: 'HERMES' | 'GEMINI' = 'HERMES';
           let modelVersion = this.hermesModel;
+          const primaryAnalyzer = this.selectAnalyzer();
 
           try {
-            analysis = await this.hermesAnalyzer.analyze(item.content);
-            provider = 'HERMES';
-            modelVersion = this.hermesModel;
-          } catch (hermesErr) {
-            if (this.newsAnalyzerFallback !== 'gemini') {
-              if (hermesErr instanceof Error) {
-                this.logger.warn(`분석 실패 (${item.url}): ${hermesErr.message}`);
-              } else {
-                this.logger.warn(`분석 실패 (${item.url}): 알 수 없는 에러`);
-              }
+            analysis = await primaryAnalyzer.analyze(item.content);
+            if (primaryAnalyzer === this.geminiAnalyzer) {
+              provider = 'GEMINI';
+              modelVersion = 'gemini-2.5-flash-lite';
+            } else {
+              provider = 'HERMES';
+              modelVersion = this.hermesModel;
+            }
+          } catch (primaryErr) {
+            if (this.newsAnalysisProvider !== 'hermes-with-gemini-fallback') {
+              this.logAnalysisFailure(item.url, primaryErr);
+              failedCount++;
+              continue;
+            }
+
+            const geminiApiKey = this.config.get<string>('GEMINI_API_KEY', '');
+            if (!geminiApiKey) {
+              this.logAnalysisFailure(item.url, primaryErr);
               failedCount++;
               continue;
             }
@@ -108,11 +119,7 @@ export class NewsService {
               provider = 'GEMINI';
               modelVersion = 'gemini-2.5-flash-lite';
             } catch (fallbackErr) {
-              if (fallbackErr instanceof Error) {
-                this.logger.warn(`분석 실패 (${item.url}): ${fallbackErr.message}`);
-              } else {
-                this.logger.warn(`분석 실패 (${item.url}): 알 수 없는 에러`);
-              }
+              this.logAnalysisFailure(item.url, fallbackErr);
               failedCount++;
               continue;
             }
@@ -209,11 +216,19 @@ export class NewsService {
         }
       }
 
+      const totalCount = items.length;
+      const status =
+        totalCount === 0 || (successCount > 0 && failedCount === 0)
+          ? 'SUCCEEDED'
+          : successCount > 0 && failedCount > 0
+            ? 'PARTIAL_SUCCESS'
+            : 'FAILED';
+
       const updatedRun = await this.prisma.newsAnalysisRun.update({
         where: { id: run.id },
         data: {
-          status: 'SUCCEEDED',
-          totalCount: items.length,
+          status,
+          totalCount,
           successCount,
           failedCount,
           finishedAt: new Date(),
@@ -423,6 +438,27 @@ export class NewsService {
 
   collectNews(): Promise<void> {
     return Promise.resolve();
+  }
+
+  private isNewsAnalysisProvider(value: string): value is NewsAnalysisProvider {
+    return value === 'hermes' || value === 'hermes-with-gemini-fallback' || value === 'gemini';
+  }
+
+  private selectAnalyzer(): HermesAnalyzer | GeminiAnalyzer {
+    if (this.newsAnalysisProvider === 'gemini') {
+      return this.geminiAnalyzer;
+    }
+
+    return this.hermesAnalyzer;
+  }
+
+  private logAnalysisFailure(url: string, error: unknown): void {
+    if (error instanceof Error) {
+      this.logger.warn(`분석 실패 (${url}): ${error.message}`);
+      return;
+    }
+
+    this.logger.warn(`분석 실패 (${url}): 알 수 없는 에러`);
   }
 
   private getPredictedDirection(investmentScore: number): PredictionDirection {

@@ -2,6 +2,7 @@ import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ConfigService } from '@nestjs/config';
 import { HermesAnalyzer } from '../src/news/analyzers/hermes.analyzer';
+import { NEWS_ANALYZER_SYSTEM_MESSAGE } from '../src/news/analyzers/news-analyzer';
 
 vi.mock('axios', () => ({
   default: {
@@ -11,6 +12,8 @@ vi.mock('axios', () => ({
 }));
 
 const mockedAxios = vi.mocked(axios);
+const expectedSystemMessage =
+  'You are a financial news analysis engine. Return only valid JSON matching the requested schema. Do not include markdown. Do not use tools. Analyze only the provided news content.';
 
 const createConfig = (values: Record<string, string>): ConfigService =>
   ({
@@ -39,6 +42,10 @@ describe('HermesAnalyzer', () => {
     vi.clearAllMocks();
   });
 
+  it('uses the required shared system message', () => {
+    expect(NEWS_ANALYZER_SYSTEM_MESSAGE).toBe(expectedSystemMessage);
+  });
+
   it('uses env model, timeout, and system message in OpenAI-compatible request', async () => {
     const analyzer = new HermesAnalyzer(
       createConfig({
@@ -57,7 +64,7 @@ describe('HermesAnalyzer', () => {
       expect.objectContaining({
         model: 'custom-hermes',
         messages: [
-          expect.objectContaining({ role: 'system', content: expect.any(String) }),
+          expect.objectContaining({ role: 'system', content: expectedSystemMessage }),
           expect.objectContaining({ role: 'user', content: expect.stringContaining('비트코인 ETF') }),
         ],
       }),
