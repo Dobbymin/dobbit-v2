@@ -1,5 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+export const DEFAULT_HERMES_MODEL = 'hermes-agent';
+export const NEWS_ANALYZER_SYSTEM_MESSAGE =
+  'You are a financial news analysis engine. Return only valid JSON matching the requested schema. Do not include markdown. Do not use tools. Analyze only the provided news content.';
+
 export interface AnalysisResult {
   sentiment: 'positive' | 'negative' | 'neutral';
   confidence: number;
@@ -17,6 +21,9 @@ interface RawAnalysis {
   reason: string;
   related_markets: string[];
 }
+
+const isValidSentiment = (sentiment: string): sentiment is AnalysisResult['sentiment'] =>
+  ['positive', 'negative', 'neutral'].includes(sentiment);
 
 @Injectable()
 export abstract class NewsAnalyzer {
@@ -39,16 +46,38 @@ export abstract class NewsAnalyzer {
   }
 
   protected parseAnalysis(content: string): RawAnalysis {
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
+    const fencedJsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+    const jsonContent = fencedJsonMatch?.[1] ?? content;
+    const jsonStart = jsonContent.indexOf('{');
+    const jsonEnd = jsonContent.lastIndexOf('}');
+
+    if (jsonStart === -1 || jsonEnd === -1 || jsonStart >= jsonEnd) {
       throw new Error(`JSON 파싱 실패: ${content.slice(0, 100)}`);
     }
-    return JSON.parse(jsonMatch[0]) as RawAnalysis;
+
+    try {
+      return JSON.parse(jsonContent.slice(jsonStart, jsonEnd + 1)) as RawAnalysis;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '알 수 없는 에러';
+      throw new Error(`JSON 파싱 실패: ${message}`);
+    }
   }
 
   protected normalizeAnalysis(raw: RawAnalysis): AnalysisResult {
+    if (!isValidSentiment(raw.sentiment)) {
+      throw new Error(`sentiment 값이 유효하지 않습니다: ${raw.sentiment}`);
+    }
+
+    if (typeof raw.confidence !== 'number' || raw.confidence < 0 || raw.confidence > 1) {
+      throw new Error(`confidence 값이 유효하지 않습니다: ${raw.confidence}`);
+    }
+
+    if (typeof raw.investment_index !== 'number' || raw.investment_index < -1 || raw.investment_index > 1) {
+      throw new Error(`investment_index 값이 유효하지 않습니다: ${raw.investment_index}`);
+    }
+
     return {
-      sentiment: raw.sentiment as 'positive' | 'negative' | 'neutral',
+      sentiment: raw.sentiment,
       confidence: raw.confidence,
       investmentScore: raw.investment_index,
       keywords: raw.keywords,
