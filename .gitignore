@@ -43,5 +43,6 @@ yarn-error.log*
 
 # Local planning workspace
 _workspace/
+_workspace_prev/
 
 .eslintcache
