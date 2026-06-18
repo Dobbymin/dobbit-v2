@@ -2,8 +2,8 @@ name: News Ingest (daily)
 
 on:
   schedule:
-    # 매일 10:00 KST (UTC 01:00)
-    - cron: '0 1 * * *'
+    # 매일 10:07 KST (UTC 01:07) — GitHub Actions 정각 부하로 인한 schedule drop 완화
+    - cron: '7 1 * * *'
   workflow_dispatch:
     inputs:
       requestedBy:
