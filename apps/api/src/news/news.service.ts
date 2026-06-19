@@ -12,6 +12,7 @@ import { UpbitApiClient } from '../market/external/upbit-api.client';
 
 const REVIEW_TIME_HORIZON = '1D';
 const REVIEW_TIME_HORIZON_MS = 24 * 60 * 60 * 1000;
+const ACTIVE_INGEST_MAX_AGE_MS = 90 * 60 * 1000;
 const PREDICTED_DIRECTION_DEAD_BAND = { UP: 0.15, DOWN: -0.15 } as const;
 const ACTUAL_DIRECTION_DEAD_BAND = { UP: 0.005, DOWN: -0.005 } as const;
 type NewsAnalysisProvider = 'hermes' | 'hermes-with-gemini-fallback' | 'gemini';
@@ -51,6 +52,32 @@ export class NewsService {
   }
 
   async ingest(requestedBy: string = 'SCHEDULE'): Promise<NewsIngestionRunResponse> {
+    const activeStartedAfter = new Date(Date.now() - ACTIVE_INGEST_MAX_AGE_MS);
+    const activeRun = await this.prisma.newsAnalysisRun.findFirst({
+      where: {
+        status: 'RUNNING',
+        startedAt: { gte: activeStartedAfter },
+      },
+      orderBy: { startedAt: 'desc' },
+    });
+
+    if (activeRun) {
+      this.logger.warn(`뉴스 수집 중복 요청 skip: active run=${activeRun.id}`);
+      return this.toIngestionRunResponse(activeRun);
+    }
+
+    await this.prisma.newsAnalysisRun.updateMany({
+      where: {
+        status: 'RUNNING',
+        OR: [{ startedAt: null }, { startedAt: { lt: activeStartedAfter } }],
+      },
+      data: {
+        status: 'FAILED',
+        errorMessage: 'Stale RUNNING news ingest run exceeded 90 minutes and was marked failed before a new ingest started.',
+        finishedAt: new Date(),
+      },
+    });
+
     const run = await this.prisma.newsAnalysisRun.create({
       data: {
         provider: 'AGGREGATED',
@@ -235,19 +262,7 @@ export class NewsService {
         },
       });
 
-      return {
-        id: updatedRun.id,
-        source: 'NAVER',
-        status: updatedRun.status,
-        targetDate: updatedRun.targetDate,
-        requestedBy: updatedRun.requestedBy,
-        totalCount: updatedRun.totalCount,
-        successCount: updatedRun.successCount,
-        failedCount: updatedRun.failedCount,
-        errorMessage: updatedRun.errorMessage,
-        startedAt: updatedRun.startedAt,
-        finishedAt: updatedRun.finishedAt,
-      };
+      return this.toIngestionRunResponse(updatedRun);
     } catch (error) {
       if (error instanceof Error) {
         await this.prisma.newsAnalysisRun.update({
@@ -438,6 +453,22 @@ export class NewsService {
 
   collectNews(): Promise<void> {
     return Promise.resolve();
+  }
+
+  private toIngestionRunResponse(run: Omit<NewsIngestionRunResponse, 'source'>): NewsIngestionRunResponse {
+    return {
+      id: run.id,
+      source: 'NAVER',
+      status: run.status,
+      targetDate: run.targetDate,
+      requestedBy: run.requestedBy,
+      totalCount: run.totalCount,
+      successCount: run.successCount,
+      failedCount: run.failedCount,
+      errorMessage: run.errorMessage,
+      startedAt: run.startedAt,
+      finishedAt: run.finishedAt,
+    };
   }
 
   private isNewsAnalysisProvider(value: string): value is NewsAnalysisProvider {
