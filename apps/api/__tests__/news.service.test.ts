@@ -48,6 +48,8 @@ const createPrisma = () => {
 
   return {
     newsAnalysisRun: {
+      findFirst: vi.fn().mockResolvedValue(null),
+      updateMany: vi.fn().mockResolvedValue({ count: 0 }),
       create: vi.fn().mockResolvedValue(run),
       update: vi.fn().mockImplementation(({ data }) =>
         Promise.resolve({
@@ -128,7 +130,7 @@ const createService = ({
     error: vi.fn(),
   } as never);
 
-  return { service, prisma };
+  return { service, prisma, naverCollector };
 };
 
 describe('NewsService analyzer provider routing', () => {
@@ -210,5 +212,74 @@ describe('NewsService analyzer provider routing', () => {
     );
     expect(result.successCount).toBe(1);
     expect(result.failedCount).toBe(0);
+  });
+
+  it('returns a recent RUNNING run without starting duplicate collection', async () => {
+    const hermesAnalyze = vi.fn().mockResolvedValue(analysisResult);
+    const geminiAnalyze = vi.fn().mockResolvedValue(analysisResult);
+    const { service, prisma, naverCollector } = createService({
+      configValues: {
+        NEWS_ANALYSIS_PROVIDER: 'hermes',
+      },
+      hermesAnalyze,
+      geminiAnalyze,
+    });
+    const activeRun = {
+      id: 'active-run',
+      provider: 'AGGREGATED',
+      status: 'RUNNING',
+      targetDate: new Date('2026-06-18T01:00:00.000Z'),
+      requestedBy: 'SCHEDULE',
+      totalCount: 3,
+      successCount: 1,
+      failedCount: 0,
+      errorMessage: null,
+      startedAt: new Date(),
+      finishedAt: null,
+      createdAt: new Date(),
+    };
+    vi.mocked(prisma.newsAnalysisRun.findFirst).mockResolvedValue(activeRun);
+
+    const result = await service.ingest('MANUAL');
+
+    expect(result).toMatchObject({
+      id: 'active-run',
+      source: 'NAVER',
+      status: 'RUNNING',
+      totalCount: 3,
+      successCount: 1,
+    });
+    expect(prisma.newsAnalysisRun.create).not.toHaveBeenCalled();
+    expect(naverCollector.collect).not.toHaveBeenCalled();
+    expect(hermesAnalyze).not.toHaveBeenCalled();
+  });
+
+  it('marks stale RUNNING runs failed before starting a new ingest', async () => {
+    const hermesAnalyze = vi.fn().mockResolvedValue(analysisResult);
+    const geminiAnalyze = vi.fn().mockResolvedValue(analysisResult);
+    const { service, prisma } = createService({
+      configValues: {
+        NEWS_ANALYSIS_PROVIDER: 'hermes',
+      },
+      hermesAnalyze,
+      geminiAnalyze,
+    });
+
+    await service.ingest('TEST');
+
+    expect(prisma.newsAnalysisRun.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          status: 'RUNNING',
+          OR: expect.arrayContaining([{ startedAt: null }]),
+        }),
+        data: expect.objectContaining({
+          status: 'FAILED',
+          errorMessage: expect.stringContaining('exceeded 90 minutes'),
+        }),
+      }),
+    );
+    expect(prisma.newsAnalysisRun.create).toHaveBeenCalledOnce();
+    expect(hermesAnalyze).toHaveBeenCalledOnce();
   });
 });

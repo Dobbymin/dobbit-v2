@@ -21,12 +21,14 @@ export class NaverNewsCollector extends NewsCollector {
   private readonly http: AxiosInstance;
   private readonly clientId: string;
   private readonly clientSecret: string;
+  private readonly display: number;
   private readonly keywords = ['비트코인', '이더리움', '가상자산', '암호화폐', '블록체인'];
 
   constructor(private readonly configService: ConfigService) {
     super();
     this.clientId = this.configService.get<string>('NAVER_CLIENT_ID') || '';
     this.clientSecret = this.configService.get<string>('NAVER_CLIENT_SECRET') || '';
+    this.display = this.getDisplayCount();
     this.http = axios.create({
       timeout: 10000,
       baseURL: 'https://openapi.naver.com',
@@ -65,7 +67,7 @@ export class NaverNewsCollector extends NewsCollector {
       const response = await this.http.get<NaverNewsResponse>('/v1/search/news.json', {
         params: {
           query: keyword,
-          display: 100,
+          display: this.display,
           start: 1,
           sort: 'date',
         },
@@ -107,5 +109,14 @@ export class NaverNewsCollector extends NewsCollector {
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&#39;/g, "'");
+  }
+
+  private getDisplayCount(): number {
+    const configured = Number(this.configService.get<string | number>('NEWS_NAVER_DISPLAY', 20));
+    if (!Number.isFinite(configured)) {
+      return 20;
+    }
+
+    return Math.min(100, Math.max(1, Math.floor(configured)));
   }
 }
