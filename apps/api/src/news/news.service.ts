@@ -72,7 +72,7 @@ export class NewsService {
 
     const completedRun = await this.prisma.newsAnalysisRun.findFirst({
       where: {
-        status: { in: ['SUCCESS', 'PARTIAL_SUCCESS'] },
+        status: { in: ['SUCCEEDED', 'PARTIAL_SUCCESS'] },
         targetDate: {
           gte: todayStart,
           lt: todayEnd,
@@ -80,7 +80,7 @@ export class NewsService {
       },
       orderBy: { targetDate: 'desc' },
     });
-    if (completedRun) {
+    if (completedRun && requestedBy !== 'MANUAL') {
       this.logger.warn(`뉴스 수집 멱등성 skip: completed run=${completedRun.id}`);
       return this.toIngestionRunResponse(completedRun);
     }

@@ -4,13 +4,13 @@ set -euo pipefail
 
 # Script: News Ingest Runner
 # Purpose: Trigger news ingest and prediction review via HTTP
-# Runs: On systemd timer (daily 10:07 KST)
+# Runs: On systemd timer (daily 10:12 KST)
 
 # Get token from environment or docker/.env
 TOKEN="${INTERNAL_CRON_TOKEN:-}"
 
 if [ -z "$TOKEN" ] && [ -f "docker/.env" ]; then
-  TOKEN=$(grep '^INTERNAL_CRON_TOKEN=' docker/.env 2>/dev/null | cut -d'=' -f2- | tr -d '\n' || true)
+  TOKEN=$(grep '^INTERNAL_CRON_TOKEN=' docker/.env 2>/dev/null | cut -d'=' -f2- | tr -d '\n' | sed -e 's/^["'"'"']//' -e 's/["'"'"']$//' || true)
 fi
 
 if [ -z "$TOKEN" ]; then
