@@ -66,6 +66,21 @@ export class NewsService {
       return this.toIngestionRunResponse(activeRun);
     }
 
+    const today = new Date();
+    const completedRun = (
+      await this.prisma.newsAnalysisRun.findMany({
+        where: {
+          status: { in: ['SUCCESS', 'SUCCEEDED', 'PARTIAL_SUCCESS'] },
+        },
+        orderBy: { targetDate: 'desc' },
+      })
+    ).find((run) => run.targetDate.toDateString() === today.toDateString());
+
+    if (completedRun) {
+      this.logger.warn(`뉴스 수집 멱등성 skip: completed run=${completedRun.id}`);
+      return this.toIngestionRunResponse(completedRun);
+    }
+
     await this.prisma.newsAnalysisRun.updateMany({
       where: {
         status: 'RUNNING',

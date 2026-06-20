@@ -1,0 +1,13 @@
+[Unit]
+Description=Dobbit News Ingest Pipeline Timer
+Requires=dobbit-news-ingest.service
+
+[Timer]
+# Run daily at 10:07 AM KST (UTC+9)
+# Note: systemd OnCalendar uses system timezone
+OnCalendar=*-*-* 10:07:00
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target
