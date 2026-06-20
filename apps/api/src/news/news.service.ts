@@ -67,15 +67,19 @@ export class NewsService {
     }
 
     const today = new Date();
-    const completedRun = (
-      await this.prisma.newsAnalysisRun.findMany({
-        where: {
-          status: { in: ['SUCCESS', 'SUCCEEDED', 'PARTIAL_SUCCESS'] },
-        },
-        orderBy: { targetDate: 'desc' },
-      })
-    ).find((run) => run.targetDate.toDateString() === today.toDateString());
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
 
+    const completedRun = await this.prisma.newsAnalysisRun.findFirst({
+      where: {
+        status: { in: ['SUCCESS', 'PARTIAL_SUCCESS'] },
+        targetDate: {
+          gte: todayStart,
+          lt: todayEnd,
+        },
+      },
+      orderBy: { targetDate: 'desc' },
+    });
     if (completedRun) {
       this.logger.warn(`뉴스 수집 멱등성 skip: completed run=${completedRun.id}`);
       return this.toIngestionRunResponse(completedRun);
