@@ -64,6 +64,7 @@ services:
       DATABASE_URL: postgresql://dobbit:dobbit@postgres:5432/dobbit_dev?schema=public
       PORT: 8080
       NODE_ENV: production
+      TZ: Asia/Seoul
       CLIENT_URL: https://dobbit.dobbymin.cloud
       REDIS_URL: redis://redis:6379
     env_file:

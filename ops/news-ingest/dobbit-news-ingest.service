@@ -1,0 +1,22 @@
+[Unit]
+Description=Dobbit News Ingest Pipeline
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/dobbymin/project/dobbit-v2
+ExecStart=/home/dobbymin/project/dobbit-v2/ops/news-ingest/run-news-ingest.sh
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dobbit-news-ingest
+
+# Environment file location (optional, for INTERNAL_CRON_TOKEN)
+EnvironmentFile=-/home/dobbymin/project/dobbit-v2/docker/.env
+
+# Run as dedicated user (optional)
+# User=dobbymin
+# Group=dobbymin
+
+[Install]
+WantedBy=multi-user.target

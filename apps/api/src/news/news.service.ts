@@ -66,6 +66,25 @@ export class NewsService {
       return this.toIngestionRunResponse(activeRun);
     }
 
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
+
+    const completedRun = await this.prisma.newsAnalysisRun.findFirst({
+      where: {
+        status: { in: ['SUCCEEDED', 'PARTIAL_SUCCESS'] },
+        targetDate: {
+          gte: todayStart,
+          lt: todayEnd,
+        },
+      },
+      orderBy: { targetDate: 'desc' },
+    });
+    if (completedRun && requestedBy !== 'MANUAL') {
+      this.logger.warn(`뉴스 수집 멱등성 skip: completed run=${completedRun.id}`);
+      return this.toIngestionRunResponse(completedRun);
+    }
+
     await this.prisma.newsAnalysisRun.updateMany({
       where: {
         status: 'RUNNING',
@@ -73,7 +92,8 @@ export class NewsService {
       },
       data: {
         status: 'FAILED',
-        errorMessage: 'Stale RUNNING news ingest run exceeded 90 minutes and was marked failed before a new ingest started.',
+        errorMessage:
+          'Stale RUNNING news ingest run exceeded 90 minutes and was marked failed before a new ingest started.',
         finishedAt: new Date(),
       },
     });

@@ -1,0 +1,12 @@
+[Unit]
+Description=Dobbit News Ingest Pipeline Timer
+Requires=dobbit-news-ingest.service
+
+[Timer]
+# Run daily at 10:12 AM KST (UTC+9)
+OnCalendar=*-*-* 10:12:00 Asia/Seoul
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target
