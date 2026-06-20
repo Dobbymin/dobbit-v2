@@ -25,12 +25,15 @@ jobs:
         run: |
           docker compose -p dobbit-v2 -f docker/docker-compose.deploy.yml up -d --build
 
-      - name: Install/update systemd timer for news ingest
+      - name: Install/update systemd --user timer for news ingest
         run: |
-          sudo cp /home/dobbymin/project/dobbit-v2/ops/news-ingest/dobbit-news-ingest.{service,timer} /etc/systemd/system/
-          sudo systemctl daemon-reload
-          sudo systemctl enable --now dobbit-news-ingest.timer
-          echo "dobbit-news-ingest.timer installed and started"
+          export XDG_RUNTIME_DIR=/run/user/$(id -u)
+          mkdir -p ~/.config/systemd/user
+          cp ops/news-ingest/dobbit-news-ingest.service ops/news-ingest/dobbit-news-ingest.timer ~/.config/systemd/user/
+          systemctl --user daemon-reload
+          systemctl --user enable --now dobbit-news-ingest.timer
+          systemctl --user list-timers dobbit-news-ingest.timer --no-pager || true
+          echo "dobbit-news-ingest.timer (user) installed and started"
 
       - name: Verify deployment
         run: |

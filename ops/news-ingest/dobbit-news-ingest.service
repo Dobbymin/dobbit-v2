@@ -14,9 +14,5 @@ SyslogIdentifier=dobbit-news-ingest
 # Environment file location (optional, for INTERNAL_CRON_TOKEN)
 EnvironmentFile=-/home/dobbymin/project/dobbit-v2/docker/.env
 
-# Run as dedicated user (optional)
-# User=dobbymin
-# Group=dobbymin
-
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
