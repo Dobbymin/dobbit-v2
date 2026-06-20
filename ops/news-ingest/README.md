@@ -46,7 +46,7 @@ journalctl -u dobbit-news-ingest.service --since "1 hour ago"
 ## Configuration
 
 - **Token source:** Reads `INTERNAL_CRON_TOKEN` from environment or `docker/.env`
-- **Schedule:** Daily at 10:12 AM (system timezone, configured as UTC time in OnCalendar)
+- **Schedule:** Daily at 10:12 KST (`OnCalendar=*-*-* 10:12:00 Asia/Seoul` — timezone set explicitly, independent of system timezone)
 - **Timeout:** 600 seconds (10 minutes) per HTTP request
 - **Endpoints:**
   - `POST http://127.0.0.1:3003/api/news/ingest`
