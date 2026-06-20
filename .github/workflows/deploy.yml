@@ -25,6 +25,13 @@ jobs:
         run: |
           docker compose -p dobbit-v2 -f docker/docker-compose.deploy.yml up -d --build
 
+      - name: Install/update systemd timer for news ingest
+        run: |
+          sudo cp /home/dobbymin/project/dobbit-v2/ops/news-ingest/dobbit-news-ingest.{service,timer} /etc/systemd/system/
+          sudo systemctl daemon-reload
+          sudo systemctl enable --now dobbit-news-ingest.timer
+          echo "dobbit-news-ingest.timer installed and started"
+
       - name: Verify deployment
         run: |
           docker compose -p dobbit-v2 -f docker/docker-compose.deploy.yml ps
