@@ -12,7 +12,7 @@ StandardError=journal
 SyslogIdentifier=dobbit-news-ingest
 
 # Environment file location (optional, for INTERNAL_CRON_TOKEN)
-EnvironmentFiles=-/home/dobbymin/project/dobbit-v2/docker/.env
+EnvironmentFile=-/home/dobbymin/project/dobbit-v2/docker/.env
 
 # Run as dedicated user (optional)
 # User=dobbymin
