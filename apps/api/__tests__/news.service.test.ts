@@ -282,4 +282,84 @@ describe('NewsService analyzer provider routing', () => {
     expect(prisma.newsAnalysisRun.create).toHaveBeenCalledOnce();
     expect(hermesAnalyze).toHaveBeenCalledOnce();
   });
+
+  it('returns same-day SUCCEEDED run without starting new collection (idempotency)', async () => {
+    const hermesAnalyze = vi.fn().mockResolvedValue(analysisResult);
+    const geminiAnalyze = vi.fn().mockResolvedValue(analysisResult);
+    const { service, prisma, naverCollector } = createService({
+      configValues: {
+        NEWS_ANALYSIS_PROVIDER: 'hermes',
+      },
+      hermesAnalyze,
+      geminiAnalyze,
+    });
+
+    const completedRun = {
+      id: 'completed-run',
+      provider: 'AGGREGATED',
+      status: 'SUCCEEDED',
+      targetDate: new Date('2026-06-18T00:00:00.000Z'),
+      requestedBy: 'SCHEDULE',
+      totalCount: 10,
+      successCount: 10,
+      failedCount: 0,
+      errorMessage: null,
+      startedAt: new Date('2026-06-18T01:00:00.000Z'),
+      finishedAt: new Date('2026-06-18T02:00:00.000Z'),
+      createdAt: new Date(),
+    };
+
+    vi.mocked(prisma.newsAnalysisRun.findFirst).mockResolvedValueOnce(null);
+    vi.mocked(prisma.newsAnalysisRun.findFirst).mockResolvedValueOnce(completedRun);
+
+    const result = await service.ingest('SCHEDULE');
+
+    expect(result).toMatchObject({
+      id: 'completed-run',
+      status: 'SUCCEEDED',
+      totalCount: 10,
+      successCount: 10,
+    });
+    expect(prisma.newsAnalysisRun.create).not.toHaveBeenCalled();
+    expect(naverCollector.collect).not.toHaveBeenCalled();
+    expect(hermesAnalyze).not.toHaveBeenCalled();
+  });
+
+  it('ignores same-day SUCCEEDED run if requestedBy is MANUAL (operator override)', async () => {
+    const hermesAnalyze = vi.fn().mockResolvedValue(analysisResult);
+    const geminiAnalyze = vi.fn().mockResolvedValue(analysisResult);
+    const { service, prisma, naverCollector } = createService({
+      configValues: {
+        NEWS_ANALYSIS_PROVIDER: 'hermes',
+      },
+      hermesAnalyze,
+      geminiAnalyze,
+    });
+
+    const completedRun = {
+      id: 'completed-run',
+      provider: 'AGGREGATED',
+      status: 'SUCCEEDED',
+      targetDate: new Date('2026-06-18T00:00:00.000Z'),
+      requestedBy: 'SCHEDULE',
+      totalCount: 10,
+      successCount: 10,
+      failedCount: 0,
+      errorMessage: null,
+      startedAt: new Date(),
+      finishedAt: new Date(),
+      createdAt: new Date(),
+    };
+
+    vi.mocked(prisma.newsAnalysisRun.findFirst).mockResolvedValueOnce(null);
+    vi.mocked(prisma.newsAnalysisRun.findFirst).mockResolvedValueOnce(completedRun);
+
+    const result = await service.ingest('MANUAL');
+
+    expect(prisma.newsAnalysisRun.create).toHaveBeenCalledOnce();
+    expect(naverCollector.collect).toHaveBeenCalledOnce();
+    expect(hermesAnalyze).toHaveBeenCalledOnce();
+    expect(result.successCount).toBe(1);
+    expect(result.failedCount).toBe(0);
+  });
 });

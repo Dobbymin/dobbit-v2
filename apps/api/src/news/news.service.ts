@@ -92,7 +92,8 @@ export class NewsService {
       },
       data: {
         status: 'FAILED',
-        errorMessage: 'Stale RUNNING news ingest run exceeded 90 minutes and was marked failed before a new ingest started.',
+        errorMessage:
+          'Stale RUNNING news ingest run exceeded 90 minutes and was marked failed before a new ingest started.',
         finishedAt: new Date(),
       },
     });
