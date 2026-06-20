@@ -70,8 +70,8 @@ journalctl --user -u dobbit-news-ingest.service --since "1 hour ago"
 
 **Timer not running:**
 ```bash
-systemctl --user start dobbit-news-ingest.service
-systemctl --user status dobbit-news-ingest.service
+systemctl --user start dobbit-news-ingest.timer
+systemctl --user status dobbit-news-ingest.timer
 journalctl --user -u dobbit-news-ingest.service -n 20 -f
 ```
 
