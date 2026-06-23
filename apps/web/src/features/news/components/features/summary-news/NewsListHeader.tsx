@@ -1,4 +1,4 @@
-import { Skeleton, cn } from '@/shared';
+import { Skeleton, cn } from "@/shared";
 
 type Props = {
   newsDate: string;
@@ -15,21 +15,21 @@ export const NewsListHeader = ({ newsDate, totalNews, investmentIndex, isLoading
         {isLoading ? (
           <Skeleton className='h-5 w-52' />
         ) : (
-          <p className='text-sm text-gray-500'>
+          <p className='text-sm text-text-muted-dark' suppressHydrationWarning>
             {newsDate} 기준 • 총 {totalNews}건의 뉴스 분석
           </p>
         )}
       </div>
       <div className='flex flex-col gap-1 text-right'>
-        <p className='text-sm text-gray-500'>투자 심리 지수</p>
+        <p className='text-sm text-text-muted-dark'>투자 심리 지수</p>
         {isLoading ? (
           <Skeleton className='h-9 w-26' />
         ) : (
           <div className='flex items-end justify-end gap-2'>
-            <span className={cn('text-3xl font-bold', investmentIndex >= 50 ? 'text-emerald-500' : 'text-red-500')}>
+            <span className={cn("text-3xl font-bold", investmentIndex >= 50 ? "text-positive" : "text-negative")}>
               {Math.round(investmentIndex)}
             </span>
-            <span className='pb-1 text-sm text-gray-500'>/ 100</span>
+            <span className='pb-1 text-sm text-text-muted-dark'>/ 100</span>
           </div>
         )}
       </div>

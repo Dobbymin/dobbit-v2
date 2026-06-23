@@ -1,10 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/shared';
-import type { NewsListQuery } from '../api';
-import { useNews } from '../model';
-import { NewsCard } from './NewsCard';
+import { useState } from "react";
+
+import { Button } from "@/shared";
+
+import type { NewsListQuery } from "../api";
+import { useNews } from "../model";
+
+import { NewsCard } from "./NewsCard";
 
 type NewsListSectionProps = {
   query?: NewsListQuery;
@@ -28,24 +31,16 @@ export const NewsListSection = ({ query }: NewsListSectionProps) => {
   };
 
   return (
-    <section className='space-y-4'>
-      <div>
-        <h2 className='text-lg font-semibold'>뉴스 분석</h2>
-      </div>
-
-      {news.isLoading ? (
-        <p className='text-sm text-gray-500'>뉴스를 불러오는 중입니다.</p>
-      ) : null}
+    <section className='flex flex-col gap-6'>
+      {news.isLoading ? <p className='text-sm text-text-muted-dark'>뉴스를 불러오는 중입니다.</p> : null}
 
       {!news.isLoading && !news.data?.length ? (
-        <p className='text-sm text-gray-500'>표시할 뉴스가 없습니다.</p>
+        <p className='text-sm text-text-muted-dark'>표시할 뉴스가 없습니다.</p>
       ) : null}
 
-      <div className='space-y-3'>
-        {news.data?.map((item) => (
-          <NewsCard item={item} key={item.id} isLoading={news.isLoading} />
-        ))}
-      </div>
+      {news.data?.map((item) => (
+        <NewsCard item={item} key={item.id} isLoading={news.isLoading} />
+      ))}
 
       {!news.isLoading && news.data && news.data.length > 0 && (
         <div className='flex items-center justify-between pt-4'>
@@ -53,20 +48,18 @@ export const NewsListSection = ({ query }: NewsListSectionProps) => {
             variant='outline'
             onClick={handlePrevious}
             disabled={page === 0}
-            className='text-gray-400 hover:text-white'
+            className='text-text-muted-dark hover:text-white'
           >
             이전
           </Button>
 
-          <span className='text-sm text-gray-500'>
-            페이지 {page + 1}
-          </span>
+          <span className='text-sm text-text-muted-dark'>페이지 {page + 1}</span>
 
           <Button
             variant='outline'
             onClick={handleNext}
             disabled={news.data.length < ITEMS_PER_PAGE}
-            className='text-gray-400 hover:text-white'
+            className='text-text-muted-dark hover:text-white'
           >
             다음
           </Button>

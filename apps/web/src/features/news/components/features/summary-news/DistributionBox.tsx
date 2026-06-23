@@ -1,5 +1,6 @@
-import { Skeleton, cn } from '@/shared';
-import { getWidthStyle } from '../../../utils';
+import { Skeleton, cn } from "@/shared";
+
+import { getWidthStyle } from "../../../utils";
 
 type Props = {
   positive: number;
@@ -25,19 +26,19 @@ export const DistributionBox = ({ positive, neutral, negative, totalNews, isLoad
 
   const segments = [
     {
-      key: 'positive',
+      key: "positive",
       value: positive,
-      color: 'bg-emerald-500',
+      color: "bg-positive",
     },
     {
-      key: 'neutral',
+      key: "neutral",
       value: neutral,
-      color: 'bg-gray-500/50',
+      color: "bg-text-dark/50",
     },
     {
-      key: 'negative',
+      key: "negative",
       value: negative,
-      color: 'bg-red-500',
+      color: "bg-negative",
     },
   ];
 
@@ -48,14 +49,14 @@ export const DistributionBox = ({ positive, neutral, negative, totalNews, isLoad
           <div
             key={segment.key}
             style={getWidthStyle(segment.value, totalNews)}
-            className={cn('h-full transition-all duration-500 ease-in-out', segment.color)}
+            className={cn("h-full transition-all duration-500 ease-in-out", segment.color)}
           />
         ))}
       </div>
       <div className='flex justify-between text-xs'>
-        <span className='text-emerald-500'>긍정 {positive}건</span>
-        <span className='text-gray-500'>중립 {neutral}건</span>
-        <span className='text-red-500'>부정 {negative}건</span>
+        <span className='text-positive'>긍정 {positive}건</span>
+        <span className='text-text-dark/50'>중립 {neutral}건</span>
+        <span className='text-negative'>부정 {negative}건</span>
       </div>
     </>
   );

@@ -2,22 +2,22 @@ import { AppLayout } from "@/widgets";
 
 import { NewsAlertSettings } from "@/features/alert";
 import { SlackIntegrationSettings } from "@/features/notification";
-import { ProfileSection } from "@/features/setting";
+import { ProfileSection, UserInfoSection } from "@/features/setting";
 
 export default function SettingPage() {
   return (
     <AppLayout>
-      <div className='space-y-6'>
-        <div>
-          <h1 className='text-2xl font-semibold tracking-normal'>설정</h1>
-          <p className='mt-2 text-sm text-muted-foreground'>프로필과 알림 연동을 관리합니다.</p>
-        </div>
-        <div className='grid gap-6 lg:grid-cols-[1fr_360px]'>
+      <div className='flex w-full max-w-4xl flex-col gap-8 px-5 py-10'>
+        <h1 className='text-2xl font-bold text-white'>프로필 설정</h1>
+
+        <div className='flex flex-col gap-8 md:flex-row md:items-start'>
           <ProfileSection />
-          <div className='space-y-5'>
-            <SlackIntegrationSettings />
-            <NewsAlertSettings />
-          </div>
+          <UserInfoSection />
+        </div>
+
+        <div className='space-y-5'>
+          <SlackIntegrationSettings />
+          <NewsAlertSettings />
         </div>
       </div>
     </AppLayout>

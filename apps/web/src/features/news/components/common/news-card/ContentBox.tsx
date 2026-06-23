@@ -1,5 +1,6 @@
-import { Skeleton } from '@/shared';
-import { cleanContent } from '../../../utils';
+import { Skeleton } from "@/shared";
+
+import { cleanContent } from "../../../utils";
 
 type Props = {
   content?: string | null;
@@ -23,8 +24,8 @@ export const ContentBox = ({ content, isLoading }: Props) => {
   }
 
   return (
-    <p className='line-clamp-4 text-sm leading-relaxed whitespace-pre-wrap text-gray-400 transition-all group-hover:line-clamp-none'>
-      {content ? cleanContent(content) : ''}
+    <p className='line-clamp-4 text-sm leading-relaxed whitespace-pre-wrap text-text-muted-dark transition-all group-hover:line-clamp-none'>
+      {content ? cleanContent(content) : ""}
     </p>
   );
 };

@@ -1,32 +1,32 @@
-import { Minus, TrendingDown, TrendingUp } from 'lucide-react';
+import { Minus, TrendingDown, TrendingUp } from "lucide-react";
 
 export const getSentimentConfig = (sentiment?: string | null) => {
   const normalized = sentiment?.toLowerCase();
 
   switch (normalized) {
-    case 'positive':
+    case "positive":
       return {
-        label: '호재',
+        label: "호재",
         icon: <TrendingUp className='size-4' />,
-        color: 'text-emerald-500',
-        bg: 'bg-emerald-500/10',
-        border: 'border-emerald-500/20',
+        color: "text-positive",
+        bg: "bg-positive/10",
+        border: "border-positive/20",
       };
-    case 'negative':
+    case "negative":
       return {
-        label: '악재',
+        label: "악재",
         icon: <TrendingDown className='size-4' />,
-        color: 'text-red-500',
-        bg: 'bg-red-500/10',
-        border: 'border-red-500/20',
+        color: "text-negative",
+        bg: "bg-negative/10",
+        border: "border-negative/20",
       };
     default:
       return {
-        label: '중립',
+        label: "중립",
         icon: <Minus className='size-4' />,
-        color: 'text-gray-500',
-        bg: 'bg-gray-500/10',
-        border: 'border-gray-500/20',
+        color: "text-text-muted-dark",
+        bg: "bg-text-muted-dark/10",
+        border: "border-text-muted-dark/20",
       };
   }
 };
