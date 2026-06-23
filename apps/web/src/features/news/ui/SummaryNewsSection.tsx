@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { Separator } from '@/shared';
-import { NewsListHeader, DistributionBox, KeywordBox } from '../components';
-import type { NewsListItem } from '../api';
+import { Separator } from "@/shared";
+
+import type { NewsListItem } from "../api";
+import { DistributionBox, KeywordBox, NewsListHeader } from "../components";
 
 type Props = {
   newsItems: NewsListItem[];
@@ -11,8 +12,8 @@ type Props = {
 
 export const SummaryNewsSection = ({ newsItems, isLoading }: Props) => {
   // 클라이언트 집계
-  const positive = newsItems.filter((item) => item.sentiment?.toUpperCase() === 'POSITIVE').length;
-  const negative = newsItems.filter((item) => item.sentiment?.toUpperCase() === 'NEGATIVE').length;
+  const positive = newsItems.filter((item) => item.sentiment?.toUpperCase() === "POSITIVE").length;
+  const negative = newsItems.filter((item) => item.sentiment?.toUpperCase() === "NEGATIVE").length;
   const neutral = newsItems.length - positive - negative;
 
   const investmentScores = newsItems
@@ -36,14 +37,14 @@ export const SummaryNewsSection = ({ newsItems, isLoading }: Props) => {
     .slice(0, 5)
     .map(([keyword]) => keyword);
 
-  const newsDate = new Date().toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  const newsDate = new Date().toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   return (
-    <section className='rounded-lg border border-white/10 bg-white/5 p-6'>
+    <section className='bg-surface-dark p-6'>
       <NewsListHeader
         newsDate={newsDate}
         totalNews={newsItems.length}
@@ -59,7 +60,7 @@ export const SummaryNewsSection = ({ newsItems, isLoading }: Props) => {
         isLoading={isLoading}
       />
 
-      <Separator className='my-6 bg-white/10' />
+      <Separator className='my-6 bg-text-dark/20' />
 
       <KeywordBox keywords={topKeywords} isLoading={isLoading} />
     </section>

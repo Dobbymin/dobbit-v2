@@ -1,4 +1,4 @@
-import { Skeleton } from '@/shared';
+import { Skeleton } from "@/shared";
 
 type Props = {
   keywords?: string[] | null;
@@ -23,15 +23,15 @@ export const MetaDataBox = ({ keywords, source, isLoading }: Props) => {
   return (
     <div className='flex items-center justify-between'>
       <div className='flex gap-2'>
-        {keywords && keywords.length > 0 ? (
-          keywords.map((k, index) => (
-            <span key={`${k}-${index}`} className='text-xs text-gray-500'>
-              # {k}
-            </span>
-          ))
-        ) : null}
+        {keywords && keywords.length > 0
+          ? keywords.map((k, index) => (
+              <span key={`${k}-${index}`} className='text-xs text-text-muted-dark'>
+                # {k}
+              </span>
+            ))
+          : null}
       </div>
-      <span className='text-xs font-medium text-gray-500'>{source}</span>
+      <span className='text-xs font-medium text-text-muted-dark'>{source}</span>
     </div>
   );
 };
