@@ -4,6 +4,8 @@ export const ROUTES_PATH = {
   SIGNUP: "/signup",
   MARKET: "/market",
   WALLET: "/wallet",
+  AUTO_TRADE: "/auto-trade",
+  TRADE: "/trade",
   NEWS: "/news",
   SETTING: "/setting",
 } as const;
