@@ -17,7 +17,9 @@ export const LastLoginField = () => {
         {profile.isLoading ? (
           <Skeleton className='h-5 w-32' />
         ) : (
-          <p className='text-text-muted text-sm'>{formattedCreatedAt}</p>
+          <p className='text-text-muted text-sm' suppressHydrationWarning>
+            {formattedCreatedAt}
+          </p>
         )}
       </div>
     </div>

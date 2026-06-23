@@ -15,7 +15,7 @@ export const NewsListHeader = ({ newsDate, totalNews, investmentIndex, isLoading
         {isLoading ? (
           <Skeleton className='h-5 w-52' />
         ) : (
-          <p className='text-sm text-text-muted-dark'>
+          <p className='text-sm text-text-muted-dark' suppressHydrationWarning>
             {newsDate} 기준 • 총 {totalNews}건의 뉴스 분석
           </p>
         )}
