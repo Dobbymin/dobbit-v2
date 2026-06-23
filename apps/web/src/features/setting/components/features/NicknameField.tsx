@@ -19,9 +19,13 @@ export const NicknameField = () => {
     setInputValue(userNickname);
   }, [userNickname]);
 
+  const trimmedNickname = inputValue.trim();
+  const isValidNickname = trimmedNickname.length >= 2 && trimmedNickname.length <= 24;
+
   const onClickEditButton = () => {
     if (isEditing) {
-      updateNickname.mutate({ nickname: inputValue }, { onSuccess: () => setIsEditing(false) });
+      if (!isValidNickname) return;
+      updateNickname.mutate({ nickname: trimmedNickname }, { onSuccess: () => setIsEditing(false) });
     } else {
       setIsEditing(true);
     }
@@ -29,7 +33,7 @@ export const NicknameField = () => {
 
   return (
     <div className='flex items-center gap-2'>
-      <Label className='text-md text-text-primary w-16'>닉네임</Label>
+      <Label className='text-text-primary w-16 text-base'>닉네임</Label>
       <div className='flex items-center gap-4'>
         {isEditing ? (
           <Input
@@ -48,7 +52,12 @@ export const NicknameField = () => {
             )}
           </div>
         )}
-        <Button onClick={onClickEditButton} variant='outline' className='h-10' disabled={updateNickname.isPending}>
+        <Button
+          onClick={onClickEditButton}
+          variant='outline'
+          className='h-10'
+          disabled={updateNickname.isPending || (isEditing && !isValidNickname)}
+        >
           {updateNickname.isPending ? "저장 중" : isEditing ? "저장" : "수정"}
         </Button>
       </div>

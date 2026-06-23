@@ -41,7 +41,7 @@ export const SignupForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>이메일</FormLabel>
-                <FormControl className='grid gap-3'>
+                <FormControl>
                   <Input autoComplete='email' placeholder='you@example.com' type='email' {...field} />
                 </FormControl>
                 <FormMessage />
@@ -54,7 +54,7 @@ export const SignupForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>닉네임</FormLabel>
-                <FormControl className='grid gap-3'>
+                <FormControl>
                   <Input autoComplete='nickname' placeholder='Dobbit 사용자' {...field} />
                 </FormControl>
                 <FormMessage />
@@ -67,7 +67,7 @@ export const SignupForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>비밀번호</FormLabel>
-                <FormControl className='grid gap-3'>
+                <FormControl>
                   <Input autoComplete='new-password' placeholder='8자 이상' type='password' {...field} />
                 </FormControl>
                 <FormMessage />

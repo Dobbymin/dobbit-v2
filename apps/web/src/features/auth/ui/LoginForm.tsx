@@ -39,7 +39,7 @@ export const LoginForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>이메일</FormLabel>
-                <FormControl className='grid gap-3'>
+                <FormControl>
                   <Input autoComplete='email' placeholder='you@example.com' type='email' {...field} />
                 </FormControl>
                 <FormMessage />
@@ -52,7 +52,7 @@ export const LoginForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>비밀번호</FormLabel>
-                <FormControl className='grid gap-3'>
+                <FormControl>
                   <Input autoComplete='current-password' placeholder='비밀번호' type='password' {...field} />
                 </FormControl>
                 <FormMessage />
