@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
 
 import { Input, cn } from "@/shared";
 import type { Market } from "@dobbit/shared";
+import { Search } from "lucide-react";
 
 import { toMarketRow, useMarketTickers } from "../model";
 
@@ -126,20 +126,17 @@ export const MarketListPanel = ({
   });
 
   return (
-    <aside className='flex min-h-[520px] flex-col border-r border-white/10 bg-surface-dark/60 lg:min-h-[calc(100vh-80px)]'>
+    <aside className='flex min-h-[520px] flex-col border-r border-white/10 bg-surface-dark/20 lg:min-h-[calc(100vh-80px)]'>
       <div className='border-b border-white/10 p-4'>
         <div className='relative'>
           <Input
             aria-label='마켓 검색'
-            className='h-10 rounded-lg border-white/10 bg-[#121212] pl-9 text-sm text-text-dark placeholder:text-text-muted-dark focus-visible:ring-primary/50'
+            className='h-10 rounded-lg border-none bg-surface-dark pl-9 text-sm text-text-dark placeholder:text-text-muted-dark focus-visible:ring-primary/50'
             onChange={(event) => setLocalSearchKeyword(event.target.value)}
             placeholder='코인명 / 심볼 검색'
             value={localSearchKeyword}
           />
-          <Search
-            className='absolute left-3 top-1/2 -translate-y-1/2 text-text-muted-dark'
-            size={16}
-          />
+          <Search className='absolute top-1/2 left-3 -translate-y-1/2 text-text-muted-dark' size={16} />
         </div>
         {isLoading ? (
           <span aria-live='polite' className='sr-only'>

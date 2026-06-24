@@ -5,14 +5,14 @@ import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 
 import { formatPrice } from "@/shared";
-import type { CurrentPrice, Market, CandleResponse } from "@dobbit/shared";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/shared/components/ui";
+import type { CandleResponse, CurrentPrice, Market } from "@dobbit/shared";
+
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui";
 
 import {
+  CANDLE_INTERVALS,
+  DEFAULT_CANDLE_INTERVAL,
+  calculateSMA,
   toCandleSeries,
   toLineSeries,
   toVolumeSeries,
@@ -20,9 +20,6 @@ import {
   updateLastLinePointWithTicker,
   useCandles,
   useMarketSocket,
-  CANDLE_INTERVALS,
-  DEFAULT_CANDLE_INTERVAL,
-  calculateSMA,
 } from "../model";
 import type { CandleInterval } from "../model/libs";
 
@@ -46,11 +43,11 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
   const volumeOptions = useMemo(
     () => ({
       chart: {
-        type: 'bar',
+        type: "bar",
         toolbar: {
           show: false,
         },
-        background: 'transparent',
+        background: "transparent",
       },
       dataLabels: {
         enabled: false,
@@ -65,20 +62,20 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
               {
                 from: -Number.MAX_VALUE,
                 to: 0,
-                color: '#999999',
+                color: "#999999",
               },
               {
                 from: 0,
                 to: Number.MAX_VALUE,
-                color: '#999999',
+                color: "#999999",
               },
             ],
           },
-          columnWidth: '70%',
+          columnWidth: "70%",
         },
       },
       xaxis: {
-        type: 'datetime' as const,
+        type: "datetime" as const,
       },
       yaxis: {
         labels: {
@@ -89,24 +86,24 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
         },
       },
     }),
-    []
+    [],
   );
 
   const volumeSeries = useMemo(
     () => [
       {
-        name: 'Volume',
-        type: 'bar',
+        name: "Volume",
+        type: "bar",
         data: toVolumeSeries(candlesData),
       },
     ],
-    [candlesData]
+    [candlesData],
   );
 
   return (
     <div className='mt-2 h-[120px]'>
       <ApexCharts
-        key={`${selectedMarketCode}-${selectedInterval.type}-${selectedInterval.unit ?? 'none'}-volume`}
+        key={`${selectedMarketCode}-${selectedInterval.type}-${selectedInterval.unit ?? "none"}-volume`}
         options={volumeOptions}
         series={volumeSeries}
         type='bar'
@@ -131,7 +128,7 @@ const getDisplayCode = (marketCode: string) => {
 export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading }: MarketChartPanelProps) => {
   // 상태 관리
   const [selectedInterval, setSelectedInterval] = useState<CandleInterval>(DEFAULT_CANDLE_INTERVAL);
-  const [chartType, setChartType] = useState<'candlestick' | 'line'>('candlestick');
+  const [chartType, setChartType] = useState<"candlestick" | "line">("candlestick");
   const [indicators, setIndicators] = useState({ ma: false });
 
   // 캔들 데이터 로드
@@ -151,12 +148,12 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
 
     // 메인 시리즈: chartType에 따라 캔들 또는 라인
     let mainSeries: Array<{ x: Date; y: number | [number, number, number, number] }> = [];
-    if (chartType === 'candlestick') {
+    if (chartType === "candlestick") {
       mainSeries = toCandleSeries(candlesQuery.data);
       if (displayTicker) {
         mainSeries = updateLastCandleWithTicker(
           mainSeries as Array<{ x: Date; y: [number, number, number, number] }>,
-          displayTicker.tradePrice
+          displayTicker.tradePrice,
         );
       }
     } else {
@@ -164,7 +161,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
       if (displayTicker) {
         mainSeries = updateLastLinePointWithTicker(
           mainSeries as Array<{ x: Date; y: number }>,
-          displayTicker.tradePrice
+          displayTicker.tradePrice,
         );
       }
     }
@@ -179,38 +176,35 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
   const changeTone = signedChangeRate > 0 ? "text-increase" : signedChangeRate < 0 ? "text-decrease" : "text-text-dark";
 
   // chartOptions는 chartType이 바뀔 때만 업데이트
-  const chartOptions = useMemo(
-    () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const options: Record<string, any> = {
-        chart: {
-          type: chartType,
-          toolbar: {
-            show: false,
-          },
-          background: "transparent",
+  const chartOptions = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const options: Record<string, any> = {
+      chart: {
+        type: chartType,
+        toolbar: {
+          show: false,
         },
-        plotOptions: {
-          candlestick: {
-            colors: {
-              upward: "#dd3c44",
-              downward: "#1375ec",
-            },
+        background: "transparent",
+      },
+      plotOptions: {
+        candlestick: {
+          colors: {
+            upward: "#dd3c44",
+            downward: "#1375ec",
           },
         },
-        xaxis: {
-          type: "datetime" as const,
+      },
+      xaxis: {
+        type: "datetime" as const,
+      },
+      yaxis: {
+        tooltip: {
+          enabled: true,
         },
-        yaxis: {
-          tooltip: {
-            enabled: true,
-          },
-        },
-      };
-      return options;
-    },
-    [chartType]
-  );
+      },
+    };
+    return options;
+  }, [chartType]);
 
   // MA 시리즈 계산 (indicators.ma = true일 때만)
   const maSeries = useMemo(() => {
@@ -231,7 +225,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const seriesArray: Array<Record<string, any>> = [
       {
-        name: chartType === 'candlestick' ? 'Candle' : 'Price',
+        name: chartType === "candlestick" ? "Candle" : "Price",
         type: chartType,
         data: series,
       },
@@ -240,44 +234,44 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
     // MA 시리즈 추가
     if (indicators.ma && maSeries.ma7 && candlesQuery.data) {
       seriesArray.push({
-        name: 'MA7',
-        type: 'line',
+        name: "MA7",
+        type: "line",
         data: candlesQuery.data.map((candle, i) => ({
           x: new Date(candle.candleDateTime),
           y: maSeries.ma7?.[i] ?? null,
         })),
         stroke: {
           width: 1,
-          colors: ['#FFA500'],
+          colors: ["#FFA500"],
         },
       });
 
       if (maSeries.ma20) {
         seriesArray.push({
-          name: 'MA20',
-          type: 'line',
+          name: "MA20",
+          type: "line",
           data: candlesQuery.data.map((candle, i) => ({
             x: new Date(candle.candleDateTime),
             y: maSeries.ma20?.[i] ?? null,
           })),
           stroke: {
             width: 1,
-            colors: ['#4169E1'],
+            colors: ["#4169E1"],
           },
         });
       }
 
       if (maSeries.ma60) {
         seriesArray.push({
-          name: 'MA60',
-          type: 'line',
+          name: "MA60",
+          type: "line",
           data: candlesQuery.data.map((candle, i) => ({
             x: new Date(candle.candleDateTime),
             y: maSeries.ma60?.[i] ?? null,
           })),
           stroke: {
             width: 1,
-            colors: ['#DC143C'],
+            colors: ["#DC143C"],
           },
         });
       }
@@ -290,11 +284,11 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
     <section className='flex min-h-[560px] flex-col bg-[#121212]'>
       <header className='flex flex-wrap items-start justify-between gap-3 border-b border-white/10 px-5 py-4'>
         <div className='min-w-0'>
-          <h1 className='truncate text-xl font-semibold text-text-dark'>{displayName}</h1>
+          <h1 className='truncate text-xl font-bold text-text-dark'>{displayName}</h1>
           <p className='mt-1 text-sm text-text-muted-dark'>{displayCode}</p>
         </div>
         <div className='text-right'>
-          <p className='text-2xl font-semibold text-text-dark'>
+          <p className={`text-2xl font-semibold ${displayPrice ? changeTone : "text-text-dark"}`}>
             {displayPrice
               ? `${formatPrice(displayPrice)} KRW`
               : isLoading || candlesQuery.isLoading
@@ -308,11 +302,10 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
       <div className='flex flex-wrap items-center gap-2 border-b border-white/10 px-5 py-2'>
         {CANDLE_INTERVALS.map((interval) => (
           <button
-            key={`${interval.type}-${interval.unit ?? 'none'}`}
+            key={`${interval.type}-${interval.unit ?? "none"}`}
             onClick={() => setSelectedInterval(interval)}
             data-active={
-              selectedInterval.type === interval.type &&
-              (selectedInterval.unit ?? 0) === (interval.unit ?? 0)
+              selectedInterval.type === interval.type && (selectedInterval.unit ?? 0) === (interval.unit ?? 0)
             }
             className='h-7 rounded px-2 text-xs font-medium text-text-muted-dark transition-colors hover:bg-white/5 hover:text-white data-[active=true]:bg-white/10 data-[active=true]:text-white'
             type='button'
@@ -360,8 +353,8 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
                   type='radio'
                   name='chartType'
                   value='candlestick'
-                  checked={chartType === 'candlestick'}
-                  onChange={(e) => setChartType(e.target.value as 'candlestick' | 'line')}
+                  checked={chartType === "candlestick"}
+                  onChange={(e) => setChartType(e.target.value as "candlestick" | "line")}
                 />
                 캔들
               </label>
@@ -370,8 +363,8 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
                   type='radio'
                   name='chartType'
                   value='line'
-                  checked={chartType === 'line'}
-                  onChange={(e) => setChartType(e.target.value as 'candlestick' | 'line')}
+                  checked={chartType === "line"}
+                  onChange={(e) => setChartType(e.target.value as "candlestick" | "line")}
                 />
                 라인
               </label>
@@ -381,10 +374,10 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
       </div>
 
       <div className='min-h-0 flex-1 px-5 py-4'>
-        <div className='h-full flex flex-col'>
-          <div className='flex-1 min-h-0'>
+        <div className='flex h-full flex-col'>
+          <div className='min-h-0 flex-1'>
             <ApexCharts
-              key={`${selectedMarketCode}-${selectedInterval.type}-${selectedInterval.unit ?? 'none'}-main`}
+              key={`${selectedMarketCode}-${selectedInterval.type}-${selectedInterval.unit ?? "none"}-main`}
               options={chartOptions}
               series={chartSeries}
               type={chartType}
