@@ -1,40 +1,69 @@
 "use client";
 
-import { Badge, formatPrice } from "@/shared";
+import { Separator } from "@/shared";
 
-import { useWalletSummary } from "../model";
+import { useWalletAssets, useWalletSummary } from "../model";
 
-const formatRate = (value: number) => `${value.toFixed(2)}%`;
+type StatItemProps = {
+  label: string;
+  value: string;
+  unit: string;
+};
+
+const StatItem = ({ label, value, unit }: StatItemProps) => {
+  return (
+    <div className='flex w-full items-center justify-between'>
+      <span className='text-sm text-text-muted-dark'>{label}</span>
+      <div className='flex items-end gap-1'>
+        <span className='text-lg font-bold text-text-dark'>{value}</span>
+        <span className='text-xs font-bold text-text-muted-dark'>{unit}</span>
+      </div>
+    </div>
+  );
+};
+
+const formatKRW = (value: number) => value.toLocaleString("ko-KR");
+const withSign = (value: number) => `${value >= 0 ? "+" : ""}${formatKRW(value)}`;
 
 export const StatsAreaSection = () => {
   const summary = useWalletSummary();
+  const assets = useWalletAssets();
 
-  if (summary.isLoading) {
-    return (
-      <section className='rounded-lg border bg-card p-5'>
-        <p className='text-sm text-muted-foreground'>평가 현황을 불러오는 중입니다.</p>
-      </section>
-    );
-  }
+  const list = assets.data ?? [];
+  const totalPurchase = list.reduce((sum, asset) => sum + asset.averageBuyPrice * asset.balance, 0);
+  const totalEvaluation = list.reduce((sum, asset) => sum + asset.evaluatedPrice, 0);
 
   const data = summary.data;
 
+  if (summary.isLoading || assets.isLoading) {
+    return (
+      <article className='flex h-full w-[70%] items-center justify-center bg-surface-dark/20 px-2 py-6'>
+        <p className='text-sm text-text-muted-dark'>평가 현황을 불러오는 중입니다.</p>
+      </article>
+    );
+  }
+
   return (
-    <section className='grid gap-3 rounded-lg border bg-card p-5 sm:grid-cols-3'>
-      <div>
-        <p className='text-sm text-muted-foreground'>총 자산</p>
-        <p className='mt-2 text-xl font-semibold'>{formatPrice(data?.totalAssetValue ?? 0)}</p>
+    <article className='flex h-full w-[70%] flex-col bg-surface-dark/20 px-2 py-6'>
+      <div className='flex w-full justify-between gap-10 px-6 py-4'>
+        <StatItem label='보유 KRW' value={formatKRW(data?.cashBalance ?? 0)} unit='KRW' />
+        <StatItem label='총보유 자산' value={formatKRW(data?.totalAssetValue ?? 0)} unit='KRW' />
       </div>
-      <div>
-        <p className='text-sm text-muted-foreground'>평가손익</p>
-        <p className='mt-2 text-xl font-semibold'>{formatPrice(data?.totalProfitLoss ?? 0)}</p>
+
+      <Separator className='my-4 border-t border-text-dark/10' />
+
+      <div className='flex w-full justify-between gap-10 px-6 py-6'>
+        <StatItem label='총 매수' value={formatKRW(totalPurchase)} unit='KRW' />
+        <StatItem label='총 평가 손익' value={withSign(data?.totalProfitLoss ?? 0)} unit='KRW' />
       </div>
-      <div>
-        <p className='text-sm text-muted-foreground'>수익률</p>
-        <Badge className='mt-2' variant={(data?.totalProfitLossRate ?? 0) >= 0 ? "default" : "destructive"}>
-          {formatRate(data?.totalProfitLossRate ?? 0)}
-        </Badge>
+      <div className='flex w-full justify-between gap-10 px-6 py-4'>
+        <StatItem label='총 평가' value={formatKRW(totalEvaluation)} unit='KRW' />
+        <StatItem
+          label='총 평가 수익률'
+          value={`${(data?.totalProfitLossRate ?? 0) >= 0 ? "+" : ""}${(data?.totalProfitLossRate ?? 0).toFixed(2)}`}
+          unit='%'
+        />
       </div>
-    </section>
+    </article>
   );
 };

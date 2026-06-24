@@ -1,18 +1,39 @@
+"use client";
+
+import { useState } from "react";
+
 import { AppLayout } from "@/widgets";
 
-import { CashSection, HeldAssetsListSection, StatsAreaSection } from "@/features/wallet";
+import {
+  CashSection,
+  ChartAreaSection,
+  HeldAssetsListSection,
+  StatsAreaSection,
+  TabNavigationSection,
+  type WalletTab,
+} from "@/features/wallet";
 
 export default function WalletPage() {
+  const [activeTab, setActiveTab] = useState<WalletTab>("보유자산");
+
   return (
     <AppLayout>
-      <div className='space-y-6'>
-        <div>
-          <h1 className='text-2xl font-semibold tracking-normal'>지갑</h1>
-          <p className='mt-2 text-sm text-muted-foreground'>보유 현금과 자산 평가 현황을 확인합니다.</p>
-        </div>
-        <StatsAreaSection />
-        <CashSection />
-        <HeldAssetsListSection />
+      <div className='mx-auto flex w-full max-w-4xl flex-col gap-4 py-4'>
+        <TabNavigationSection activeTab={activeTab} setActiveTab={setActiveTab} />
+        {activeTab === "보유자산" ? (
+          <>
+            <CashSection />
+            <section className='flex w-full gap-4'>
+              <StatsAreaSection />
+              <ChartAreaSection />
+            </section>
+            <HeldAssetsListSection />
+          </>
+        ) : (
+          <section className='flex min-h-[300px] w-full items-center justify-center bg-surface-dark/20'>
+            <p className='text-sm text-text-muted-dark'>준비 중입니다.</p>
+          </section>
+        )}
       </div>
     </AppLayout>
   );
