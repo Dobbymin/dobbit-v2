@@ -288,8 +288,8 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
           <p className='mt-1 text-sm text-text-muted-dark'>{displayCode}</p>
         </div>
         <div className='text-right'>
-          <p className={`text-2xl font-semibold ${displayPrice ? changeTone : "text-text-dark"}`}>
-            {displayPrice
+          <p className={`text-2xl font-semibold ${displayPrice != null ? changeTone : "text-text-dark"}`}>
+            {displayPrice != null
               ? `${formatPrice(displayPrice)} KRW`
               : isLoading || candlesQuery.isLoading
                 ? "불러오는 중"
