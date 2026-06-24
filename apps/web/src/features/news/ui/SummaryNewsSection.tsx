@@ -44,7 +44,7 @@ export const SummaryNewsSection = ({ newsItems, isLoading }: Props) => {
   });
 
   return (
-    <section className='bg-surface-dark p-6'>
+    <section className='rounded-2xl bg-surface-dark p-6'>
       <NewsListHeader
         newsDate={newsDate}
         totalNews={newsItems.length}
