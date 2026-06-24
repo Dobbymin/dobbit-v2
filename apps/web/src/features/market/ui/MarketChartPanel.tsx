@@ -313,7 +313,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
             >
               {interval.label}
             </button>
-            {interval.label === "1시간" && (
+            {interval.type === "minutes" && interval.unit === 60 && (
               <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
             )}
           </Fragment>
