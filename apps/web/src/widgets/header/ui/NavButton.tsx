@@ -28,7 +28,7 @@ export const NavButton = ({ href, disabled = false, children }: NavButtonProps) 
   return (
     <Link
       className={cn(
-        "shrink-0 text-sm font-semibold text-text-muted-dark transition-colors hover:text-white",
+        "shrink-0 text-sm leading-normal font-medium text-text-muted-dark transition-colors hover:text-white",
         active && "text-white",
       )}
       href={href}

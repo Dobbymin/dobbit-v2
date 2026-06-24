@@ -6,14 +6,12 @@ import { UserMenuButton } from "./UserMenuButton";
 
 export const Header = () => {
   return (
-    <header className='sticky top-0 z-40 h-20 border-b border-white/10 bg-[#121212]'>
-      <div className='mx-auto grid h-full max-w-360 grid-cols-[1fr_auto_1fr] items-center gap-4 px-6'>
+    <header className='h-20 w-full border-b border-solid border-white/10 bg-surface-dark/30'>
+      <div className='mx-auto flex h-full w-full items-center justify-between px-6 py-3'>
         <LogoButton />
-        <nav className='hidden min-w-0 items-center justify-center gap-9 md:flex'>
+        <nav className='hidden flex-1 items-center justify-center gap-9 md:flex'>
           <NavButton href={ROUTES_PATH.HOME}>Dashboard</NavButton>
-          <NavButton disabled href={ROUTES_PATH.HOME}>
-            Auto Trade
-          </NavButton>
+          <NavButton href={ROUTES_PATH.AUTO_TRADE}>Auto Trade</NavButton>
           <NavButton href={ROUTES_PATH.NEWS}>News</NavButton>
           <NavButton href={ROUTES_PATH.SETTING}>Setting</NavButton>
         </nav>
