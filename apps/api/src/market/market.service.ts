@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
-import { Market, CurrentPrice, CandleResponse, MarketTickerUpdatedEvent } from '@dobbit/shared';
+import { Market, CurrentPrice, CandleResponse, MarketTickerUpdatedEvent, OrderbookResponse } from '@dobbit/shared';
 import { UpbitApiClient } from './external/upbit-api.client';
 
 interface CandleInterval {
@@ -105,6 +105,40 @@ export class MarketService {
     } catch (error) {
       this.logger.error('Failed to get ticker events:', error);
       return [];
+    }
+  }
+
+  async getOrderbook(code: string): Promise<OrderbookResponse | null> {
+    try {
+      const raw = (await this.upbitApiClient.getOrderbook(code)) as Array<{
+        market: string;
+        timestamp: number;
+        orderbook_units: Array<{
+          ask_price: number;
+          bid_price: number;
+          ask_size: number;
+          bid_size: number;
+        }>;
+      }> | null;
+
+      if (!raw || raw.length === 0) {
+        return null;
+      }
+
+      const data = raw[0];
+      return {
+        marketCode: data.market,
+        units: (data.orderbook_units ?? []).map((u) => ({
+          askPrice: u.ask_price,
+          bidPrice: u.bid_price,
+          askSize: u.ask_size,
+          bidSize: u.bid_size,
+        })),
+        timestamp: new Date(data.timestamp).toISOString(),
+      };
+    } catch (error) {
+      this.logger.error(`Failed to get orderbook for ${code}:`, error);
+      return null;
     }
   }
 
