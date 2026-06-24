@@ -2,10 +2,11 @@
 
 import dynamic from "next/dynamic";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 
-import { formatPrice } from "@/shared";
+import { Separator, formatPrice } from "@/shared";
 import type { CandleResponse, CurrentPrice, Market } from "@dobbit/shared";
+import { ChevronDown } from "lucide-react";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui";
 
@@ -301,49 +302,33 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
 
       <div className='flex flex-wrap items-center gap-2 border-b border-white/10 px-5 py-2'>
         {CANDLE_INTERVALS.map((interval) => (
-          <button
-            key={`${interval.type}-${interval.unit ?? "none"}`}
-            onClick={() => setSelectedInterval(interval)}
-            data-active={
-              selectedInterval.type === interval.type && (selectedInterval.unit ?? 0) === (interval.unit ?? 0)
-            }
-            className='h-7 rounded px-2 text-xs font-medium text-text-muted-dark transition-colors hover:bg-white/5 hover:text-white data-[active=true]:bg-white/10 data-[active=true]:text-white'
-            type='button'
-          >
-            {interval.label}
-          </button>
-        ))}
-
-        <Popover>
-          <PopoverTrigger asChild>
+          <Fragment key={`${interval.type}-${interval.unit ?? "none"}`}>
             <button
-              className='h-7 rounded px-2 text-xs font-medium text-text-muted-dark transition-colors hover:bg-white/5 hover:text-white'
+              onClick={() => setSelectedInterval(interval)}
+              data-active={
+                selectedInterval.type === interval.type && (selectedInterval.unit ?? 0) === (interval.unit ?? 0)
+              }
+              className='h-7 rounded px-2 text-xs font-medium text-text-muted-dark transition-colors hover:bg-white/5 hover:text-white data-[active=true]:bg-white/10 data-[active=true]:text-white'
               type='button'
             >
-              지표
+              {interval.label}
             </button>
-          </PopoverTrigger>
-          <PopoverContent className='w-40'>
-            <div className='space-y-3'>
-              <label className='flex items-center gap-2 text-sm'>
-                <input
-                  type='checkbox'
-                  checked={indicators.ma}
-                  onChange={(e) => setIndicators({ ...indicators, ma: e.target.checked })}
-                />
-                이동평균선
-              </label>
-            </div>
-          </PopoverContent>
-        </Popover>
+            {interval.type === "minutes" && interval.unit === 60 && (
+              <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
+            )}
+          </Fragment>
+        ))}
+
+        <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
 
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className='h-7 rounded px-2 text-xs font-medium text-text-muted-dark transition-colors hover:bg-white/5 hover:text-white'
+              className='flex h-7 items-center gap-1 rounded px-2 text-xs font-medium text-text-muted-dark transition-colors hover:bg-white/5 hover:text-white'
               type='button'
             >
               차트설정
+              <ChevronDown className='size-3.5' />
             </button>
           </PopoverTrigger>
           <PopoverContent className='w-40'>
@@ -367,6 +352,30 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
                   onChange={(e) => setChartType(e.target.value as "candlestick" | "line")}
                 />
                 라인
+              </label>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              className='flex h-7 items-center gap-1 rounded px-2 text-xs font-medium text-text-muted-dark transition-colors hover:bg-white/5 hover:text-white'
+              type='button'
+            >
+              지표
+              <ChevronDown className='size-3.5' />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className='w-40'>
+            <div className='space-y-3'>
+              <label className='flex items-center gap-2 text-sm'>
+                <input
+                  type='checkbox'
+                  checked={indicators.ma}
+                  onChange={(e) => setIndicators({ ...indicators, ma: e.target.checked })}
+                />
+                이동평균선
               </label>
             </div>
           </PopoverContent>
