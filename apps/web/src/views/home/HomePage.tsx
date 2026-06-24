@@ -43,7 +43,7 @@ export default function HomePage() {
               selectedMarketCode={selectedMarketCode}
               ticker={tickerQuery.data}
             />
-            <MarketOrderPanel />
+            <MarketOrderPanel marketCode={selectedMarketCode} />
           </div>
         </div>
       </main>

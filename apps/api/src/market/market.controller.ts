@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { MarketService } from './market.service';
-import { Market, CurrentPrice, CandleResponse } from '@dobbit/shared';
+import { Market, CurrentPrice, CandleResponse, OrderbookResponse } from '@dobbit/shared';
 
 interface CandleInterval {
   type: 'seconds' | 'minutes' | 'weeks' | 'months' | 'years';
@@ -21,6 +21,11 @@ export class MarketController {
   @Get('markets/:code/price')
   async getCurrentPrice(@Param('code') code: string): Promise<CurrentPrice | null> {
     return this.marketService.getCurrentPrice(code);
+  }
+
+  @Get('markets/:code/orderbook')
+  async getOrderbook(@Param('code') code: string): Promise<OrderbookResponse | null> {
+    return this.marketService.getOrderbook(code);
   }
 
   @Get('markets/:code/candles')
