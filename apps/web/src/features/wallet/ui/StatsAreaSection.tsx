@@ -35,6 +35,14 @@ export const StatsAreaSection = () => {
 
   const data = summary.data;
 
+  if (summary.isLoading || assets.isLoading) {
+    return (
+      <article className='flex h-full w-[70%] items-center justify-center bg-surface-dark/20 px-2 py-6'>
+        <p className='text-sm text-text-muted-dark'>평가 현황을 불러오는 중입니다.</p>
+      </article>
+    );
+  }
+
   return (
     <article className='flex h-full w-[70%] flex-col bg-surface-dark/20 px-2 py-6'>
       <div className='flex w-full justify-between gap-10 px-6 py-4'>

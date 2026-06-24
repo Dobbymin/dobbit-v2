@@ -32,7 +32,9 @@ export const ChartAreaSection = () => {
         </div>
       </div>
       <div className='flex flex-wrap justify-center gap-2'>
-        {list.length > 0 ? (
+        {assets.isLoading ? (
+          <span className='text-xs text-text-muted-dark'>불러오는 중...</span>
+        ) : list.length > 0 ? (
           list.map((asset, index) => (
             <span key={asset.currency} className='flex items-center gap-1 text-xs text-text-muted-dark'>
               <span
