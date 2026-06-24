@@ -80,7 +80,7 @@ export const OrderbookPanel = ({ marketCode }: OrderbookPanelProps) => {
                 </div>
               </TableCell>
               <TableCell className='relative w-1/3 p-0'>
-                <div className='absolute inset-0 right-0 h-full bg-red-200' style={{ width: `${volumePercent}%` }} />
+                <div className='absolute top-0 left-0 h-full bg-red-200' style={{ width: `${volumePercent}%` }} />
                 <div className='relative z-10 px-4 py-2 text-start font-roboto text-xs text-black'>
                   {unit.bidSize.toLocaleString()}
                 </div>
