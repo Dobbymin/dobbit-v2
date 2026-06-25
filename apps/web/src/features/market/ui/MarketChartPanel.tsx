@@ -54,9 +54,9 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
 
   // 하단 차트를 brush(range selector)로 사용 — 캔들 차트("candles")를 타깃으로 줌/선택
   const volumeOptions = useMemo(() => {
-    const points = (volumeSeries[0]?.data ?? []) as Array<{ x: Date; y: number }>;
-    const selectionMin = points.length > 30 ? points[points.length - 30]?.x : undefined;
-    const selectionMax = points.length > 0 ? points[points.length - 1]?.x : undefined;
+    const points = toVolumeSeries(candlesData);
+    const selectionMin = points.length > 30 ? points[points.length - 30]?.x.getTime() : undefined;
+    const selectionMax = points.length > 0 ? points[points.length - 1]?.x.getTime() : undefined;
 
     return {
       chart: {
@@ -92,7 +92,7 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
         labels: { show: false },
       },
     };
-  }, [volumeSeries]);
+  }, [candlesData]);
 
   return (
     <div className='mt-2 h-[140px]'>
@@ -197,7 +197,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
       yaxis: {
         tooltip: { enabled: true },
         labels: {
-          formatter: (val: number) => Math.floor(val).toLocaleString(),
+          formatter: (val: number) => formatPrice(val),
         },
       },
       grid: { borderColor: "#333" },
