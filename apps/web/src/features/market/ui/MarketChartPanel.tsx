@@ -41,55 +41,6 @@ type VolumeChartProps = {
 };
 
 const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: VolumeChartProps) => {
-  const volumeOptions = useMemo(
-    () => ({
-      chart: {
-        type: "bar",
-        toolbar: {
-          show: false,
-        },
-        background: "transparent",
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      grid: {
-        show: false,
-      },
-      plotOptions: {
-        bar: {
-          colors: {
-            ranges: [
-              {
-                from: -Number.MAX_VALUE,
-                to: 0,
-                color: "#999999",
-              },
-              {
-                from: 0,
-                to: Number.MAX_VALUE,
-                color: "#999999",
-              },
-            ],
-          },
-          columnWidth: "70%",
-        },
-      },
-      xaxis: {
-        type: "datetime" as const,
-      },
-      yaxis: {
-        labels: {
-          show: false,
-        },
-        tooltip: {
-          enabled: true,
-        },
-      },
-    }),
-    [],
-  );
-
   const volumeSeries = useMemo(
     () => [
       {
@@ -101,10 +52,52 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
     [candlesData],
   );
 
+  // 하단 차트를 brush(range selector)로 사용 — 캔들 차트("candles")를 타깃으로 줌/선택
+  const volumeOptions = useMemo(() => {
+    const points = (volumeSeries[0]?.data ?? []) as Array<{ x: Date; y: number }>;
+    const selectionMin = points.length > 30 ? points[points.length - 30]?.x : undefined;
+    const selectionMax = points.length > 0 ? points[points.length - 1]?.x : undefined;
+
+    return {
+      chart: {
+        type: "bar",
+        id: "brush",
+        brush: { enabled: true, target: "candles" },
+        selection: {
+          enabled: true,
+          fill: { color: "#ccc", opacity: 0.4 },
+          stroke: { color: "#0D47A1" },
+          xaxis: { min: selectionMin, max: selectionMax },
+        },
+        toolbar: { show: false },
+        background: "transparent",
+      },
+      theme: { mode: "dark" },
+      dataLabels: { enabled: false },
+      stroke: { width: 0 },
+      grid: { show: false },
+      plotOptions: {
+        bar: {
+          columnWidth: "100%",
+          colors: {
+            ranges: [{ from: 0, to: 1000000000, color: "#555" }],
+          },
+        },
+      },
+      xaxis: {
+        type: "datetime" as const,
+        tooltip: { enabled: false },
+      },
+      yaxis: {
+        labels: { show: false },
+      },
+    };
+  }, [volumeSeries]);
+
   return (
-    <div className='mt-2 h-[120px]'>
+    <div className='mt-2 h-[140px]'>
       <ApexCharts
-        key={`${selectedMarketCode}-${selectedInterval.type}-${selectedInterval.unit ?? "none"}-volume`}
+        key={`${selectedMarketCode}-${selectedInterval.type}-${selectedInterval.unit ?? "none"}-brush`}
         options={volumeOptions}
         series={volumeSeries}
         type='bar'
@@ -182,11 +175,12 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
     const options: Record<string, any> = {
       chart: {
         type: chartType,
-        toolbar: {
-          show: false,
-        },
+        id: "candles",
+        toolbar: { autoSelected: "pan", show: false },
+        zoom: { enabled: false },
         background: "transparent",
       },
+      theme: { mode: "dark" },
       plotOptions: {
         candlestick: {
           colors: {
@@ -197,12 +191,16 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
       },
       xaxis: {
         type: "datetime" as const,
+        axisBorder: { show: false },
+        axisTicks: { show: false },
       },
       yaxis: {
-        tooltip: {
-          enabled: true,
+        tooltip: { enabled: true },
+        labels: {
+          formatter: (val: number) => Math.floor(val).toLocaleString(),
         },
       },
+      grid: { borderColor: "#333" },
     };
     return options;
   }, [chartType]);
