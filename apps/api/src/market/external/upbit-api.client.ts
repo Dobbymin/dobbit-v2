@@ -12,6 +12,7 @@ interface UpbitTicker {
   market: string;
   trade_price: number;
   signed_change_rate: number;
+  signed_change_price: number;
   acc_trade_volume_24h: number;
   trade_timestamp: number;
 }

@@ -7,6 +7,7 @@ export interface MarketTickerUpdatedEvent {
   marketCode: string;
   tradePrice: number;
   signedChangeRate: number;
+  signedChangePrice: number;
   accTradeVolume24h: number;
   timestamp: string;
 }

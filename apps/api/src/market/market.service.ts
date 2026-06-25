@@ -50,6 +50,7 @@ export class MarketService {
         marketCode: ticker.market,
         tradePrice: ticker.trade_price,
         signedChangeRate: ticker.signed_change_rate,
+        signedChangePrice: ticker.signed_change_price,
         timestamp: new Date(ticker.trade_timestamp).toISOString(),
       };
     } catch (error) {
@@ -99,6 +100,7 @@ export class MarketService {
         marketCode: t.market,
         tradePrice: t.trade_price,
         signedChangeRate: t.signed_change_rate,
+        signedChangePrice: t.signed_change_price,
         accTradeVolume24h: t.acc_trade_volume_24h,
         timestamp: new Date(t.trade_timestamp).toISOString(),
       }));

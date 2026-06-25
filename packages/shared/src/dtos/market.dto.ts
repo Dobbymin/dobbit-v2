@@ -26,6 +26,7 @@ export interface CurrentPrice {
   marketCode: string;
   tradePrice: number;
   signedChangeRate: number;
+  signedChangePrice: number;
   timestamp: string;
 }
 
