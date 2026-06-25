@@ -302,8 +302,14 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
                 : "-"}
           </p>
           <div className={`flex justify-end gap-3 ${changeTone}`}>
-            <span>{formatRate(signedChangeRate)}</span>
-            <span>{formatChangePrice(signedChangePrice)}</span>
+            {displayPrice != null ? (
+              <>
+                <span>{formatRate(signedChangeRate)}</span>
+                <span>{formatChangePrice(signedChangePrice)}</span>
+              </>
+            ) : (
+              <span>-</span>
+            )}
           </div>
         </div>
       </header>
