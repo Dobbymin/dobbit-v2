@@ -180,6 +180,7 @@ describe("toMarketRow", () => {
     marketCode: "KRW-BTC",
     tradePrice: 98501000,
     signedChangeRate: -0.0069,
+    signedChangePrice: -684000,
     accTradeVolume24h: 150000,
     timestamp: "2026-06-15T20:30:00.000Z",
   };
@@ -189,6 +190,7 @@ describe("toMarketRow", () => {
     marketCode: "KRW-BTC",
     tradePrice: 100000000,
     signedChangeRate: 0.0541,
+    signedChangePrice: 5130000,
     accTradeVolume24h: 200000,
     timestamp: "2026-06-15T20:31:00.000Z",
   };
@@ -200,7 +202,7 @@ describe("toMarketRow", () => {
       code: "KRW-BTC",
       koreanName: "비트코인",
       symbolPair: "BTC/KRW",
-      tradePrice: "₩98,501,000",
+      tradePrice: "98,501,000",
       changeRate: "-0.69%",
       changeTone: "decrease",
       isActive: true,
@@ -210,7 +212,7 @@ describe("toMarketRow", () => {
   it("should format tradePrice with formatPrice when ticker exists", () => {
     const row = toMarketRow(mockMarket, mockTicker);
 
-    expect(row.tradePrice).toBe("₩98,501,000");
+    expect(row.tradePrice).toBe("98,501,000");
     expect(row.tradePrice).not.toBe("-");
   });
 

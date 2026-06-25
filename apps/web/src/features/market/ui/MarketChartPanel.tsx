@@ -112,6 +112,12 @@ const formatRate = (value: number) => {
   return `${sign}${(value * 100).toFixed(2)}%`;
 };
 
+const formatChangePrice = (value: number) => {
+  if (value > 0) return `▲ ${formatPrice(value)}`;
+  if (value < 0) return `▼ ${formatPrice(Math.abs(value))}`;
+  return formatPrice(0);
+};
+
 const getDisplayCode = (marketCode: string) => {
   if (!marketCode.startsWith("KRW-")) {
     return marketCode;
@@ -167,6 +173,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
   const displayCode = market ? getDisplayCode(market.code) : "-";
   const displayPrice = displayTicker?.tradePrice;
   const signedChangeRate = displayTicker?.signedChangeRate ?? 0;
+  const signedChangePrice = displayTicker?.signedChangePrice ?? 0;
   const changeTone = signedChangeRate > 0 ? "text-increase" : signedChangeRate < 0 ? "text-decrease" : "text-text-dark";
 
   // chartOptions는 chartType이 바뀔 때만 업데이트
@@ -294,7 +301,16 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
                 ? "불러오는 중"
                 : "-"}
           </p>
-          <p className={changeTone}>{formatRate(signedChangeRate)}</p>
+          <div className={`flex justify-end gap-3 ${changeTone}`}>
+            {displayPrice != null ? (
+              <>
+                <span>{formatRate(signedChangeRate)}</span>
+                <span>{formatChangePrice(signedChangePrice)}</span>
+              </>
+            ) : (
+              <span>-</span>
+            )}
+          </div>
         </div>
       </header>
 
