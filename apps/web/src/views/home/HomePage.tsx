@@ -27,7 +27,7 @@ export default function HomePage() {
     <>
       <Header />
       <main className='min-h-[calc(100vh-80px)] bg-background text-text-dark'>
-        <div className='mx-auto grid max-w-360 lg:min-h-[calc(100vh-80px)] lg:grid-cols-[minmax(280px,28%)_minmax(0,72%)]'>
+        <div className='mx-auto grid max-w-7xl px-10 lg:min-h-[calc(100vh-80px)] lg:grid-cols-[minmax(280px,28%)_minmax(0,72%)]'>
           <MarketListPanel
             isLoading={marketsQuery.isLoading}
             markets={markets}
