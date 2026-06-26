@@ -39,7 +39,7 @@ INGEST_RESPONSE=$(curl -sS --max-time "$TIMEOUT_SECONDS" \
 INGEST_HTTP_CODE=$(echo "$INGEST_RESPONSE" | tail -1)
 INGEST_BODY=$(echo "$INGEST_RESPONSE" | head -n -1)
 
-if [ "$INGEST_HTTP_CODE" != "200" ] && [ "$INGEST_HTTP_CODE" != "202" ]; then
+if [[ ! "$INGEST_HTTP_CODE" =~ ^2[0-9][0-9]$ ]]; then
   echo "Error: Ingest returned HTTP $INGEST_HTTP_CODE" >&2
   echo "$INGEST_BODY" >&2
   exit 1
@@ -61,7 +61,7 @@ REVIEW_RESPONSE=$(curl -sS --max-time "$TIMEOUT_SECONDS" \
 REVIEW_HTTP_CODE=$(echo "$REVIEW_RESPONSE" | tail -1)
 REVIEW_BODY=$(echo "$REVIEW_RESPONSE" | head -n -1)
 
-if [ "$REVIEW_HTTP_CODE" != "200" ] && [ "$REVIEW_HTTP_CODE" != "202" ]; then
+if [[ ! "$REVIEW_HTTP_CODE" =~ ^2[0-9][0-9]$ ]]; then
   echo "Error: Review returned HTTP $REVIEW_HTTP_CODE" >&2
   echo "$REVIEW_BODY" >&2
   exit 1
