@@ -24,31 +24,30 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const coinSymbol = marketCode.replace("KRW-", "");
 
   const handlePriceChange = (value: string) => {
-    const nextPrice = value === "" ? "" : Number(value);
-    const currentAmount = Number(amount);
-
-    setPrice(nextPrice);
-    setTotal(value === "" || Number.isNaN(currentAmount) ? "" : Number(value) * currentAmount);
+    setPrice(value === "" ? "" : Number(value));
+    if (value === "" || amount === "") {
+      setTotal("");
+    } else {
+      setTotal(Number(value) * Number(amount));
+    }
   };
 
   const handleAmountChange = (value: string) => {
-    const nextAmount = value === "" ? "" : Number(value);
-    const currentPrice = Number(price);
-
-    setAmount(nextAmount);
-    setTotal(value === "" || Number.isNaN(currentPrice) ? "" : currentPrice * Number(value));
+    setAmount(value === "" ? "" : Number(value));
+    if (value === "" || price === "") {
+      setTotal("");
+    } else {
+      setTotal(Number(price) * Number(value));
+    }
   };
 
   const handleTotalChange = (value: string) => {
-    const nextTotal = value === "" ? "" : Number(value);
-    const currentPrice = Number(price);
-
-    setTotal(nextTotal);
-    if (value === "" || Number.isNaN(currentPrice) || currentPrice <= 0) {
-      return;
+    setTotal(value === "" ? "" : Number(value));
+    if (value === "" || price === "" || Number(price) <= 0) {
+      setAmount("");
+    } else {
+      setAmount(Number(value) / Number(price));
     }
-
-    setAmount(Number(value) / currentPrice);
   };
 
   const handleReset = () => {
