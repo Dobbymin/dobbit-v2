@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Input, cn } from "@/shared";
 import type { Market } from "@dobbit/shared";
 import { Search } from "lucide-react";
 
-import { toMarketRow, useMarketTickers } from "../model";
+import { toMarketRow, useIntersectionObserver, useMarketTickers } from "../model";
 
 type MarketListPanelProps = {
   markets: Market[];
@@ -75,6 +75,8 @@ const fallbackRows: MarketDisplayRow[] = [
   },
 ];
 
+const ITEMS_PER_PAGE = 20;
+
 export const MarketListPanel = ({
   markets,
   selectedMarketCode,
@@ -85,6 +87,7 @@ export const MarketListPanel = ({
 }: MarketListPanelProps) => {
   // 로컬 입력 state
   const [localSearchKeyword, setLocalSearchKeyword] = useState(searchKeyword);
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
   // 300ms debounce
   useEffect(() => {
@@ -125,6 +128,20 @@ export const MarketListPanel = ({
     );
   });
 
+  useEffect(() => {
+    setVisibleCount(ITEMS_PER_PAGE);
+  }, [localSearchKeyword]);
+
+  const observerRef = useIntersectionObserver(
+    useCallback(() => {
+      if (visibleCount < filteredRows.length) {
+        setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
+      }
+    }, [filteredRows.length, visibleCount]),
+  );
+
+  const visibleRows = filteredRows.slice(0, visibleCount);
+
   return (
     <aside className='flex min-h-[520px] flex-col border-r border-white/10 bg-surface-dark/20 lg:min-h-[calc(100vh-80px)]'>
       <div className='border-b border-white/10 p-4'>
@@ -144,50 +161,55 @@ export const MarketListPanel = ({
           </span>
         ) : null}
       </div>
-      <div className='grid grid-cols-[minmax(0,1fr)_88px_72px] gap-3 border-b border-white/10 px-4 py-3 text-xs font-semibold text-text-muted-dark'>
-        <span>마켓</span>
-        <span className='text-right'>현재가</span>
-        <span className='text-right'>변동률</span>
-      </div>
       <div className='min-h-0 flex-1 overflow-y-auto'>
+        <div className='sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_88px_72px] gap-3 border-b border-white/10 bg-surface-dark/30 px-4 py-3 text-xs font-semibold text-text-muted-dark backdrop-blur-sm'>
+          <span>마켓</span>
+          <span className='text-right'>현재가</span>
+          <span className='text-right'>변동률</span>
+        </div>
         {filteredRows.length === 0 ? (
           <p className='px-4 py-8 text-sm text-text-muted-dark'>검색 결과가 없습니다.</p>
         ) : (
-          filteredRows.map((row) => {
-            const active = row.code === selectedMarketCode;
+          <>
+            {visibleRows.map((row) => {
+              const active = row.code === selectedMarketCode;
+              const activeTone = row.changeTone === "increase" ? "text-increase" : "text-decrease";
 
-            return (
-              <button
-                className={cn(
-                  "grid w-full grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-white/5 px-4 py-3 text-left transition-colors hover:bg-white/[0.04]",
-                  active && "bg-white/[0.06]",
-                )}
-                key={row.code}
-                onClick={() => onSelectMarket(row.code)}
-                type='button'
-              >
-                <span className='min-w-0'>
-                  <span className={cn("block truncate text-sm font-semibold", active && "text-white")}>
-                    {row.koreanName}
-                  </span>
-                  <span className='mt-1 block truncate text-xs text-text-muted-dark'>{row.symbolPair}</span>
-                </span>
-                <span className='text-right text-xs font-medium text-text-dark'>{row.tradePrice}</span>
-                <span
+              return (
+                <button
                   className={cn(
-                    "text-right text-xs",
-                    row.isActive
-                      ? row.changeTone === "increase"
-                        ? "text-increase"
-                        : "text-decrease"
-                      : "text-text-muted-dark",
+                    "grid w-full grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-l-2 border-white/5 px-4 py-3 text-left transition-colors hover:bg-white/[0.04]",
+                    active ? "border-l-primary bg-white/5" : "border-l-transparent",
                   )}
+                  key={row.code}
+                  onClick={() => onSelectMarket(row.code)}
+                  type='button'
                 >
-                  {row.changeRate}
-                </span>
-              </button>
-            );
-          })
+                  <span className='min-w-0'>
+                    <span
+                      className={cn("block truncate text-xs font-semibold", active ? "text-primary" : "text-white")}
+                    >
+                      {row.koreanName}
+                    </span>
+                    <span className='mt-1 block truncate text-[10px] font-light text-text-muted-dark'>
+                      {row.symbolPair}
+                    </span>
+                  </span>
+                  <span
+                    className={cn("text-right text-xs font-medium", row.isActive ? activeTone : "text-text-muted-dark")}
+                  >
+                    {row.tradePrice}
+                  </span>
+                  <span className={cn("text-right text-xs", row.isActive ? activeTone : "text-text-muted-dark")}>
+                    {row.changeRate}
+                  </span>
+                </button>
+              );
+            })}
+            {visibleCount < filteredRows.length ? (
+              <div ref={observerRef} className='h-4 w-full bg-transparent' />
+            ) : null}
+          </>
         )}
       </div>
     </aside>
