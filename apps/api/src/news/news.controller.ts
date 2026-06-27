@@ -23,9 +23,9 @@ export class NewsController {
 
   @Get('articles')
   async getArticles(@Query('limit') limit: number = 20, @Query('offset') offset: number = 0): Promise<NewsItem[]> {
-    const parsedLimit = Number(limit);
-    const parsedOffset = Number(offset);
-    const safeLimit = Number.isNaN(parsedLimit) || parsedLimit < 0 ? 20 : parsedLimit;
+    const parsedLimit = Math.floor(Number(limit));
+    const parsedOffset = Math.floor(Number(offset));
+    const safeLimit = Number.isNaN(parsedLimit) || parsedLimit < 0 ? 20 : Math.min(parsedLimit, 100);
     const safeOffset = Number.isNaN(parsedOffset) || parsedOffset < 0 ? 0 : parsedOffset;
 
     return this.newsService.getArticles(safeLimit, safeOffset);
