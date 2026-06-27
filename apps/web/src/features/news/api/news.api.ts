@@ -35,4 +35,4 @@ const toQueryString = (query?: NewsListQuery) => {
 };
 
 export const getNewsApi = (query?: NewsListQuery): Promise<NewsListItem[]> =>
-  apiClient<NewsListItem[]>(`/news${toQueryString(query)}`);
+  apiClient<NewsListItem[]>(`/news/articles${toQueryString(query)}`);
