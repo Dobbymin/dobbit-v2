@@ -23,7 +23,12 @@ export class NewsController {
 
   @Get('articles')
   async getArticles(@Query('limit') limit: number = 20, @Query('offset') offset: number = 0): Promise<NewsItem[]> {
-    return this.newsService.getArticles(limit, offset);
+    const parsedLimit = Number(limit);
+    const parsedOffset = Number(offset);
+    const safeLimit = Number.isNaN(parsedLimit) || parsedLimit < 0 ? 20 : parsedLimit;
+    const safeOffset = Number.isNaN(parsedOffset) || parsedOffset < 0 ? 0 : parsedOffset;
+
+    return this.newsService.getArticles(safeLimit, safeOffset);
   }
 
   @Post('ingest')
