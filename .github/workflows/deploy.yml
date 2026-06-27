@@ -58,4 +58,4 @@ jobs:
           }
 
           check_health "web container" "http://127.0.0.1:3002"
-          check_health "api container" "http://127.0.0.1:3003/"
+          check_health "api container" "http://127.0.0.1:3003/api/news/articles?limit=1"
