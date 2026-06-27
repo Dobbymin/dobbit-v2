@@ -209,11 +209,17 @@ describe("toMarketRow", () => {
     });
   });
 
-  it("should format tradePrice with formatPrice when ticker exists", () => {
+  it("should format tradePrice with ko-KR locale when ticker exists", () => {
     const row = toMarketRow(mockMarket, mockTicker);
 
     expect(row.tradePrice).toBe("98,501,000");
     expect(row.tradePrice).not.toBe("-");
+  });
+
+  it("should preserve decimal places when formatting tradePrice", () => {
+    const row = toMarketRow(mockMarket, { ...mockTicker, tradePrice: 24.42 });
+
+    expect(row.tradePrice).toBe("24.42");
   });
 
   it("should show tradePrice as dash when ticker is null", () => {
