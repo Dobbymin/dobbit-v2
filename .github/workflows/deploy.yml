@@ -38,5 +38,24 @@ jobs:
       - name: Verify deployment
         run: |
           docker compose -p dobbit-v2 -f docker/docker-compose.deploy.yml ps
-          sleep 8
-          curl -fsS http://127.0.0.1:3002 >/dev/null && echo "web container responding (127.0.0.1:3002)"
+          check_health() {
+            local name="$1"
+            local url="$2"
+
+            for attempt in $(seq 1 30); do
+              if curl -fsS "$url" >/dev/null; then
+                echo "$name responding ($url)"
+                return 0
+              fi
+
+              echo "$name not ready yet ($attempt/30); retrying in 2s"
+              sleep 2
+            done
+
+            echo "ERROR: $name did not become healthy after 30 attempts ($url)" >&2
+            docker compose -p dobbit-v2 -f docker/docker-compose.deploy.yml logs --tail=50
+            exit 1
+          }
+
+          check_health "web container" "http://127.0.0.1:3002"
+          check_health "api container" "http://127.0.0.1:3003/"
