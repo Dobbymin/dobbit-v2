@@ -10,10 +10,7 @@ export type AccessTokenState = {
   setInitialized: () => void;
 };
 
-const initialState: Omit<
-  AccessTokenState,
-  "setAccessToken" | "clearAccessToken" | "setInitialized"
-> = {
+const initialState: Omit<AccessTokenState, "setAccessToken" | "clearAccessToken" | "setInitialized"> = {
   accessToken: null,
   isInitialized: false,
 };
@@ -34,10 +31,10 @@ export const useAuthStore = create<AccessTokenState>()(
           set((state) => {
             state.isInitialized = true;
           }),
-      }))
+      })),
     ),
     {
       name: "auth-store",
-    }
-  )
+    },
+  ),
 );

@@ -14,11 +14,11 @@ export class AuthService {
   async signup(request: SignupRequest): Promise<AuthResponse> {
     // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: request.email },
+      where: { username: request.username },
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new ConflictException('User with this username already exists');
     }
 
     // Hash password
@@ -27,50 +27,50 @@ export class AuthService {
     // Create user
     const user = await this.prisma.user.create({
       data: {
-        email: request.email,
+        username: request.username,
         passwordHash,
         nickname: request.nickname || '사용자',
       },
     });
 
     // Generate JWT
-    const accessToken = this.jwtService.sign({ sub: user.id, email: user.email });
+    const accessToken = this.jwtService.sign({ sub: user.id, username: user.username });
 
     return {
       accessToken,
       user: {
         id: user.id,
-        email: user.email,
+        username: user.username,
         nickname: user.nickname,
       },
     };
   }
 
   async login(request: LoginRequest): Promise<AuthResponse> {
-    // Find user by email
+    // Find user by username
     const user = await this.prisma.user.findUnique({
-      where: { email: request.email },
+      where: { username: request.username },
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid username or password');
     }
 
     // Verify password
     const passwordMatch = await bcrypt.compare(request.password, user.passwordHash);
 
     if (!passwordMatch) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid username or password');
     }
 
     // Generate JWT
-    const accessToken = this.jwtService.sign({ sub: user.id, email: user.email });
+    const accessToken = this.jwtService.sign({ sub: user.id, username: user.username });
 
     return {
       accessToken,
       user: {
         id: user.id,
-        email: user.email,
+        username: user.username,
         nickname: user.nickname,
       },
     };
@@ -90,13 +90,13 @@ export class AuthService {
     }
 
     // Generate new JWT
-    const accessToken = this.jwtService.sign({ sub: user.id, email: user.email });
+    const accessToken = this.jwtService.sign({ sub: user.id, username: user.username });
 
     return {
       accessToken,
       user: {
         id: user.id,
-        email: user.email,
+        username: user.username,
         nickname: user.nickname,
       },
     };

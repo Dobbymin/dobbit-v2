@@ -10,7 +10,7 @@ import { z } from "zod";
 import { useLogin } from "../model";
 
 const loginSchema = z.object({
-  email: z.string().email("올바른 이메일을 입력하세요."),
+  username: z.string().regex(/^[a-z0-9_]{4,20}$/, "아이디는 영문 소문자, 숫자, 밑줄 4~20자로 입력하세요."),
   password: z.string().min(8, "비밀번호는 8자 이상이어야 합니다."),
 });
 
@@ -21,7 +21,7 @@ export const LoginForm = () => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
@@ -35,12 +35,12 @@ export const LoginForm = () => {
         <div className='flex w-80 flex-col gap-4'>
           <FormField
             control={form.control}
-            name='email'
+            name='username'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>이메일</FormLabel>
+                <FormLabel>아이디</FormLabel>
                 <FormControl>
-                  <Input autoComplete='email' placeholder='you@example.com' type='email' {...field} />
+                  <Input autoComplete='username' placeholder='dobbit_user' type='text' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

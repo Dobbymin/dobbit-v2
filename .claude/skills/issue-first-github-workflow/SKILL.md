@@ -1,13 +1,19 @@
 ---
 name: issue-first-github-workflow
-description: "Dobbit v2 GitHub issue-first workflow. 기능 구현, 버그 수정, 리팩터링, chore 작업 요청 시 issue 생성/확인 → `{type}/{issue_number}-{summary}` branch → 구현/검증 → commit/push → PR → AI review → 타당한 리뷰 반영 → main merge 순서를 따른다."
+description:
+  "Dobbit v2 GitHub issue-first workflow. 기능 구현, 버그 수정, 리팩터링, chore
+  작업 요청 시 issue 생성/확인 → `{type}/{issue_number}-{summary}` branch →
+  구현/검증 → commit/push → PR → AI review → 타당한 리뷰 반영 → main merge
+  순서를 따른다."
 ---
 
 # Issue-First GitHub Workflow
 
-Dobbit v2에서 기능 구현, 버그 수정, 리팩터링, chore 작업을 진행할 때 사용하는 GitHub workflow다.
+Dobbit v2에서 기능 구현, 버그 수정, 리팩터링, chore 작업을 진행할 때 사용하는
+GitHub workflow다.
 
-Claude Code는 이 skill을 통해 작업을 시작할 때 issue를 먼저 확인하고, branch/PR/review/merge 흐름을 일관되게 관리한다.
+Claude Code는 이 skill을 통해 작업을 시작할 때 issue를 먼저 확인하고,
+branch/PR/review/merge 흐름을 일관되게 관리한다.
 
 ## Trigger
 
@@ -47,9 +53,11 @@ Claude Code는 이 skill을 통해 작업을 시작할 때 issue를 먼저 확�
      ```
 
 3. **Dobbit v2 역할 분리 준수**
-   - Claude Code는 설계 검토, 계획 수립, ADR/하네스 문서 수정, 작업 지시, 검증을 담당한다.
+   - Claude Code는 설계 검토, 계획 수립, ADR/하네스 문서 수정, 작업 지시, 검증을
+     담당한다.
    - 소스 코드 변경은 `implementer` agent 또는 Codex 경로로 위임한다.
-   - `CLAUDE.md`, `.claude/skills/**/SKILL.md`, `.claude/agents/**` 같은 하네스 문서는 Claude Code가 직접 수정할 수 있다.
+   - `CLAUDE.md`, `.claude/skills/**/SKILL.md`, `.claude/agents/**` 같은 하네스
+     문서는 Claude Code가 직접 수정할 수 있다.
 
 4. **AI review는 제안일 뿐이다**
    - Gemini, Copilot 등 AI review 결과를 그대로 적용하지 않는다.
@@ -88,7 +96,8 @@ git pull --ff-only origin main
 gh issue view <issue_number>
 ```
 
-`gh`가 없으면 GitHub REST API 또는 사용 가능한 MCP/GitHub 도구로 issue를 조회한다.
+`gh`가 없으면 GitHub REST API 또는 사용 가능한 MCP/GitHub 도구로 issue를
+조회한다.
 
 issue가 없으면 `.github/ISSUE_TEMPLATE/issue-template.md` 형식을 따른다.
 
@@ -127,7 +136,8 @@ feat, fix, chore, refactor, docs, test, ci, perf
 - 가장 단순하고 충분한 해결책을 선택한다.
 - Dobbit v2의 `CLAUDE.md` 역할 분리를 지킨다.
 - 소스 코드는 Claude Code가 직접 수정하지 않고 implementer/Codex에 위임한다.
-- 하네스 문서(`CLAUDE.md`, `.claude/skills`, `.claude/agents`)는 직접 수정 가능하다.
+- 하네스 문서(`CLAUDE.md`, `.claude/skills`, `.claude/agents`)는 직접 수정
+  가능하다.
 
 ### 5. 검증
 
@@ -190,11 +200,11 @@ PR body에는 다음을 포함한다.
 
 리뷰 항목별 처리 기준:
 
-| 분류 | 처리 |
-|---|---|
-| 타당하고 scope 안 | 반영 후 재검증 |
+| 분류                | 처리                   |
+| ------------------- | ---------------------- |
+| 타당하고 scope 안   | 반영 후 재검증         |
 | 타당하지만 scope 밖 | 이유를 남기고 deferred |
-| 부정확/불필요 | 이유를 남기고 미반영 |
+| 부정확/불필요       | 이유를 남기고 미반영   |
 
 ### 9. Merge
 

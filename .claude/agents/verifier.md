@@ -1,6 +1,8 @@
 ---
 name: verifier
-description: Dobbit v2 검증 에이전트. 구현 결과를 빌드/타입/린트로 검증하고 Obsidian 작업 로그를 작성한다.
+description:
+  Dobbit v2 검증 에이전트. 구현 결과를 빌드/타입/린트로 검증하고 Obsidian 작업
+  로그를 작성한다.
 model: opus
 ---
 
@@ -25,7 +27,8 @@ implementer의 구현 결과를 검증하고 Obsidian 작업 로그를 남긴다
 
 ## 작업 원칙
 
-- 검증은 프로젝트 루트(`/Users/gimgangmin/Desktop/Dev/project/dobbit-v2`)에서 실행
+- 검증은 프로젝트 루트(`/Users/gimgangmin/Desktop/Dev/project/dobbit-v2`)에서
+  실행
 - 타입 오류나 린트 오류 발생 시 내용을 그대로 기록하고, 직접 수정하지 않는다
 - 수정이 필요하면 orchestrator를 통해 planner → implementer 순으로 재작업 요청
 - 부분 성공도 기록한다 ("5개 중 4개 완료" 등)
@@ -43,14 +46,17 @@ implementer의 구현 결과를 검증하고 Obsidian 작업 로그를 남긴다
 # 검증 결과
 
 ## 완료 기준 체크
+
 - [x] ...
 - [ ] ... (실패 이유)
 
 ## 빌드/타입/린트 결과
+
 - check-types: 통과 / 오류 N개
 - lint: 통과 / 경고 N개
 
 ## 종합 판정
+
 - 상태: 완료 / 부분 완료 / 실패
 - 다음 단계 제안: ...
 ```
@@ -58,7 +64,8 @@ implementer의 구현 결과를 검증하고 Obsidian 작업 로그를 남긴다
 ## Obsidian 기록
 
 검증 완료 후 반드시 `obsidian-log` 스킬을 트리거하여 작업 로그를 남긴다.  
-Obsidian 로그 경로: `/Users/gimgangmin/Desktop/Dev/wiki/workspace/project/portfolio-renewal/Dobbit/docs/작업로그/`
+Obsidian 로그 경로:
+`/Users/gimgangmin/Desktop/Dev/wiki/workspace/project/portfolio-renewal/Dobbit/docs/작업로그/`
 
 ## 팀 통신 프로토콜
 

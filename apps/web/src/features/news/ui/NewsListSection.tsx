@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-import { Button } from "@/shared";
+import { useIntersectionObserver } from "@/shared";
 
 import type { NewsListQuery } from "../api";
 import { useNews } from "../model";
@@ -13,22 +13,20 @@ type NewsListSectionProps = {
   query?: NewsListQuery;
 };
 
-const ITEMS_PER_PAGE = 5;
+const INITIAL_COUNT = 10;
+const STEP = 10;
 
 export const NewsListSection = ({ query }: NewsListSectionProps) => {
-  const [page, setPage] = useState(0);
-  const currentQuery = { ...query, limit: ITEMS_PER_PAGE, offset: page * ITEMS_PER_PAGE };
-  const news = useNews(currentQuery);
-
-  const handlePrevious = () => {
-    if (page > 0) setPage(page - 1);
-  };
-
-  const handleNext = () => {
-    if (news.data && news.data.length === ITEMS_PER_PAGE) {
-      setPage(page + 1);
-    }
-  };
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const news = useNews({ ...query, limit: 100 });
+  const visibleItems = (news.data ?? []).slice(0, visibleCount);
+  const observerRef = useIntersectionObserver(
+    useCallback(() => {
+      if (news.data && visibleCount < news.data.length) {
+        setVisibleCount((prev) => prev + STEP);
+      }
+    }, [news.data, visibleCount]),
+  );
 
   return (
     <section className='flex flex-col gap-6'>
@@ -38,33 +36,13 @@ export const NewsListSection = ({ query }: NewsListSectionProps) => {
         <p className='text-sm text-text-muted-dark'>표시할 뉴스가 없습니다.</p>
       ) : null}
 
-      {news.data?.map((item) => (
+      {visibleItems.map((item) => (
         <NewsCard item={item} key={item.id} isLoading={news.isLoading} />
       ))}
 
-      {!news.isLoading && news.data && news.data.length > 0 && (
-        <div className='flex items-center justify-between pt-4'>
-          <Button
-            variant='outline'
-            onClick={handlePrevious}
-            disabled={page === 0}
-            className='text-text-muted-dark hover:text-white'
-          >
-            이전
-          </Button>
-
-          <span className='text-sm text-text-muted-dark'>페이지 {page + 1}</span>
-
-          <Button
-            variant='outline'
-            onClick={handleNext}
-            disabled={news.data.length < ITEMS_PER_PAGE}
-            className='text-text-muted-dark hover:text-white'
-          >
-            다음
-          </Button>
-        </div>
-      )}
+      {news.data && visibleCount < news.data.length ? (
+        <div ref={observerRef} className='h-4 w-full bg-transparent' />
+      ) : null}
     </section>
   );
 };

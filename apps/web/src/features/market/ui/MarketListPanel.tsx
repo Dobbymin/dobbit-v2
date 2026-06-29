@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { Input, cn } from "@/shared";
+import { useIntersectionObserver } from "@/shared";
 import type { Market } from "@dobbit/shared";
 import { Search } from "lucide-react";
 
-import { toMarketRow, useIntersectionObserver, useMarketTickers } from "../model";
+import { toMarketRow, useMarketTickers } from "../model";
 
 type MarketListPanelProps = {
   markets: Market[];

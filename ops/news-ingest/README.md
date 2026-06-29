@@ -1,6 +1,7 @@
 # Dobbit News Ingest — User-Level Systemd Timer Setup
 
-Automated news ingest pipeline that runs daily on the Raspberry Pi via user-level systemd timer.
+Automated news ingest pipeline that runs daily on the Raspberry Pi via
+user-level systemd timer.
 
 ## Prerequisites
 
@@ -42,25 +43,30 @@ This allows the user-level timer to run even when the user is not logged in.
 ## Verification
 
 **Check timer status:**
+
 ```bash
 systemctl --user list-timers dobbit-news-ingest.timer
 systemctl --user status dobbit-news-ingest.timer
 ```
 
 **View service logs:**
+
 ```bash
 journalctl --user -u dobbit-news-ingest.service -n 50 --follow
 ```
 
 **Check last execution:**
+
 ```bash
 journalctl --user -u dobbit-news-ingest.service --since "1 hour ago"
 ```
 
 ## Configuration
 
-- **Token source:** Reads `INTERNAL_CRON_TOKEN` from environment or `docker/.env`
-- **Schedule:** Daily at 10:12 AM (system timezone configured as Asia/Seoul in systemd)
+- **Token source:** Reads `INTERNAL_CRON_TOKEN` from environment or
+  `docker/.env`
+- **Schedule:** Daily at 10:12 AM (system timezone configured as Asia/Seoul in
+  systemd)
 - **Timeout:** 600 seconds (10 minutes) per HTTP request
 - **Endpoints:**
   - `POST http://127.0.0.1:3003/api/news/ingest`
@@ -69,21 +75,25 @@ journalctl --user -u dobbit-news-ingest.service --since "1 hour ago"
 ## Troubleshooting
 
 **Timer not running:**
+
 ```bash
 systemctl --user start dobbit-news-ingest.timer
 systemctl --user status dobbit-news-ingest.timer
 journalctl --user -u dobbit-news-ingest.service -n 20 -f
 ```
 
-**Linger not enabled:**
-If the timer stops after logout, ensure `sudo loginctl enable-linger dobbymin` was run and try logging in again.
+**Linger not enabled:** If the timer stops after logout, ensure
+`sudo loginctl enable-linger dobbymin` was run and try logging in again.
 
-**Token not found:**
-Check that `docker/.env` exists and contains `INTERNAL_CRON_TOKEN=<value>`, or set the environment variable before running the service.
+**Token not found:** Check that `docker/.env` exists and contains
+`INTERNAL_CRON_TOKEN=<value>`, or set the environment variable before running
+the service.
 
-**API not responding:**
-Ensure the NestJS API (`apps/api`) is running on port 3003. Check `docker ps` and network logs.
+**API not responding:** Ensure the NestJS API (`apps/api`) is running on
+port 3003. Check `docker ps` and network logs.
 
 ## Deployment (CI/CD)
 
-The `.github/workflows/deploy.yml` workflow automatically installs this user-level timer on every deployment. Manual installation is typically only needed for development environments.
+The `.github/workflows/deploy.yml` workflow automatically installs this
+user-level timer on every deployment. Manual installation is typically only
+needed for development environments.

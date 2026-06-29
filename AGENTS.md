@@ -1,24 +1,27 @@
 # Dobbit v2 — AGENTS.md
 
-Supabase 의존 구조를 NestJS + PostgreSQL + Prisma + WebSocket 기반 Monorepo로 재설계하는 실시간 금융 서비스.
+Supabase 의존 구조를 NestJS + PostgreSQL + Prisma + WebSocket 기반 Monorepo로
+재설계하는 실시간 금융 서비스.
 
 ## 역할 분리
 
-| 역할                                      | 담당            |
-| ----------------------------------------- | --------------- |
+| 역할                                      | 담당      |
+| ----------------------------------------- | --------- |
 | 설계 검토, 계획 수립, ADR 작성, 작업 지시 | **Codex** |
-| 폴더/파일 생성, 기능 구현, 리팩터링, 수정 | **Codex**       |
+| 폴더/파일 생성, 기능 구현, 리팩터링, 수정 | **Codex** |
 
 ### Codex 행동 규칙 (절대 원칙)
 
 **규모와 무관하게, 소스 파일을 변경하는 모든 작업은 Codex에 위임한다.**
 
 Codex가 직접 해서는 안 되는 것:
+
 - `Edit`, `Write` 도구로 소스 코드 파일 생성·수정
 - `Bash`로 소스 파일을 변경하는 명령 실행
 - "한 줄 수정이니까 직접 하겠다"는 판단
 
 Codex가 직접 해도 되는 것:
+
 - 파일 **읽기** (`Read`, `Bash cat/grep` 등 조회 전용)
 - `AGENTS.md`, `SKILL.md` 등 **하네스 문서** 수정
 - `pnpm typecheck`, `pnpm lint` 등 **검증 명령** 실행
@@ -49,7 +52,8 @@ Before implementing:
 - No error handling for impossible scenarios.
 - If you write 200 lines and it could be 50, rewrite it.
 
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes,
+simplify.
 
 ## 3. Surgical Changes
 
@@ -87,7 +91,8 @@ For multi-step tasks, state a brief plan:
 3. [Step] → verify: [check]
 ```
 
-Strong success criteria let you loop independently. Weak criteria require constant clarification.
+Strong success criteria let you loop independently. Weak criteria require
+constant clarification.
 
 ## 프로젝트 환경
 
@@ -127,12 +132,14 @@ dobbit-v2/
 
 - **page/view 컴포넌트** (`views/**/*.tsx`): `export default function` 사용
 - **그 외 컴포넌트** (`features`, `widgets`, `entities`): named export 사용
-- **이유**: `views/*/index.ts`에서 `export { default as XxxPage } from './XxxPage'` 패턴을 통일하기 위함
+- **이유**: `views/*/index.ts`에서
+  `export { default as XxxPage } from './XxxPage'` 패턴을 통일하기 위함
 
 ### index.ts export 규칙
 
-**모든 index.ts는 `export * from './...'` 패턴을 사용한다.**
-유일한 예외: `views/*/index.ts` — default export를 named로 재export할 때만 `export { default as XxxPage }` 사용.
+**모든 index.ts는 `export * from './...'` 패턴을 사용한다.** 유일한 예외:
+`views/*/index.ts` — default export를 named로 재export할 때만
+`export { default as XxxPage }` 사용.
 
 ### layer별 index.ts 구조
 
@@ -168,10 +175,14 @@ shared/
 
 ### 체크리스트 — slice/layer 추가 시 반드시 확인
 
-1. **slice 추가** (`views/foo`, `features/bar` 등): 해당 slice `index.ts` 작성 후, **상위 layer `index.ts`에 `export * from './foo'` 추가**
-2. **shared/libs 하위 추가**: `shared/libs/index.ts`에 `export * from './새폴더'` 추가
-3. **폴더명**: `shared` 하위 유틸 폴더는 `libs`. 내부 참조 시 `@/shared/libs/...` 사용
-4. **`shared/index.ts`**: `export * from './libs'` 한 줄 — 하위를 개별 참조하지 않는다
+1. **slice 추가** (`views/foo`, `features/bar` 등): 해당 slice `index.ts` 작성
+   후, **상위 layer `index.ts`에 `export * from './foo'` 추가**
+2. **shared/libs 하위 추가**: `shared/libs/index.ts`에
+   `export * from './새폴더'` 추가
+3. **폴더명**: `shared` 하위 유틸 폴더는 `libs`. 내부 참조 시
+   `@/shared/libs/...` 사용
+4. **`shared/index.ts`**: `export * from './libs'` 한 줄 — 하위를 개별 참조하지
+   않는다
 
 ## 도메인 모듈 (NestJS api)
 
@@ -180,8 +191,10 @@ shared/
 - **Trade** — 매수/매도/취소, 서버 측 체결 검증
 - **Wallet** — 보유 현금·코인, 이동평균 평단가, 평가손익
 - **Realtime** — WebSocket Gateway (공개 시장 채널 / 개인 자산 채널)
-- **Alert** — 리스크 조건 평가, WebSocket 인앱 알림, Slack Webhook 발송, cooldown 정책
-- **News** — 뉴스 수집, Hermes 에이전트 분석, Gemini fallback, PredictionReview, LearningSample
+- **Alert** — 리스크 조건 평가, WebSocket 인앱 알림, Slack Webhook 발송,
+  cooldown 정책
+- **News** — 뉴스 수집, Hermes 에이전트 분석, Gemini fallback, PredictionReview,
+  LearningSample
 
 ## 개발 기록 원칙
 
@@ -202,7 +215,8 @@ docs: 문서만 변경
 test: 테스트만 변경
 ```
 
-스코프 예시: `feat(api/auth): JWT refresh 구현`, `feat(web/market): 시세 WebSocket 연결`
+스코프 예시: `feat(api/auth): JWT refresh 구현`,
+`feat(web/market): 시세 WebSocket 연결`
 
 ## Codex 작업 지시 형식
 
@@ -220,12 +234,15 @@ Codex가 Codex에 작업을 넘길 때 반드시 아래 형식을 사용한다.
 
 ## 하네스: Dobbit v2
 
-**목표:** 마일스톤 단위 작업을 planner → implementer(Codex) → verifier 팀이 자동으로 계획·구현·검증·기록한다.
+**목표:** 마일스톤 단위 작업을 planner → implementer(Codex) → verifier 팀이
+자동으로 계획·구현·검증·기록한다.
 
-**트리거:** "Milestone N 진행", "마일스톤 시작", "다음 단계", 특정 도메인 모듈(Auth, Prisma, WebSocket, Alert, News) 구현 요청 시 `dobbit-milestone` 스킬을 사용하라.
+**트리거:** "Milestone N 진행", "마일스톤 시작", "다음 단계", 특정 도메인
+모듈(Auth, Prisma, WebSocket, Alert, News) 구현 요청 시 `dobbit-milestone`
+스킬을 사용하라.
 
 **변경 이력:**
 
-| 날짜 | 변경 내용 | 대상 | 사유 |
-|------|----------|------|------|
+| 날짜       | 변경 내용 | 대상 | 사유                            |
+| ---------- | --------- | ---- | ------------------------------- |
 | 2026-06-14 | 초기 구성 | 전체 | Milestone 2 진행 전 하네스 구축 |

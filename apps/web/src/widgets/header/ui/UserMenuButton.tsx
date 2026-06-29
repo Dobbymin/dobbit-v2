@@ -13,10 +13,11 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/shared";
-import { useIsAuth } from "@/shared/store";
 import { UserRound, Wallet } from "lucide-react";
 
 import { useLogout } from "@/features/auth";
+
+import { useIsAuth } from "@/shared/store";
 
 export const UserMenuButton = () => {
   const router = useRouter();

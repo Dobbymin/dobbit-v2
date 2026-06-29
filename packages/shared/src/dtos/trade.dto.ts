@@ -13,7 +13,7 @@ export interface SellTradeRequest {
 export interface TradeResponse {
   id: string;
   marketCode: string;
-  side: 'BUY' | 'SELL';
+  side: "BUY" | "SELL";
   price: number;
   quantity: number;
   totalAmount: number;
@@ -23,7 +23,7 @@ export interface TradeResponse {
 
 export interface TradeListQuery {
   marketCode?: string;
-  side?: 'BUY' | 'SELL';
+  side?: "BUY" | "SELL";
   page?: number;
   limit?: number;
 }

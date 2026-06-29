@@ -1,6 +1,9 @@
 ---
 name: obsidian-log
-description: "Dobbit v2 Obsidian 작업 로그 작성 스킬. 구현 완료, 검증 완료, 마일스톤 진행 후 자동으로 Obsidian에 기록이 필요할 때 사용한다. verifier 에이전트가 검증 완료 후 반드시 트리거한다."
+description:
+  "Dobbit v2 Obsidian 작업 로그 작성 스킬. 구현 완료, 검증 완료, 마일스톤 진행
+  후 자동으로 Obsidian에 기록이 필요할 때 사용한다. verifier 에이전트가 검증
+  완료 후 반드시 트리거한다."
 ---
 
 # Obsidian Log
@@ -42,6 +45,7 @@ milestone: [N - 마일스톤명]
 [수행한 내용, 실행한 명령어, 결과]
 
 **AI 협업 메모:**
+
 - Claude Code: [계획/지시 내용 요약]
 - Codex: [구현한 내용 요약]
 

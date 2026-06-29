@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useRef } from "react";
 
 export const useIntersectionObserver = (callback: () => void): React.RefCallback<HTMLDivElement> => {

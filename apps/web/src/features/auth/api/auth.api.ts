@@ -3,12 +3,12 @@ import { apiClient } from "@/shared";
 import type { User } from "@/entities/user";
 
 export type LoginRequest = {
-  email: string;
+  username: string;
   password: string;
 };
 
 export type SignupRequest = {
-  email: string;
+  username: string;
   password: string;
   nickname?: string;
 };

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { refreshApi } from "@/features/auth";
+
 import { setAccessToken, useAuthStore } from "@/shared/store";
 
 export const AuthInitializer = () => {

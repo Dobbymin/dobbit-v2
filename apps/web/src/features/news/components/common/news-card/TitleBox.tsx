@@ -45,7 +45,9 @@ export const TitleBox = ({ title, url, confidence, config, isLoading }: Props) =
             {config.label}
           </Badge>
           {confidence !== null && confidence !== undefined && (
-            <span className='text-xs text-text-muted-dark'>AI 신뢰도 {Math.round(confidence)}%</span>
+            <span className='text-xs text-text-muted-dark'>
+              AI 신뢰도 {Math.min(100, Math.max(0, Math.round(confidence * 100)))}%
+            </span>
           )}
         </div>
         <h3 className='text-xl leading-tight font-bold text-white transition-colors group-hover:text-blue-400'>

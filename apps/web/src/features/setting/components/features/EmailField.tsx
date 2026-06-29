@@ -9,12 +9,12 @@ export const EmailField = () => {
 
   return (
     <div className='flex items-center gap-2'>
-      <Label className='text-text-primary w-16 text-base'>이메일</Label>
+      <Label className='text-text-primary w-16 text-base'>아이디</Label>
       <div className='flex h-10 min-w-70 items-center rounded-md bg-background px-3 py-2'>
         {profile.isLoading ? (
           <Skeleton className='h-5 w-32' />
         ) : (
-          <p className='text-text-muted text-sm'>{profile.data?.email}</p>
+          <p className='text-text-muted text-sm'>{profile.data?.username}</p>
         )}
       </div>
     </div>

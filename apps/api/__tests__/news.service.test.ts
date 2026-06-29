@@ -28,8 +28,7 @@ const newsItem = {
 
 const createConfig = (values: Record<string, string | undefined>): ConfigService =>
   ({
-    get: <T>(key: string, defaultValue?: T): T | string | undefined =>
-      values[key] ?? defaultValue,
+    get: <T>(key: string, defaultValue?: T): T | string | undefined => values[key] ?? defaultValue,
   }) as ConfigService;
 
 const createPrisma = () => {
@@ -121,11 +120,7 @@ const createService = ({
     createConfig(configValues),
   );
 
-  vi.spyOn(
-    service as unknown as { logger: { warn: (message: string) => void } },
-    'logger',
-    'get',
-  ).mockReturnValue({
+  vi.spyOn(service as unknown as { logger: { warn: (message: string) => void } }, 'logger', 'get').mockReturnValue({
     warn: vi.fn(),
     error: vi.fn(),
   } as never);
@@ -172,10 +167,7 @@ describe('NewsService analyzer provider routing', () => {
       hermesAnalyze,
       geminiAnalyze,
     });
-    const warn = vi.spyOn(
-      (service as unknown as { logger: { warn: (message: string) => void } }).logger,
-      'warn',
-    );
+    const warn = vi.spyOn((service as unknown as { logger: { warn: (message: string) => void } }).logger, 'warn');
 
     const result = await service.ingest('TEST');
 

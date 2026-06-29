@@ -14,7 +14,7 @@ export const DistributionBox = ({ positive, neutral, negative, totalNews, isLoad
   if (isLoading) {
     return (
       <>
-        <Skeleton className='mb-6 h-4 w-full rounded-full' />
+        <Skeleton className='mb-6 h-4 w-full' />
         <div className='flex justify-between text-xs'>
           <Skeleton className='h-4 w-16' />
           <Skeleton className='h-4 w-16' />
@@ -44,7 +44,7 @@ export const DistributionBox = ({ positive, neutral, negative, totalNews, isLoad
 
   return (
     <>
-      <div className='mb-6 flex h-4 w-full overflow-hidden rounded-full bg-black/30'>
+      <div className='mb-6 flex h-4 w-full overflow-hidden bg-black/30'>
         {segments.map((segment) => (
           <div
             key={segment.key}

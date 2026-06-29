@@ -1,11 +1,11 @@
 export interface SignupRequest {
-  email: string;
+  username: string;
   password: string;
   nickname: string;
 }
 
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -13,7 +13,7 @@ export interface AuthResponse {
   accessToken: string;
   user: {
     id: string;
-    email: string;
+    username: string;
     nickname: string;
   };
 }
@@ -28,13 +28,13 @@ export interface LogoutResponse {
 
 export interface MeResponse {
   id: string;
-  email: string;
+  username: string;
   nickname: string;
 }
 
 export interface TokenPayload {
   sub: string;
-  email: string;
+  username: string;
   iat?: number;
   exp?: number;
 }

@@ -1,8 +1,8 @@
-export type NewsSentiment = 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE';
-export type NewsProvider = 'HERMES' | 'GEMINI';
-export type NewsRunStatus = 'PENDING' | 'RUNNING' | 'SUCCEEDED' | 'FAILED';
-export type PredictionDirection = 'UP' | 'DOWN' | 'FLAT';
-export type FeedbackLabel = 'GOOD' | 'BAD' | 'NEEDS_REVIEW';
+export type NewsSentiment = "POSITIVE" | "NEUTRAL" | "NEGATIVE";
+export type NewsProvider = "HERMES" | "GEMINI";
+export type NewsRunStatus = "PENDING" | "RUNNING" | "SUCCEEDED" | "FAILED";
+export type PredictionDirection = "UP" | "DOWN" | "FLAT";
+export type FeedbackLabel = "GOOD" | "BAD" | "NEEDS_REVIEW";
 
 export interface NewsArticleResponse {
   id: string;

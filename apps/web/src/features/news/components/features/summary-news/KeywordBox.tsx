@@ -11,11 +11,11 @@ export const KeywordBox = ({ keywords, isLoading }: Props) => {
       <p className='text-sm text-text-dark'>Today&apos;s Keywords</p>
       <div className='flex flex-wrap gap-2'>
         {isLoading
-          ? Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className='h-5 w-16 rounded-full' />)
+          ? Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className='h-5 w-16' />)
           : keywords.map((k) => (
               <span
                 key={k}
-                className='inline-flex w-fit items-center rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-gray-300 transition-colors hover:bg-white/10'
+                className='inline-flex w-fit items-center bg-white/5 px-2 py-0.5 text-xs font-medium text-gray-300 transition-colors hover:bg-white/10'
               >
                 # {k}
               </span>

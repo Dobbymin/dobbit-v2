@@ -1,4 +1,4 @@
-import { getAccessToken, setAccessToken, clearAccessToken } from "@/shared/store/use-auth";
+import { clearAccessToken, getAccessToken, setAccessToken } from "@/shared/store/use-auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api";
 

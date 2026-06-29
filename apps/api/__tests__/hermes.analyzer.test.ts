@@ -138,9 +138,7 @@ describe('HermesAnalyzer', () => {
       );
       mockHermesResponse(JSON.stringify(response));
 
-      await expect(analyzer.analyze('시장 뉴스')).rejects.toThrow(
-        /sentiment|confidence|investment_index/,
-      );
+      await expect(analyzer.analyze('시장 뉴스')).rejects.toThrow(/sentiment|confidence|investment_index/);
     }
   });
 

@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "/Users/gimgangmin/.nvm/versions/node/v24.17.0/bin/node",
+      "runtimeArgs": [
+        "/Users/gimgangmin/Desktop/Dev/project/dobbit-v2/apps/web/node_modules/next/dist/bin/next",
+        "dev",
+        "/Users/gimgangmin/Desktop/Dev/project/dobbit-v2/apps/web",
+        "--webpack",
+        "--port",
+        "3000"
+      ],
+      "port": 3000,
+      "autoPort": false
+    }
+  ]
+}
