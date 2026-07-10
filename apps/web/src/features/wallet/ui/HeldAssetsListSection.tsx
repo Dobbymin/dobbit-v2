@@ -31,15 +31,15 @@ export const HeldAssetsListSection = () => {
           </TableHeader>
           <TableBody>
             {assets.data.map((asset) => (
-              <TableRow key={asset.currency} className='border-b border-text-muted-dark/20'>
+              <TableRow key={asset.symbol} className='border-b border-text-muted-dark/20'>
                 <TableCell className='text-left text-white'>
-                  <p className='font-semibold'>{asset.currency}</p>
+                  <p className='font-semibold'>{asset.symbol}</p>
                 </TableCell>
-                <TableCell className='text-right text-white'>{asset.balance.toLocaleString()}</TableCell>
-                <TableCell className='text-right text-white'>{formatPrice(asset.averageBuyPrice)}</TableCell>
-                <TableCell className='text-right text-white'>{formatPrice(asset.evaluatedPrice)}</TableCell>
-                <TableCell className={`text-right ${asset.profitLoss >= 0 ? "text-increase" : "text-decrease"}`}>
-                  {formatPrice(asset.profitLoss)} ({formatRate(asset.profitLossRate)}%)
+                <TableCell className='text-right text-white'>{asset.quantity.toLocaleString()}</TableCell>
+                <TableCell className='text-right text-white'>{formatPrice(asset.totalCost)}</TableCell>
+                <TableCell className='text-right text-white'>{formatPrice(asset.evaluatedAmount)}</TableCell>
+                <TableCell className={`text-right ${asset.profitAmount >= 0 ? "text-increase" : "text-decrease"}`}>
+                  {formatPrice(asset.profitAmount)} ({formatRate(asset.profitRate * 100)}%)
                 </TableCell>
               </TableRow>
             ))}

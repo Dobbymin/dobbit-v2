@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { WalletService } from './wallet.service';
 import { CashBalanceResponse, WalletHolding, WalletSummaryResponse } from '@dobbit/shared';
@@ -8,6 +8,18 @@ interface UserRequest extends Request {
   user: {
     userId: string;
   };
+}
+
+interface DepositRequest {
+  amount: number;
+}
+
+interface WithdrawRequest {
+  amount: number;
+}
+
+interface CashBalanceResult {
+  cashBalance: number;
 }
 
 @Controller('api/wallet')
@@ -28,5 +40,15 @@ export class WalletController {
   @Get('summary')
   async getSummary(@Req() req: UserRequest): Promise<WalletSummaryResponse> {
     return this.walletService.getAssetSummary(req.user.userId);
+  }
+
+  @Post('deposit')
+  async deposit(@Req() req: UserRequest, @Body() request: DepositRequest): Promise<CashBalanceResult> {
+    return this.walletService.deposit(req.user.userId, request.amount);
+  }
+
+  @Post('withdraw')
+  async withdraw(@Req() req: UserRequest, @Body() request: WithdrawRequest): Promise<CashBalanceResult> {
+    return this.walletService.withdraw(req.user.userId, request.amount);
   }
 }

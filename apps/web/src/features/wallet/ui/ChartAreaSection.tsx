@@ -7,14 +7,14 @@ const COLORS = ["#8fa96f", "#a3d9a5", "#e0e0e0", "#5b8def", "#dd3c44", "#f0a868"
 export const ChartAreaSection = () => {
   const assets = useWalletAssets();
 
-  const list = (assets.data ?? []).filter((asset) => asset.evaluatedPrice > 0);
-  const total = list.reduce((sum, asset) => sum + asset.evaluatedPrice, 0);
+  const list = (assets.data ?? []).filter((asset) => asset.evaluatedAmount > 0);
+  const total = list.reduce((sum, asset) => sum + asset.evaluatedAmount, 0);
 
   let acc = 0;
   const stops = list
     .map((asset, index) => {
       const start = total > 0 ? (acc / total) * 100 : 0;
-      acc += asset.evaluatedPrice;
+      acc += asset.evaluatedAmount;
       const end = total > 0 ? (acc / total) * 100 : 0;
       return `${COLORS[index % COLORS.length]} ${start}% ${end}%`;
     })
@@ -36,12 +36,12 @@ export const ChartAreaSection = () => {
           <span className='text-xs text-text-muted-dark'>불러오는 중...</span>
         ) : list.length > 0 ? (
           list.map((asset, index) => (
-            <span key={asset.currency} className='flex items-center gap-1 text-xs text-text-muted-dark'>
+            <span key={asset.symbol} className='flex items-center gap-1 text-xs text-text-muted-dark'>
               <span
                 className='inline-block size-2 rounded-full'
                 style={{ background: COLORS[index % COLORS.length] }}
               />
-              {asset.currency}
+              {asset.symbol}
             </span>
           ))
         ) : (

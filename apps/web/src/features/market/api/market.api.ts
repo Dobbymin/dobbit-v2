@@ -1,5 +1,13 @@
 import { apiClient } from "@/shared";
-import type { CandleResponse, CurrentPrice, Market, OrderbookResponse } from "@dobbit/shared";
+import type {
+  BuyTradeRequest,
+  CandleResponse,
+  CurrentPrice,
+  Market,
+  OrderbookResponse,
+  SellTradeRequest,
+  TradeResponse,
+} from "@dobbit/shared";
 
 import type { CandleInterval } from "../model/libs";
 import { DEFAULT_CANDLE_INTERVAL } from "../model/libs";
@@ -48,3 +56,15 @@ export const getCandlesApi = (
 
   return apiClient<CandleResponse[]>(`/market/markets/${encodeURIComponent(marketCode)}/candles?${params.toString()}`);
 };
+
+export const buyOrderApi = (request: BuyTradeRequest): Promise<TradeResponse> =>
+  apiClient<TradeResponse>("/trade/buy", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+
+export const sellOrderApi = (request: SellTradeRequest): Promise<TradeResponse> =>
+  apiClient<TradeResponse>("/trade/sell", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
