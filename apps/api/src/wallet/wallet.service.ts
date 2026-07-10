@@ -31,17 +31,20 @@ export class WalletService {
       },
     });
 
-    const holdings: WalletHolding[] = [];
+    // Parallelize getCurrentPrice calls
+    const priceDataArray = await Promise.all(
+      wallets.map((wallet) => this.marketService.getCurrentPrice(wallet.market.code)),
+    );
 
-    for (const wallet of wallets) {
-      const priceData = await this.marketService.getCurrentPrice(wallet.market.code);
+    const holdings: WalletHolding[] = wallets.map((wallet, index) => {
+      const priceData = priceDataArray[index];
       const currentPrice = priceData?.tradePrice ?? 0;
       const evaluatedAmount = Number(wallet.quantity) * currentPrice;
       const totalCost = Number(wallet.totalCost);
       const profitAmount = evaluatedAmount - totalCost;
       const profitRate = totalCost > 0 ? profitAmount / totalCost : 0;
 
-      holdings.push({
+      return {
         marketCode: wallet.market.code,
         symbol: wallet.market.symbol,
         quantity: Number(wallet.quantity),
@@ -51,8 +54,8 @@ export class WalletService {
         evaluatedAmount,
         profitAmount,
         profitRate,
-      });
-    }
+      };
+    });
 
     return holdings;
   }
@@ -77,7 +80,7 @@ export class WalletService {
   }
 
   async deposit(userId: string, amount: number): Promise<{ cashBalance: number }> {
-    if (amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
       throw new BadRequestException('입금액은 0보다 커야 합니다.');
     }
 
@@ -112,21 +115,22 @@ export class WalletService {
   }
 
   async withdraw(userId: string, amount: number): Promise<{ cashBalance: number }> {
-    if (amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
       throw new BadRequestException('출금액은 0보다 커야 합니다.');
     }
 
-    const cashBalance = await this.prisma.cashBalance.findUnique({
-      where: { userId },
-    });
-
-    const currentBalance = cashBalance ? Number(cashBalance.amount) : 0;
-
-    if (currentBalance < amount) {
-      throw new BadRequestException('잔액이 부족합니다.');
-    }
-
     const result = await this.prisma.$transaction(async (tx) => {
+      // Query and validate balance inside transaction
+      const cashBalance = await tx.cashBalance.findUnique({
+        where: { userId },
+      });
+
+      const currentBalance = cashBalance ? Number(cashBalance.amount) : 0;
+
+      if (currentBalance < amount) {
+        throw new BadRequestException('잔액이 부족합니다.');
+      }
+
       const updated = await tx.cashBalance.update({
         where: { userId },
         data: {

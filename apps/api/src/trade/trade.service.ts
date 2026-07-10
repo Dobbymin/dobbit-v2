@@ -23,14 +23,16 @@ export class TradeService {
     }
 
     const totalAmount = price * quantity;
-    const cashBalance = await this.prisma.cashBalance.findUnique({
-      where: { userId },
-    });
-
-    const currentBalance = cashBalance ? Number(cashBalance.amount) : 0;
-    this.tradeValidator.validateCashBalance(currentBalance, totalAmount);
 
     const trade = await this.prisma.$transaction(async (tx) => {
+      // Query and validate cash balance inside transaction
+      const cashBalance = await tx.cashBalance.findUnique({
+        where: { userId },
+      });
+
+      const currentBalance = cashBalance ? Number(cashBalance.amount) : 0;
+      this.tradeValidator.validateCashBalance(currentBalance, totalAmount);
+
       // Deduct cash
       await tx.cashBalance.update({
         where: { userId },
@@ -123,19 +125,21 @@ export class TradeService {
       throw new NotFoundException(`마켓을 찾을 수 없습니다: ${marketCode}`);
     }
 
-    const wallet = await this.prisma.wallet.findUnique({
-      where: {
-        userId_marketId: { userId, marketId: market.id },
-      },
-    });
-
-    const currentQuantity = wallet ? Number(wallet.quantity) : 0;
-    this.tradeValidator.validateHoldings(currentQuantity, quantity);
-
     const totalAmount = price * quantity;
-    const remainingQty = currentQuantity - quantity;
 
     const trade = await this.prisma.$transaction(async (tx) => {
+      // Query and validate holdings inside transaction
+      const wallet = await tx.wallet.findUnique({
+        where: {
+          userId_marketId: { userId, marketId: market.id },
+        },
+      });
+
+      const currentQuantity = wallet ? Number(wallet.quantity) : 0;
+      this.tradeValidator.validateHoldings(currentQuantity, quantity);
+
+      const remainingQty = currentQuantity - quantity;
+
       // Add cash
       await tx.cashBalance.upsert({
         where: { userId },

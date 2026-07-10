@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, Param, UseGuards, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { TradeService } from './trade.service';
 import type { TradeResponse } from '@dobbit/shared';
@@ -38,9 +38,9 @@ export class TradeController {
   }
 
   @Post('cancel/:tradeId')
-  cancel(@Req() req: UserRequest): Promise<TradeResponse> {
+  cancel(@Req() req: UserRequest, @Param('tradeId') tradeId: string): Promise<TradeResponse> {
     void req;
-    return this.tradeService.cancelOrder('');
+    return this.tradeService.cancelOrder(tradeId);
   }
 
   @Get('history')
@@ -49,8 +49,12 @@ export class TradeController {
     @Query('limit') limitStr?: string,
     @Query('offset') offsetStr?: string,
   ): Promise<TradeResponse[]> {
-    const limit = limitStr ? Number(limitStr) : 50;
-    const offset = offsetStr ? Number(offsetStr) : 0;
+    const parsedLimit = limitStr ? parseInt(limitStr, 10) : 50;
+    const limit = Number.isNaN(parsedLimit) || parsedLimit < 0 ? 50 : parsedLimit;
+
+    const parsedOffset = offsetStr ? parseInt(offsetStr, 10) : 0;
+    const offset = Number.isNaN(parsedOffset) || parsedOffset < 0 ? 0 : parsedOffset;
+
     return this.tradeService.getTradeHistory(req.user.userId, limit, offset);
   }
 }
