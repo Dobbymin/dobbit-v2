@@ -1,5 +1,6 @@
 "use client";
 
+import { Skeleton } from "@/shared";
 import { useWalletAssets } from "../model";
 
 const COLORS = ["#8fa96f", "#a3d9a5", "#e0e0e0", "#5b8def", "#dd3c44", "#f0a868"];
@@ -25,15 +26,25 @@ export const ChartAreaSection = () => {
   return (
     <aside className='flex h-full w-[30%] flex-col items-center justify-center gap-4 bg-surface-dark/20 p-6'>
       <div className='relative h-[180px] w-[180px]'>
-        <div className='h-full w-full rounded-full' style={{ background }} />
-        <div className='absolute inset-[28%] flex flex-col items-center justify-center rounded-full bg-background'>
-          <p className='text-xs text-text-muted-dark'>보유 비중</p>
-          <p className='text-xs text-text-muted-dark'>(%)</p>
-        </div>
+        {assets.isLoading ? (
+          <Skeleton className='h-full w-full rounded-full' />
+        ) : (
+          <>
+            <div className='h-full w-full rounded-full' style={{ background }} />
+            <div className='absolute inset-[28%] flex flex-col items-center justify-center rounded-full bg-background'>
+              <p className='text-xs text-text-muted-dark'>보유 비중</p>
+              <p className='text-xs text-text-muted-dark'>(%)</p>
+            </div>
+          </>
+        )}
       </div>
       <div className='flex flex-wrap justify-center gap-2'>
         {assets.isLoading ? (
-          <span className='text-xs text-text-muted-dark'>불러오는 중...</span>
+          <>
+            <Skeleton className='h-4 w-12' />
+            <Skeleton className='h-4 w-12' />
+            <Skeleton className='h-4 w-12' />
+          </>
         ) : list.length > 0 ? (
           list.map((asset, index) => (
             <span key={asset.symbol} className='flex items-center gap-1 text-xs text-text-muted-dark'>

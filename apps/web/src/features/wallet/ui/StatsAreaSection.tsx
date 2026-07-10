@@ -1,6 +1,6 @@
 "use client";
 
-import { Separator } from "@/shared";
+import { Separator, Skeleton } from "@/shared";
 
 import { useWalletAssets, useWalletSummary } from "../model";
 
@@ -37,8 +37,30 @@ export const StatsAreaSection = () => {
 
   if (summary.isLoading || assets.isLoading) {
     return (
-      <article className='flex h-full w-[70%] items-center justify-center bg-surface-dark/20 px-2 py-6'>
-        <p className='text-sm text-text-muted-dark'>평가 현황을 불러오는 중입니다.</p>
+      <article className='flex h-full w-[70%] flex-col bg-surface-dark/20 px-2 py-6'>
+        <div className='flex w-full justify-between gap-10 px-6 py-4'>
+          <div className='flex w-full items-center justify-between'>
+            <Skeleton className='h-4 w-16' />
+            <Skeleton className='h-5 w-32' />
+          </div>
+          <div className='flex w-full items-center justify-between'>
+            <Skeleton className='h-4 w-16' />
+            <Skeleton className='h-5 w-32' />
+          </div>
+        </div>
+
+        <Separator className='my-4 border-t border-text-dark/10' />
+
+        <div className='flex w-full justify-between gap-10 px-6 py-6'>
+          <div className='flex w-full items-center justify-between'>
+            <Skeleton className='h-4 w-16' />
+            <Skeleton className='h-5 w-32' />
+          </div>
+          <div className='flex w-full items-center justify-between'>
+            <Skeleton className='h-4 w-16' />
+            <Skeleton className='h-5 w-32' />
+          </div>
+        </div>
       </article>
     );
   }

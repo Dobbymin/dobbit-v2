@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { Input, cn } from "@/shared";
+import { Input, Skeleton, cn } from "@/shared";
 import { useIntersectionObserver } from "@/shared";
 import type { Market } from "@dobbit/shared";
 import { Search } from "lucide-react";
@@ -168,7 +168,20 @@ export const MarketListPanel = ({
           <span className='text-right'>현재가</span>
           <span className='text-right'>변동률</span>
         </div>
-        {filteredRows.length === 0 ? (
+        {isLoading && filteredRows.length === 0 ? (
+          <div className='space-y-1'>
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} className='grid grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-white/5 px-4 py-3'>
+                <div className='space-y-1'>
+                  <Skeleton className='h-4 w-20' />
+                  <Skeleton className='h-3 w-16' />
+                </div>
+                <Skeleton className='h-4 w-20' />
+                <Skeleton className='h-4 w-12' />
+              </div>
+            ))}
+          </div>
+        ) : filteredRows.length === 0 ? (
           <p className='px-4 py-8 text-sm text-text-muted-dark'>검색 결과가 없습니다.</p>
         ) : (
           <>
