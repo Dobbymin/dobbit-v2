@@ -28,11 +28,11 @@ export const OrderbookPanel = ({ marketCode }: OrderbookPanelProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: 15 }).map((_, i) => (
-            <TableRow key={i} className='border-b border-white bg-blue-100 text-sm'>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <TableRow key={`ask-${i}`} className='border-b border-white bg-blue-100 text-sm'>
               <TableCell className='relative w-1/3 p-0'>
-                <div className='relative z-10 px-4 py-2'>
-                  <Skeleton className='h-3 w-12' />
+                <div className='relative z-10 px-4 py-2 text-end'>
+                  <Skeleton className='ml-auto h-3 w-12' />
                 </div>
               </TableCell>
               <TableCell className='w-1/3 p-0'>
@@ -41,6 +41,21 @@ export const OrderbookPanel = ({ marketCode }: OrderbookPanelProps) => {
                 </div>
               </TableCell>
               <TableCell className='w-1/3' />
+            </TableRow>
+          ))}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <TableRow key={`bid-${i}`} className='border-b border-white bg-red-100 text-sm'>
+              <TableCell className='w-1/3' />
+              <TableCell className='w-1/3 p-0'>
+                <div className='px-4 py-2 text-center'>
+                  <Skeleton className='h-3 w-20' />
+                </div>
+              </TableCell>
+              <TableCell className='relative w-1/3 p-0'>
+                <div className='relative z-10 px-4 py-2 text-start'>
+                  <Skeleton className='h-3 w-12' />
+                </div>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

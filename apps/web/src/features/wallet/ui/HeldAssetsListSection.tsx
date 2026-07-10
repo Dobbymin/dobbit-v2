@@ -31,16 +31,16 @@ export const HeldAssetsListSection = () => {
                   <Skeleton className='h-4 w-12' />
                 </TableCell>
                 <TableCell className='text-right text-white'>
-                  <Skeleton className='h-4 w-16' />
+                  <Skeleton className='ml-auto h-4 w-16' />
                 </TableCell>
                 <TableCell className='text-right text-white'>
-                  <Skeleton className='h-4 w-20' />
+                  <Skeleton className='ml-auto h-4 w-20' />
                 </TableCell>
                 <TableCell className='text-right text-white'>
-                  <Skeleton className='h-4 w-20' />
+                  <Skeleton className='ml-auto h-4 w-20' />
                 </TableCell>
                 <TableCell className='text-right'>
-                  <Skeleton className='h-4 w-20' />
+                  <Skeleton className='ml-auto h-4 w-20' />
                 </TableCell>
               </TableRow>
             ))}

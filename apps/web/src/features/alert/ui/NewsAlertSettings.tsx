@@ -151,19 +151,19 @@ export function NewsAlertSettings() {
       </form>
 
       <div className='mt-4 space-y-2'>
-        {alertRulesQuery.isPending && (
-          <>
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className='rounded-md border border-white/10 p-3'>
+        {alertRulesQuery.isPending &&
+          Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className='rounded-md border border-white/10 p-3'>
+              <div className='flex flex-wrap items-start justify-between gap-3'>
                 <div className='space-y-2'>
                   <Skeleton className='h-4 w-24' />
                   <Skeleton className='h-3 w-48' />
                   <Skeleton className='h-3 w-40' />
                 </div>
+                <Skeleton className='h-9 w-16 rounded-md' />
               </div>
-            ))}
-          </>
-        )}
+            </div>
+          ))}
         {alertRulesQuery.isError && <p className='text-sm text-destructive'>뉴스 감성 알림 규칙을 불러오지 못했습니다.</p>}
         {!alertRulesQuery.isPending && !alertRulesQuery.isError && newsSentimentRules.length === 0 && (
           <p className='text-sm text-text-muted-dark'>등록된 뉴스 감성 알림 규칙이 없습니다.</p>

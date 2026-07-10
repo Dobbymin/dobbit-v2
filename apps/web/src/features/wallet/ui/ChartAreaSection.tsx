@@ -29,14 +29,12 @@ export const ChartAreaSection = () => {
         {assets.isLoading ? (
           <Skeleton className='h-full w-full rounded-full' />
         ) : (
-          <>
-            <div className='h-full w-full rounded-full' style={{ background }} />
-            <div className='absolute inset-[28%] flex flex-col items-center justify-center rounded-full bg-background'>
-              <p className='text-xs text-text-muted-dark'>보유 비중</p>
-              <p className='text-xs text-text-muted-dark'>(%)</p>
-            </div>
-          </>
+          <div className='h-full w-full rounded-full' style={{ background }} />
         )}
+        <div className='absolute inset-[28%] flex flex-col items-center justify-center rounded-full bg-background'>
+          <p className='text-xs text-text-muted-dark'>보유 비중</p>
+          <p className='text-xs text-text-muted-dark'>(%)</p>
+        </div>
       </div>
       <div className='flex flex-wrap justify-center gap-2'>
         {assets.isLoading ? (

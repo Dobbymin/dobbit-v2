@@ -176,8 +176,8 @@ export const MarketListPanel = ({
                   <Skeleton className='h-4 w-20' />
                   <Skeleton className='h-3 w-16' />
                 </div>
-                <Skeleton className='h-4 w-20' />
-                <Skeleton className='h-4 w-12' />
+                <Skeleton className='ml-auto h-4 w-20' />
+                <Skeleton className='ml-auto h-4 w-12' />
               </div>
             ))}
           </div>
