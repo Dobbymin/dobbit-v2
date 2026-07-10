@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 import { Separator, formatPrice } from "@/shared";
 import type { CandleResponse, CurrentPrice, Market } from "@dobbit/shared";
@@ -41,6 +41,8 @@ type VolumeChartProps = {
 };
 
 const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: VolumeChartProps) => {
+  const lastValidSelection = useRef<{ min: number; max: number } | null>(null);
+
   const volumeSeries = useMemo(
     () => [
       {
@@ -52,10 +54,14 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
     [candlesData],
   );
 
+  useEffect(() => {
+    lastValidSelection.current = null;
+  }, [selectedMarketCode, selectedInterval.type, selectedInterval.unit]);
+
   // 하단 차트를 brush(range selector)로 사용 — 캔들 차트("candles")를 타깃으로 줌/선택
   const volumeOptions = useMemo(() => {
     const points = toVolumeSeries(candlesData);
-    const selectionMin = points.length > 30 ? points[points.length - 30]?.x.getTime() : undefined;
+    const selectionMin = points.length > 0 ? points[Math.max(0, points.length - 30)]?.x.getTime() : undefined;
     const selectionMax = points.length > 0 ? points[points.length - 1]?.x.getTime() : undefined;
 
     return {
@@ -68,6 +74,41 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
           fill: { color: "#ccc", opacity: 0.4 },
           stroke: { color: "#0D47A1" },
           xaxis: { min: selectionMin, max: selectionMax },
+        },
+        events: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          selection: (_chartContext: any, { xaxis }: any) => {
+            if (xaxis?.min == null || xaxis?.max == null) return;
+
+            if (xaxis.min !== xaxis.max) {
+              lastValidSelection.current = { min: xaxis.min, max: xaxis.max };
+              return;
+            }
+
+            const fallback =
+              lastValidSelection.current ??
+              (selectionMin !== undefined && selectionMax !== undefined
+                ? { min: selectionMin, max: selectionMax }
+                : null);
+
+            if (!fallback) return;
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const apexChartsGlobal = (typeof window !== "undefined" && (window as any).ApexCharts) as any;
+            if (apexChartsGlobal) {
+              apexChartsGlobal.exec("candles", "updateOptions", {
+                xaxis: { min: fallback.min, max: fallback.max },
+              });
+              apexChartsGlobal.exec("brush", "updateOptions", {
+                chart: {
+                  selection: {
+                    enabled: true,
+                    xaxis: { min: fallback.min, max: fallback.max },
+                  },
+                },
+              });
+            }
+          },
         },
         toolbar: { show: false },
         background: "transparent",
