@@ -56,12 +56,12 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
 
   useEffect(() => {
     lastValidSelection.current = null;
-  }, [candlesData]);
+  }, [selectedMarketCode, selectedInterval.type, selectedInterval.unit]);
 
   // 하단 차트를 brush(range selector)로 사용 — 캔들 차트("candles")를 타깃으로 줌/선택
   const volumeOptions = useMemo(() => {
     const points = toVolumeSeries(candlesData);
-    const selectionMin = points.length > 30 ? points[points.length - 30]?.x.getTime() : undefined;
+    const selectionMin = points.length > 0 ? points[Math.max(0, points.length - 30)]?.x.getTime() : undefined;
     const selectionMax = points.length > 0 ? points[points.length - 1]?.x.getTime() : undefined;
 
     return {
@@ -77,8 +77,8 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
         },
         events: {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          selection: (chartContext: any, { xaxis }: any) => {
-            if (!xaxis?.min || !xaxis?.max) return;
+          selection: (_chartContext: any, { xaxis }: any) => {
+            if (xaxis?.min == null || xaxis?.max == null) return;
 
             if (xaxis.min !== xaxis.max) {
               lastValidSelection.current = { min: xaxis.min, max: xaxis.max };
@@ -94,12 +94,12 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
             if (!fallback) return;
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const ApexCharts = (typeof window !== "undefined" && (window as any).ApexCharts) as any;
-            if (ApexCharts) {
-              ApexCharts.exec("candles", "updateOptions", {
+            const apexChartsGlobal = (typeof window !== "undefined" && (window as any).ApexCharts) as any;
+            if (apexChartsGlobal) {
+              apexChartsGlobal.exec("candles", "updateOptions", {
                 xaxis: { min: fallback.min, max: fallback.max },
               });
-              ApexCharts.exec("brush", "updateOptions", {
+              apexChartsGlobal.exec("brush", "updateOptions", {
                 chart: {
                   selection: {
                     enabled: true,
