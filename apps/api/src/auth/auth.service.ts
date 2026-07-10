@@ -78,7 +78,12 @@ export class AuthService {
 
   async refresh(refreshToken: string): Promise<AuthResponse> {
     // Verify and decode the token
-    const payload = this.jwtService.verify<TokenPayload>(refreshToken);
+    let payload: TokenPayload;
+    try {
+      payload = this.jwtService.verify<TokenPayload>(refreshToken);
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
 
     // Get user from DB
     const user = await this.prisma.user.findUnique({
