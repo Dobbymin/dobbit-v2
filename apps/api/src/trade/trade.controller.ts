@@ -37,12 +37,20 @@ export class TradeController {
     return this.tradeService.sellOrder(req.user.userId, request.marketCode, request.quantity, request.price);
   }
 
+  @Post('cancel/:tradeId')
+  cancel(@Req() req: UserRequest): Promise<TradeResponse> {
+    void req;
+    return this.tradeService.cancelOrder('');
+  }
+
   @Get('history')
   async getHistory(
     @Req() req: UserRequest,
-    @Query('limit') limit: number = 50,
-    @Query('offset') offset: number = 0,
+    @Query('limit') limitStr?: string,
+    @Query('offset') offsetStr?: string,
   ): Promise<TradeResponse[]> {
+    const limit = limitStr ? Number(limitStr) : 50;
+    const offset = offsetStr ? Number(offsetStr) : 0;
     return this.tradeService.getTradeHistory(req.user.userId, limit, offset);
   }
 }

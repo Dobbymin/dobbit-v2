@@ -1,28 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class TradeValidator {
-  validateQuantity(quantity: number): boolean {
-    // TODO: Implement quantity validation
-    // - Must be positive
-    // - Must meet minimum order size
-    return quantity > 0;
+  validateQuantity(quantity: number): void {
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      throw new BadRequestException('수량은 0보다 커야 합니다.');
+    }
   }
 
-  validatePrice(price: number): boolean {
-    // TODO: Implement price validation
-    // - Must be positive
-    // - Must meet acceptable range
-    return price > 0;
+  validatePrice(price: number): void {
+    if (!Number.isFinite(price) || price <= 0) {
+      throw new BadRequestException('가격은 0보다 커야 합니다.');
+    }
   }
 
-  validateCashBalance(currentBalance: number, requiredAmount: number): boolean {
-    // TODO: Implement cash balance validation
-    return currentBalance >= requiredAmount;
+  validateCashBalance(currentBalance: number, requiredAmount: number): void {
+    if (currentBalance < requiredAmount) {
+      throw new BadRequestException('잔액이 부족합니다.');
+    }
   }
 
-  validateHoldings(currentHoldings: number, requiredQuantity: number): boolean {
-    // TODO: Implement holdings validation
-    return currentHoldings >= requiredQuantity;
+  validateHoldings(currentHoldings: number, requiredQuantity: number): void {
+    if (currentHoldings < requiredQuantity) {
+      throw new BadRequestException('보유 수량이 부족합니다.');
+    }
   }
 }

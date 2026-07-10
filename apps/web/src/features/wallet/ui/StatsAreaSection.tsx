@@ -30,8 +30,8 @@ export const StatsAreaSection = () => {
   const assets = useWalletAssets();
 
   const list = assets.data ?? [];
-  const totalPurchase = list.reduce((sum, asset) => sum + asset.averageBuyPrice * asset.balance, 0);
-  const totalEvaluation = list.reduce((sum, asset) => sum + asset.evaluatedPrice, 0);
+  const totalPurchase = list.reduce((sum, asset) => sum + asset.totalCost, 0);
+  const totalEvaluation = list.reduce((sum, asset) => sum + asset.evaluatedAmount, 0);
 
   const data = summary.data;
 
@@ -46,21 +46,21 @@ export const StatsAreaSection = () => {
   return (
     <article className='flex h-full w-[70%] flex-col bg-surface-dark/20 px-2 py-6'>
       <div className='flex w-full justify-between gap-10 px-6 py-4'>
-        <StatItem label='보유 KRW' value={formatKRW(data?.cashBalance ?? 0)} unit='KRW' />
-        <StatItem label='총보유 자산' value={formatKRW(data?.totalAssetValue ?? 0)} unit='KRW' />
+        <StatItem label='보유 KRW' value={formatKRW(data?.cashAmount ?? 0)} unit='KRW' />
+        <StatItem label='총보유 자산' value={formatKRW(data?.totalAssetAmount ?? 0)} unit='KRW' />
       </div>
 
       <Separator className='my-4 border-t border-text-dark/10' />
 
       <div className='flex w-full justify-between gap-10 px-6 py-6'>
         <StatItem label='총 매수' value={formatKRW(totalPurchase)} unit='KRW' />
-        <StatItem label='총 평가 손익' value={withSign(data?.totalProfitLoss ?? 0)} unit='KRW' />
+        <StatItem label='총 평가 손익' value={withSign(data?.totalProfitAmount ?? 0)} unit='KRW' />
       </div>
       <div className='flex w-full justify-between gap-10 px-6 py-4'>
         <StatItem label='총 평가' value={formatKRW(totalEvaluation)} unit='KRW' />
         <StatItem
           label='총 평가 수익률'
-          value={`${(data?.totalProfitLossRate ?? 0) >= 0 ? "+" : ""}${(data?.totalProfitLossRate ?? 0).toFixed(2)}`}
+          value={`${(data?.totalProfitRate ?? 0) * 100 >= 0 ? "+" : ""}${((data?.totalProfitRate ?? 0) * 100).toFixed(2)}`}
           unit='%'
         />
       </div>
