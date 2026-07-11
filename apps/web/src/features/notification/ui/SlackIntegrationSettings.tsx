@@ -40,16 +40,16 @@ export const SlackIntegrationSettings = () => {
   };
 
   return (
-    <section className='border-t border-gray-200 pt-5'>
+    <section className='border-t border-white/10 pt-5'>
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <div>
-          <h2 className='text-base font-semibold text-gray-900'>Slack 알림</h2>
-          <p className='mt-1 text-sm text-gray-500'>
+          <h2 className='text-base font-semibold text-text-dark'>Slack 알림</h2>
+          <p className='mt-1 text-sm text-text-muted-dark'>
             {integration?.enabled ? "연결됨" : "연결되지 않음"}
             {integration?.channelName ? ` · ${integration.channelName}` : ""}
           </p>
         </div>
-        <label className='flex items-center gap-2 text-sm text-gray-700'>
+        <label className='flex items-center gap-2 text-sm text-text-dark'>
           <input
             type='checkbox'
             checked={enabled}
@@ -66,14 +66,14 @@ export const SlackIntegrationSettings = () => {
           value={webhookUrl}
           onChange={(event) => setWebhookUrl(event.target.value)}
           placeholder='Slack Incoming Webhook URL'
-          className='min-w-0 rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900'
+          className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark placeholder:text-text-muted-dark outline-none focus:border-primary bg-transparent'
         />
         <input
           type='text'
           value={channelName}
           onChange={(event) => setChannelName(event.target.value)}
           placeholder='채널명'
-          className='min-w-0 rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900'
+          className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark placeholder:text-text-muted-dark outline-none focus:border-primary bg-transparent'
         />
       </div>
 
@@ -82,7 +82,7 @@ export const SlackIntegrationSettings = () => {
           type='button'
           onClick={handleSave}
           disabled={!webhookUrl || saveMutation.isPending}
-          className='rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-gray-300'
+          className='rounded-md bg-primary px-3 py-2 text-sm font-medium text-black disabled:cursor-not-allowed disabled:bg-primary/40 disabled:text-black/60'
         >
           {saveMutation.isPending ? "저장 중" : "저장"}
         </button>
@@ -90,17 +90,17 @@ export const SlackIntegrationSettings = () => {
           type='button'
           onClick={handleTest}
           disabled={testMutation.isPending || !integration?.enabled}
-          className='rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-800 disabled:cursor-not-allowed disabled:text-gray-300'
+          className='rounded-md border border-white/20 px-3 py-2 text-sm font-medium text-text-dark disabled:cursor-not-allowed disabled:text-text-muted-dark/50'
         >
           {testMutation.isPending ? "발송 중" : "테스트 발송"}
         </button>
       </div>
 
-      <div className='mt-3 space-y-1 text-xs text-gray-500'>
+      <div className='mt-3 space-y-1 text-xs text-text-muted-dark'>
         {integration?.lastTestedAt && (
           <p>마지막 테스트: {new Date(integration.lastTestedAt).toLocaleString("ko-KR")}</p>
         )}
-        {integration?.lastErrorMessage && <p className='text-red-600'>최근 오류: {integration.lastErrorMessage}</p>}
+        {integration?.lastErrorMessage && <p className='text-destructive'>최근 오류: {integration.lastErrorMessage}</p>}
         {statusMessage && <p>{statusMessage}</p>}
       </div>
     </section>

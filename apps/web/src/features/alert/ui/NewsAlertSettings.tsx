@@ -99,12 +99,12 @@ export function NewsAlertSettings() {
             value={marketCode}
             onChange={(event) => setMarketCode(event.target.value)}
             placeholder='BTC 또는 KRW-BTC'
-            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark placeholder:text-text-muted-dark outline-none focus:border-primary bg-transparent'
+            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark placeholder:text-text-muted-dark bg-transparent outline-none focus:border-primary'
           />
           <select
             value={direction}
             onChange={(event) => setDirection(event.target.value as Direction)}
-            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark outline-none focus:border-primary bg-transparent [&>option]:bg-surface-dark'
+            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark bg-transparent outline-none focus:border-primary [&>option]:bg-surface-dark'
           >
             <option value='UP'>상승</option>
             <option value='DOWN'>하락</option>
@@ -116,7 +116,7 @@ export function NewsAlertSettings() {
             step='0.01'
             value={threshold}
             onChange={(event) => setThreshold(event.target.value)}
-            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark placeholder:text-text-muted-dark outline-none focus:border-primary bg-transparent'
+            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark placeholder:text-text-muted-dark bg-transparent outline-none focus:border-primary'
           />
         </div>
 
