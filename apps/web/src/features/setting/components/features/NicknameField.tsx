@@ -34,7 +34,7 @@ export const NicknameField = () => {
   return (
     <div className='flex flex-col gap-1.5'>
       <div className='flex items-center gap-2'>
-        <Label className='text-text-primary w-16 text-base'>닉네임</Label>
+        <Label className='w-16 text-base text-text-dark'>닉네임</Label>
         <div className='flex items-center gap-4'>
           {isEditing ? (
             <Input
@@ -49,7 +49,7 @@ export const NicknameField = () => {
               {profile.isLoading ? (
                 <Skeleton className='h-5 w-32' />
               ) : (
-                <p className='text-text-muted text-sm'>{userNickname}</p>
+                <p className='text-sm text-text-muted-dark'>{userNickname}</p>
               )}
             </div>
           )}

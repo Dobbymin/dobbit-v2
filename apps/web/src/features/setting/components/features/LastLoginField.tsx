@@ -12,12 +12,12 @@ export const LastLoginField = () => {
 
   return (
     <div className='flex items-center gap-2'>
-      <Label className='text-text-primary w-16 text-base'>가입일</Label>
+      <Label className='w-16 text-base text-text-dark'>가입일</Label>
       <div className='flex h-10 min-w-70 items-center rounded-md bg-background px-3 py-2'>
         {profile.isLoading ? (
           <Skeleton className='h-5 w-32' />
         ) : (
-          <p className='text-text-muted text-sm' suppressHydrationWarning>
+          <p className='text-sm text-text-muted-dark' suppressHydrationWarning>
             {formattedCreatedAt}
           </p>
         )}
