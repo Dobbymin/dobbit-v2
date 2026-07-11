@@ -16,6 +16,7 @@ export const ProfileSection = () => {
         <Button
           size='icon'
           variant='secondary'
+          aria-label='프로필 사진 변경'
           className='absolute right-0 bottom-0 size-10 rounded-full shadow-lg'
         >
           <Camera className='size-5' />
