@@ -7,21 +7,21 @@ export const ProfileSection = () => {
   return (
     <section className='flex flex-col items-center gap-4 bg-surface-dark p-10'>
       <div className='relative'>
-        <Avatar className='border-surface-light size-32 border-2'>
+        <Avatar className='size-32 border-2 border-border'>
           <AvatarImage alt='User Avatar' className='object-cover' />
-          <AvatarFallback className='bg-surface-light'>
-            <UserRound className='text-text-muted size-16' />
+          <AvatarFallback className='bg-surface-dark'>
+            <UserRound className='size-16 text-text-muted-dark' />
           </AvatarFallback>
         </Avatar>
         <Button
           size='icon'
           variant='secondary'
-          className='hover:bg-surface-light absolute right-0 bottom-0 size-10 rounded-full shadow-lg'
+          className='absolute right-0 bottom-0 size-10 rounded-full shadow-lg'
         >
           <Camera className='size-5' />
         </Button>
       </div>
-      <p className='text-text-muted text-sm'>프로필 사진 변경</p>
+      <p className='text-sm text-text-muted-dark'>프로필 사진 변경</p>
     </section>
   );
 };
