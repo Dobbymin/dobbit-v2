@@ -59,6 +59,7 @@ export const TitleBox = ({ title, url, confidence, config, isLoading }: Props) =
         size='icon'
         className='shrink-0 text-text-muted-dark hover:bg-white/10 hover:text-white'
         onClick={handleOpenLink}
+        aria-label='뉴스 원문 열기'
       >
         <ExternalLink className='size-5' />
       </Button>
