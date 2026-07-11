@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
-import { Separator, formatPrice } from "@/shared";
+import { Separator, Skeleton, formatPrice } from "@/shared";
 import type { CandleResponse, CurrentPrice, Market } from "@dobbit/shared";
 import { ChevronDown } from "lucide-react";
 
@@ -335,19 +335,21 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
           <p className='mt-1 text-sm text-text-muted-dark'>{displayCode}</p>
         </div>
         <div className='text-right'>
-          <p className={`text-2xl font-semibold ${displayPrice != null ? changeTone : "text-text-dark"}`}>
-            {displayPrice != null
-              ? `${formatPrice(displayPrice)} KRW`
-              : isLoading || candlesQuery.isLoading
-                ? "불러오는 중"
-                : "-"}
-          </p>
+          {displayPrice == null && (isLoading || candlesQuery.isLoading) ? (
+            <Skeleton className='ml-auto h-8 w-40' />
+          ) : (
+            <p className={`text-2xl font-semibold ${displayPrice != null ? changeTone : "text-text-dark"}`}>
+              {displayPrice != null ? `${formatPrice(displayPrice)} KRW` : "-"}
+            </p>
+          )}
           <div className={`flex justify-end gap-3 ${changeTone}`}>
             {displayPrice != null ? (
               <>
                 <span>{formatRate(signedChangeRate)}</span>
                 <span>{formatChangePrice(signedChangePrice)}</span>
               </>
+            ) : isLoading || candlesQuery.isLoading ? (
+              <Skeleton className='h-5 w-24' />
             ) : (
               <span>-</span>
             )}
@@ -440,13 +442,17 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
       <div className='min-h-0 flex-1 px-5 py-4'>
         <div className='flex h-full flex-col'>
           <div className='min-h-0 flex-1'>
-            <ApexCharts
-              key={`${selectedMarketCode}-${selectedInterval.type}-${selectedInterval.unit ?? "none"}-main`}
-              options={chartOptions}
-              series={chartSeries}
-              type={chartType}
-              height='100%'
-            />
+            {(isLoading || candlesQuery.isLoading) && !candlesQuery.data ? (
+              <Skeleton className='h-full w-full' />
+            ) : (
+              <ApexCharts
+                key={`${selectedMarketCode}-${selectedInterval.type}-${selectedInterval.unit ?? "none"}-main`}
+                options={chartOptions}
+                series={chartSeries}
+                type={chartType}
+                height='100%'
+              />
+            )}
           </div>
 
           {candlesQuery.data && candlesQuery.data.length > 0 && (

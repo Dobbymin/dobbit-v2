@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared";
+import { Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared";
 
 import { useOrderbook } from "../model";
 
@@ -19,9 +19,47 @@ export const OrderbookPanel = ({ marketCode }: OrderbookPanelProps) => {
 
   if (isLoading && units.length === 0) {
     return (
-      <div className='flex h-full w-full items-center justify-center p-4 text-sm text-text-muted-dark'>
-        호가 불러오는 중
-      </div>
+      <Table>
+        <TableHeader>
+          <TableRow className='border-b-3 border-text-dark/20'>
+            <TableHead className='text-md py-4 text-center font-semibold text-text-dark' colSpan={3}>
+              호가
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <TableRow key={`ask-${i}`} className='border-b border-white bg-blue-100 text-sm'>
+              <TableCell className='relative w-1/3 p-0'>
+                <div className='relative z-10 px-4 py-2 text-end'>
+                  <Skeleton className='ml-auto h-3 w-12' />
+                </div>
+              </TableCell>
+              <TableCell className='w-1/3 p-0'>
+                <div className='px-4 py-2 text-center'>
+                  <Skeleton className='h-3 w-20' />
+                </div>
+              </TableCell>
+              <TableCell className='w-1/3' />
+            </TableRow>
+          ))}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <TableRow key={`bid-${i}`} className='border-b border-white bg-red-100 text-sm'>
+              <TableCell className='w-1/3' />
+              <TableCell className='w-1/3 p-0'>
+                <div className='px-4 py-2 text-center'>
+                  <Skeleton className='h-3 w-20' />
+                </div>
+              </TableCell>
+              <TableCell className='relative w-1/3 p-0'>
+                <div className='relative z-10 px-4 py-2 text-start'>
+                  <Skeleton className='h-3 w-12' />
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     );
   }
 

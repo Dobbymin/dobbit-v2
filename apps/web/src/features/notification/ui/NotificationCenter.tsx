@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import type { NotificationItem } from "@dobbit/shared";
+import { Skeleton } from "@/shared";
 
 type Props = {
   notifications: NotificationItem[];
@@ -44,7 +45,23 @@ export const NotificationCenter = ({ notifications, unreadCount, onMarkAsRead, i
             </div>
             <div className='flex-1 overflow-y-auto'>
               {isLoading ? (
-                <div className='p-4 text-center text-sm text-gray-400'>불러오는 중...</div>
+                <>
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className='border-b px-4 py-3 last:border-b-0'
+                    >
+                      <div className='flex items-start gap-2'>
+                        <Skeleton className='mt-1.5 h-2 w-2 shrink-0 rounded-full' />
+                        <div className='min-w-0 flex-1 space-y-2'>
+                          <Skeleton className='h-4 w-32' />
+                          <Skeleton className='h-3 w-40' />
+                          <Skeleton className='h-2 w-24' />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
               ) : notifications.length === 0 ? (
                 <div className='p-4 text-center text-sm text-gray-400'>알림이 없습니다.</div>
               ) : (

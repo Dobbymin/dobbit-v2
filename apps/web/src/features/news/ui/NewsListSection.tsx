@@ -30,7 +30,28 @@ export const NewsListSection = ({ query }: NewsListSectionProps) => {
 
   return (
     <section className='flex flex-col gap-6'>
-      {news.isLoading ? <p className='text-sm text-text-muted-dark'>뉴스를 불러오는 중입니다.</p> : null}
+      {news.isLoading && !visibleItems.length ? (
+        Array.from({ length: 3 }).map((_, i) => (
+          <NewsCard
+            key={`skeleton-${i}`}
+            item={{
+              id: `skeleton-${i}`,
+              title: "",
+              url: "",
+              source: "",
+              publisher: "",
+              publishedAt: "",
+              summary: "",
+              content: "",
+              reason: "",
+              keywords: [],
+              sentiment: undefined,
+              confidence: 0,
+            }}
+            isLoading={true}
+          />
+        ))
+      ) : null}
 
       {!news.isLoading && !news.data?.length ? (
         <p className='text-sm text-text-muted-dark'>표시할 뉴스가 없습니다.</p>
