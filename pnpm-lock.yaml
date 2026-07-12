@@ -178,6 +178,9 @@ importers:
       '@dobbit/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@dobbit/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@hookform/resolvers':
         specifier: ^5.4.0
         version: 5.4.0(react-hook-form@7.79.0(react@19.2.0))

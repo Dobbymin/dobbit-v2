@@ -1,9 +1,206 @@
 /**
  * @dobbit/ui — 디자인 토큰 (SSOT)
  *
- * Phase 1(스캐폴드)에서는 빈 뼈대만 둔다.
- * Phase 2에서 Base/Semantic 2계층 토큰(OKLCH, 라이트/다크)을 여기에 채우고,
- * apps/web/app/globals.css 가 `@import "@dobbit/ui/styles.css"` 로 소비한다.
+ * Base(원시 팔레트, OKLCH 50~900) → Semantic(역할) 2계층.
+ * 앱은 다크가 기본(:root). 라이트(.light)는 향후 테마 토글용으로 정의.
+ * 컴포넌트는 semantic 토큰만 참조한다(Base·raw hex 직접 사용 금지).
  *
- * 참고: Dobbit/docs/설계/디자인시스템/03-토큰 명세.md
+ * 참고: Dobbit/docs/설계/디자인시스템/03-토큰 명세.md, ADR/008
  */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-increase: var(--increase);
+  --color-decrease: var(--decrease);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-text-dark: var(--text-dark);
+  --color-text-light: var(--text-light);
+  --color-text-muted-dark: var(--text-muted-dark);
+  --color-surface-dark: var(--surface-dark);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  /* --- Base: neutral (무채색) --- */
+  --neutral-50: oklch(0.985 0 0);
+  --neutral-100: oklch(0.97 0 0);
+  --neutral-200: oklch(0.922 0 0);
+  --neutral-300: oklch(0.87 0 0);
+  --neutral-400: oklch(0.708 0 0);
+  --neutral-500: oklch(0.556 0 0);
+  --neutral-600: oklch(0.439 0 0);
+  --neutral-700: oklch(0.371 0 0);
+  --neutral-800: oklch(0.269 0 0);
+  --neutral-850: oklch(0.205 0 0);
+  --neutral-900: oklch(0.145 0 0);
+  --neutral-950: oklch(0.11 0 0);
+  /* --- Base: lime (brand) --- */
+  --lime-50: oklch(0.9769 0.096 142.83);
+  --lime-100: oklch(0.9319 0.1189 142.83);
+  --lime-200: oklch(0.8569 0.16 142.83);
+  --lime-300: oklch(0.7969 0.1943 142.83);
+  --lime-400: oklch(0.7619 0.2172 142.83);
+  --lime-500: oklch(0.7419 0.2286 142.83);
+  --lime-600: oklch(0.6869 0.2286 142.83);
+  --lime-700: oklch(0.6219 0.2172 142.83);
+  --lime-800: oklch(0.5519 0.1966 142.83);
+  --lime-900: oklch(0.4869 0.1646 142.83);
+  /* --- Base: up (등락 상승) --- */
+  --up-50: oklch(0.8342 0.0828 22.99);
+  --up-100: oklch(0.7892 0.1025 22.99);
+  --up-200: oklch(0.7142 0.138 22.99);
+  --up-300: oklch(0.6542 0.1676 22.99);
+  --up-400: oklch(0.6192 0.1873 22.99);
+  --up-500: oklch(0.5992 0.1972 22.99);
+  --up-600: oklch(0.5442 0.1972 22.99);
+  --up-700: oklch(0.4792 0.1873 22.99);
+  --up-800: oklch(0.4092 0.1696 22.99);
+  --up-900: oklch(0.3442 0.142 22.99);
+  /* --- Base: down (등락 하락) --- */
+  --down-50: oklch(0.8148 0.0833 257.28);
+  --down-100: oklch(0.7698 0.1031 257.28);
+  --down-200: oklch(0.6948 0.1388 257.28);
+  --down-300: oklch(0.6348 0.1686 257.28);
+  --down-400: oklch(0.5998 0.1884 257.28);
+  --down-500: oklch(0.5798 0.1983 257.28);
+  --down-600: oklch(0.5248 0.1983 257.28);
+  --down-700: oklch(0.4598 0.1884 257.28);
+  --down-800: oklch(0.3898 0.1705 257.28);
+  --down-900: oklch(0.3248 0.1428 257.28);
+  /* --- Base: pos (손익 +) --- */
+  --pos-50: oklch(0.9014 0.0726 152.68);
+  --pos-100: oklch(0.8564 0.0899 152.68);
+  --pos-200: oklch(0.7814 0.121 152.68);
+  --pos-300: oklch(0.7214 0.1469 152.68);
+  --pos-400: oklch(0.6864 0.1642 152.68);
+  --pos-500: oklch(0.6664 0.1728 152.68);
+  --pos-600: oklch(0.6114 0.1728 152.68);
+  --pos-700: oklch(0.5464 0.1642 152.68);
+  --pos-800: oklch(0.4764 0.1486 152.68);
+  --pos-900: oklch(0.4114 0.1244 152.68);
+  /* --- Base: neg (손익 −) --- */
+  --neg-50: oklch(0.8945 0.0954 28.44);
+  --neg-100: oklch(0.8495 0.1181 28.44);
+  --neg-200: oklch(0.7745 0.159 28.44);
+  --neg-300: oklch(0.7145 0.1931 28.44);
+  --neg-400: oklch(0.6795 0.2158 28.44);
+  --neg-500: oklch(0.6595 0.2272 28.44);
+  --neg-600: oklch(0.6045 0.2272 28.44);
+  --neg-700: oklch(0.5395 0.2158 28.44);
+  --neg-800: oklch(0.4695 0.1954 28.44);
+  --neg-900: oklch(0.4045 0.1636 28.44);
+
+  /* --- Semantic (다크 = 기본) --- */
+  --background: var(--neutral-900);
+  --foreground: var(--neutral-50);
+  --card: var(--neutral-850);
+  --card-foreground: var(--neutral-50);
+  --popover: var(--neutral-850);
+  --popover-foreground: var(--neutral-50);
+  --primary: var(--lime-500);
+  --primary-foreground: var(--neutral-900);
+  --secondary: oklch(0.5685 0.1187 154.95);
+  --secondary-foreground: var(--neutral-50);
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-400);
+  --accent: var(--neutral-800);
+  --accent-foreground: var(--neutral-50);
+  --destructive: var(--neg-400);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: var(--neutral-500);
+  --radius: 0.625rem;
+  /* 도메인 semantic */
+  --increase: var(--up-500);
+  --decrease: var(--down-500);
+  --positive: var(--pos-500);
+  --negative: var(--neg-500);
+  /* charts (현행 유지) */
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  /* sidebar (현행 유지) */
+  --sidebar: var(--neutral-850);
+  --sidebar-foreground: var(--neutral-50);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: var(--neutral-50);
+  --sidebar-accent: var(--neutral-800);
+  --sidebar-accent-foreground: var(--neutral-50);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: var(--neutral-500);
+  /* 폐기 예정 토큰 → semantic alias (Phase 4에서 클래스 치환) */
+  --text-dark: var(--foreground);
+  --text-light: var(--neutral-900);
+  --text-muted-dark: var(--muted-foreground);
+  --surface-dark: var(--card);
+  --background-light: var(--neutral-50);
+  --background-dark: var(--background);
+}
+
+.light {
+  /* --- Semantic (라이트 = .light, 향후 토글용) --- */
+  --background: var(--neutral-50);
+  --foreground: var(--neutral-900);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--neutral-900);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--neutral-900);
+  --primary: var(--lime-700);
+  --primary-foreground: var(--neutral-50);
+  --secondary: oklch(0.5685 0.1187 154.95);
+  --secondary-foreground: var(--neutral-50);
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-500);
+  --accent: var(--neutral-100);
+  --accent-foreground: var(--neutral-900);
+  --destructive: var(--neg-600);
+  --border: var(--neutral-200);
+  --input: var(--neutral-200);
+  --ring: var(--neutral-400);
+  --increase: var(--up-600);
+  --decrease: var(--down-600);
+  --positive: var(--pos-600);
+  --negative: var(--neg-600);
+  --text-dark: var(--foreground);
+  --text-light: var(--neutral-900);
+  --text-muted-dark: var(--muted-foreground);
+  --surface-dark: var(--card);
+  --background-light: var(--neutral-50);
+  --background-dark: var(--neutral-900);
+}
