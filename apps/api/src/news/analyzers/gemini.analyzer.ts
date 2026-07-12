@@ -26,7 +26,7 @@ export class GeminiAnalyzer extends NewsAnalyzer {
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${this.geminiApiKey}`,
         {
           contents: [{ parts: [{ text: this.buildPrompt(content) }] }],
-          generationConfig: { maxOutputTokens: 200 },
+          generationConfig: { maxOutputTokens: 1024, responseMimeType: 'application/json' },
         },
         { timeout: 30000 },
       );
