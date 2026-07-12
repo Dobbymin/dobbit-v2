@@ -132,7 +132,7 @@
   --popover: var(--neutral-850);
   --popover-foreground: var(--neutral-50);
   --primary: var(--lime-500);
-  --primary-foreground: var(--neutral-50);
+  --primary-foreground: var(--neutral-900);
   --secondary: oklch(0.5685 0.1187 154.95);
   --secondary-foreground: var(--neutral-50);
   --muted: var(--neutral-800);
