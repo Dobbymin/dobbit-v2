@@ -5,6 +5,11 @@ import { TokenPayload } from '@dobbit/shared';
 
 const jwtSecret = process.env.JWT_SECRET ?? '<JWT_SECRET_PLACEHOLDER>';
 
+export interface AuthenticatedUser {
+  userId: string;
+  username: string;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
@@ -15,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: TokenPayload): TokenPayload {
-    return payload;
+  validate(payload: TokenPayload): AuthenticatedUser {
+    return { userId: payload.sub, username: payload.username };
   }
 }
