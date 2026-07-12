@@ -1,0 +1,9 @@
+/**
+ * @dobbit/ui — 디자인 토큰 (SSOT)
+ *
+ * Phase 1(스캐폴드)에서는 빈 뼈대만 둔다.
+ * Phase 2에서 Base/Semantic 2계층 토큰(OKLCH, 라이트/다크)을 여기에 채우고,
+ * apps/web/app/globals.css 가 `@import "@dobbit/ui/styles.css"` 로 소비한다.
+ *
+ * 참고: Dobbit/docs/설계/디자인시스템/03-토큰 명세.md
+ */
