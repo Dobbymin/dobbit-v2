@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
-import { Separator, Skeleton, formatPrice } from "@/shared";
+import { Separator, Skeleton, cn, formatPrice } from "@/shared";
 import type { CandleResponse, CurrentPrice, Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
 import { ChevronDown } from "lucide-react";
 
@@ -216,7 +216,8 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
   const displayPrice = displayTicker?.tradePrice;
   const signedChangeRate = displayTicker?.signedChangeRate ?? 0;
   const signedChangePrice = displayTicker?.signedChangePrice ?? 0;
-  const changeTone = signedChangeRate > 0 ? "text-increase" : signedChangeRate < 0 ? "text-decrease" : "text-text-dark";
+  const changeTone =
+    signedChangeRate > 0 ? "text-increase" : signedChangeRate < 0 ? "text-decrease" : "text-muted-foreground";
 
   // chartOptions는 chartType이 바뀔 때만 업데이트
   const chartOptions = useMemo(() => {
@@ -329,21 +330,26 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
   }, [series, indicators.ma, maSeries, candlesQuery.data, chartType]);
 
   return (
-    <section className='flex min-h-[560px] flex-col bg-[#121212]'>
-      <header className='flex flex-wrap items-start justify-between gap-3 border-b border-white/10 px-5 py-4'>
+    <section className='bg-background flex min-h-[560px] flex-col'>
+      <header className='border-border flex flex-wrap items-start justify-between gap-3 border-b px-5 py-4'>
         <div className='min-w-0'>
-          <h1 className='truncate text-xl font-bold text-text-dark'>{displayName}</h1>
-          <p className='mt-1 text-sm text-text-muted-dark'>{displayCode}</p>
+          <h1 className='text-foreground truncate text-xl font-bold'>{displayName}</h1>
+          <p className='text-muted-foreground mt-1 text-sm'>{displayCode}</p>
         </div>
         <div className='text-right'>
           {displayPrice == null && (isLoading || candlesQuery.isLoading) ? (
             <Skeleton className='ml-auto h-8 w-40' />
           ) : (
-            <p className={`text-2xl font-semibold ${displayPrice != null ? changeTone : "text-text-dark"}`}>
+            <p
+              className={cn(
+                "text-2xl font-semibold tabular-nums",
+                displayPrice != null ? changeTone : "text-foreground",
+              )}
+            >
               {displayPrice != null ? `${formatPrice(displayPrice)} KRW` : "-"}
             </p>
           )}
-          <div className={`flex justify-end gap-3 ${changeTone}`}>
+          <div className={cn("flex justify-end gap-3 text-sm tabular-nums", changeTone)}>
             {displayPrice != null ? (
               <>
                 <span>{formatRate(signedChangeRate)}</span>
@@ -358,7 +364,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
         </div>
       </header>
 
-      <div className='flex flex-wrap items-center gap-2 border-b border-white/10 px-5 py-2'>
+      <div className='border-border flex flex-wrap items-center gap-2 border-b px-5 py-2'>
         {CANDLE_INTERVALS.map((interval) => (
           <Fragment key={`${interval.type}-${interval.unit ?? "none"}`}>
             <button
@@ -366,7 +372,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
               data-active={
                 selectedInterval.type === interval.type && (selectedInterval.unit ?? 0) === (interval.unit ?? 0)
               }
-              className='h-7 rounded px-2 text-xs font-medium text-text-muted-dark transition-colors hover:bg-white/5 hover:text-white data-[active=true]:bg-white/10 data-[active=true]:text-white'
+              className='text-muted-foreground hover:bg-muted hover:text-foreground data-[active=true]:bg-muted data-[active=true]:text-foreground h-7 rounded px-2 text-xs font-medium transition-colors'
               type='button'
             >
               {interval.label}
@@ -382,7 +388,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className='flex h-7 items-center gap-1 rounded px-2 text-xs font-medium text-text-muted-dark transition-colors hover:bg-white/5 hover:text-white'
+              className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-7 items-center gap-1 rounded px-2 text-xs font-medium transition-colors'
               type='button'
             >
               차트설정
@@ -418,7 +424,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className='flex h-7 items-center gap-1 rounded px-2 text-xs font-medium text-text-muted-dark transition-colors hover:bg-white/5 hover:text-white'
+              className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-7 items-center gap-1 rounded px-2 text-xs font-medium transition-colors'
               type='button'
             >
               지표

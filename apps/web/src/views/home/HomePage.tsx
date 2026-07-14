@@ -32,7 +32,7 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <main className='min-h-[calc(100vh-80px)] bg-background text-text-dark'>
+      <main className='bg-background text-foreground min-h-[calc(100vh-80px)]'>
         <div className='mx-auto grid max-w-7xl px-10 lg:min-h-[calc(100vh-80px)] lg:grid-cols-[minmax(280px,28%)_minmax(0,72%)]'>
           <MarketListPanel
             isLoading={marketsQuery.isLoading}
@@ -43,7 +43,7 @@ export default function HomePage() {
             selectedMarketCode={selectedMarketCode}
             tickers={tickers}
           />
-          <div className='flex min-w-0 flex-col bg-[#121212]'>
+          <div className='bg-background flex min-w-0 flex-col'>
             <MarketChartPanel
               isLoading={tickerQuery.isLoading}
               market={selectedMarket}
