@@ -9,4 +9,6 @@ export const marketKeys = {
   orderbook: (marketCode: string) => ["market", "orderbook", marketCode] as const,
   candles: (code: string, interval: CandleInterval) =>
     ["market", "candles", code, interval.type, interval.unit ?? "none"] as const,
+  tradeHistoryAll: ["market", "trade-history"] as const,
+  tradeHistory: (limit: number, offset: number) => ["market", "trade-history", limit, offset] as const,
 };

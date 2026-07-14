@@ -68,3 +68,11 @@ export const sellOrderApi = (request: SellTradeRequest): Promise<TradeResponse> 
     method: "POST",
     body: JSON.stringify(request),
   });
+
+export const getTradeHistoryApi = (limit: number = 50, offset: number = 0): Promise<TradeResponse[]> => {
+  const params = new URLSearchParams();
+  params.set("limit", String(limit));
+  params.set("offset", String(offset));
+
+  return apiClient<TradeResponse[]>(`/trade/history?${params.toString()}`);
+};

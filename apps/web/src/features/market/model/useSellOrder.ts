@@ -7,6 +7,8 @@ import { walletKeys } from "@/features/wallet/model";
 
 import { sellOrderApi } from "../api";
 
+import { marketKeys } from "./market-query-keys";
+
 export const useSellOrder = () => {
   const queryClient = useQueryClient();
 
@@ -14,6 +16,7 @@ export const useSellOrder = () => {
     mutationFn: (request: SellTradeRequest) => sellOrderApi(request),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: walletKeys.all });
+      queryClient.invalidateQueries({ queryKey: marketKeys.tradeHistoryAll });
     },
   });
 };
