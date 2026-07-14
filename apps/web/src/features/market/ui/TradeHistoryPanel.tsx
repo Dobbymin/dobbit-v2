@@ -73,7 +73,9 @@ export const TradeHistoryPanel = () => {
                 {trade.side === "BUY" ? "매수" : "매도"}
               </TableCell>
               <TableCell className='text-right'>{formatPrice(trade.price)}</TableCell>
-              <TableCell className='text-right'>{trade.quantity.toLocaleString()}</TableCell>
+              <TableCell className='text-right'>
+                {trade.quantity.toLocaleString(undefined, { maximumFractionDigits: 8 })}
+              </TableCell>
               <TableCell className='text-right'>{formatPrice(trade.totalAmount)}</TableCell>
             </TableRow>
           ))}
