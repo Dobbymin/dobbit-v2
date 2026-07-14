@@ -6,9 +6,10 @@ import { useOrderbook } from "../model";
 
 type OrderbookPanelProps = {
   marketCode: string;
+  onSelectPrice?: (price: number) => void;
 };
 
-export const OrderbookPanel = ({ marketCode }: OrderbookPanelProps) => {
+export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProps) => {
   const { data, isLoading } = useOrderbook(marketCode);
 
   const units = data?.units ?? [];
@@ -86,7 +87,8 @@ export const OrderbookPanel = ({ marketCode }: OrderbookPanelProps) => {
           return (
             <TableRow
               key={`ask-${unit.askPrice}-${index}`}
-              className='border-b border-white bg-blue-100 text-sm hover:bg-blue-50'
+              className='cursor-pointer border-b border-white bg-blue-100 text-sm hover:bg-blue-50'
+              onClick={() => onSelectPrice?.(unit.askPrice)}
             >
               <TableCell className='relative w-1/3 p-0'>
                 <div className='absolute top-0 right-0 h-full bg-blue-200' style={{ width: `${volumePercent}%` }} />
@@ -109,7 +111,8 @@ export const OrderbookPanel = ({ marketCode }: OrderbookPanelProps) => {
           return (
             <TableRow
               key={`bid-${unit.bidPrice}-${index}`}
-              className='border-b border-white bg-red-100 text-sm hover:bg-red-50'
+              className='cursor-pointer border-b border-white bg-red-100 text-sm hover:bg-red-50'
+              onClick={() => onSelectPrice?.(unit.bidPrice)}
             >
               <TableCell className='w-1/3' />
               <TableCell className='w-1/3 p-0'>
