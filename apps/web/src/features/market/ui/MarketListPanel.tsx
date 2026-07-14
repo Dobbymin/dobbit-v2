@@ -4,16 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Input, Skeleton, cn } from "@/shared";
 import { useIntersectionObserver } from "@/shared";
-import type { Market } from "@dobbit/shared";
+import type { Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
 import { Search } from "lucide-react";
 
-import { toMarketRow, useMarketTickers } from "../model";
+import { toMarketRow } from "../model";
 
 type MarketListPanelProps = {
   markets: Market[];
   selectedMarketCode: string;
   searchKeyword: string;
   isLoading: boolean;
+  /** 상위(HomePage)에서 구독한 실시간 티커. 차트 패널과 공유한다. */
+  tickers: Record<string, MarketTickerUpdatedEvent>;
   onSearchKeywordChange: (value: string) => void;
   onSelectMarket: (marketCode: string) => void;
 };
@@ -83,6 +85,7 @@ export const MarketListPanel = ({
   selectedMarketCode,
   searchKeyword,
   isLoading,
+  tickers,
   onSearchKeywordChange,
   onSelectMarket,
 }: MarketListPanelProps) => {
@@ -103,9 +106,6 @@ export const MarketListPanel = ({
   useEffect(() => {
     setLocalSearchKeyword(searchKeyword);
   }, [searchKeyword]);
-
-  // Subscribe to real-time tickers for all markets
-  const tickers = useMarketTickers(markets.length > 0 ? markets.map((m) => m.code) : []);
 
   const rows: MarketDisplayRow[] =
     markets.length > 0
