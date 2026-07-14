@@ -8,7 +8,7 @@ type Props = {
 export const KeywordBox = ({ keywords, isLoading }: Props) => {
   return (
     <div className='flex flex-col gap-4'>
-      <p className='text-sm text-text-dark'>Today&apos;s Keywords</p>
+      <p className='text-sm text-foreground'>Today&apos;s Keywords</p>
       <div className='flex flex-wrap gap-2'>
         {isLoading
           ? Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className='h-5 w-16' />)

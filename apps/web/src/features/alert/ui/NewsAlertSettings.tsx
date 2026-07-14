@@ -88,8 +88,8 @@ export function NewsAlertSettings() {
   return (
     <section className='border-t border-white/10 pt-5'>
       <div>
-        <h2 className='text-base font-semibold text-text-dark'>뉴스 감성 알림</h2>
-        <p className='mt-1 text-sm text-text-muted-dark'>뉴스 감성 점수가 기준을 넘으면 알림을 받습니다.</p>
+        <h2 className='text-base font-semibold text-foreground'>뉴스 감성 알림</h2>
+        <p className='mt-1 text-sm text-muted-foreground'>뉴스 감성 점수가 기준을 넘으면 알림을 받습니다.</p>
       </div>
 
       <form onSubmit={handleSubmit} className='mt-4 space-y-3'>
@@ -99,12 +99,12 @@ export function NewsAlertSettings() {
             value={marketCode}
             onChange={(event) => setMarketCode(event.target.value)}
             placeholder='BTC 또는 KRW-BTC'
-            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark placeholder:text-text-muted-dark bg-transparent outline-none focus:border-primary'
+            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none focus:border-primary'
           />
           <select
             value={direction}
             onChange={(event) => setDirection(event.target.value as Direction)}
-            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark bg-transparent outline-none focus:border-primary [&>option]:bg-surface-dark'
+            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-foreground bg-transparent outline-none focus:border-primary [&>option]:bg-card'
           >
             <option value='UP'>상승</option>
             <option value='DOWN'>하락</option>
@@ -116,11 +116,11 @@ export function NewsAlertSettings() {
             step='0.01'
             value={threshold}
             onChange={(event) => setThreshold(event.target.value)}
-            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-text-dark placeholder:text-text-muted-dark bg-transparent outline-none focus:border-primary'
+            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none focus:border-primary'
           />
         </div>
 
-        <div className='flex flex-wrap items-center gap-4 text-sm text-text-dark'>
+        <div className='flex flex-wrap items-center gap-4 text-sm text-foreground'>
           <label className='flex items-center gap-2'>
             <input
               type='checkbox'
@@ -166,7 +166,7 @@ export function NewsAlertSettings() {
           ))}
         {alertRulesQuery.isError && <p className='text-sm text-destructive'>뉴스 감성 알림 규칙을 불러오지 못했습니다.</p>}
         {!alertRulesQuery.isPending && !alertRulesQuery.isError && newsSentimentRules.length === 0 && (
-          <p className='text-sm text-text-muted-dark'>등록된 뉴스 감성 알림 규칙이 없습니다.</p>
+          <p className='text-sm text-muted-foreground'>등록된 뉴스 감성 알림 규칙이 없습니다.</p>
         )}
         {!alertRulesQuery.isPending && newsSentimentRules.map((rule) => {
           const ruleDirection = getRuleDirection(rule);
@@ -176,12 +176,12 @@ export function NewsAlertSettings() {
             <div key={rule.id} className='rounded-md border border-white/10 p-3'>
               <div className='flex flex-wrap items-start justify-between gap-3'>
                 <div>
-                  <p className='text-sm font-medium text-text-dark'>{rule.marketCode}</p>
-                  <p className='mt-1 text-xs text-text-muted-dark'>
+                  <p className='text-sm font-medium text-foreground'>{rule.marketCode}</p>
+                  <p className='mt-1 text-xs text-muted-foreground'>
                     {ruleDirection === "UP" ? "상승" : "하락"} · {rule.comparison} {rule.threshold.toFixed(2)} ·{" "}
                     {rule.enabled ? "활성" : "비활성"}
                   </p>
-                  <p className='mt-1 text-xs text-text-muted-dark'>
+                  <p className='mt-1 text-xs text-muted-foreground'>
                     앱 {rule.sendInApp ? "ON" : "OFF"} · Slack {rule.sendSlack ? "ON" : "OFF"}
                   </p>
                 </div>
@@ -189,7 +189,7 @@ export function NewsAlertSettings() {
                   type='button'
                   onClick={() => handleDelete(rule)}
                   disabled={isDeleting}
-                  className='rounded-md border border-white/20 px-3 py-2 text-sm font-medium text-text-dark disabled:cursor-not-allowed disabled:text-text-muted-dark/50'
+                  className='rounded-md border border-white/20 px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:text-muted-foreground/50'
                 >
                   {isDeleting ? "삭제 중" : "삭제"}
                 </button>
@@ -199,7 +199,7 @@ export function NewsAlertSettings() {
         })}
       </div>
 
-      {statusMessage && <p className='mt-3 text-xs text-text-muted-dark'>{statusMessage}</p>}
+      {statusMessage && <p className='mt-3 text-xs text-muted-foreground'>{statusMessage}</p>}
     </section>
   );
 }

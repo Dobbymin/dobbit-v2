@@ -11,12 +11,12 @@ export const HeldAssetsListSection = () => {
 
   return (
     <section className='mt-2'>
-      <h2 className='mb-4 text-lg font-semibold text-text-dark'>보유자산 목록</h2>
+      <h2 className='mb-4 text-lg font-semibold text-foreground'>보유자산 목록</h2>
 
       {assets.isLoading ? (
-        <Table className='w-full bg-surface-dark/20'>
+        <Table className='w-full bg-card/20'>
           <TableHeader>
-            <TableRow className='border-b border-text-muted-dark/20'>
+            <TableRow className='border-b border-muted-foreground/20'>
               <TableHead className='text-center text-white'>보유자산</TableHead>
               <TableHead className='text-center text-white'>보유수량</TableHead>
               <TableHead className='text-center text-white'>매수금액</TableHead>
@@ -26,7 +26,7 @@ export const HeldAssetsListSection = () => {
           </TableHeader>
           <TableBody>
             {Array.from({ length: 4 }).map((_, i) => (
-              <TableRow key={i} className='border-b border-text-muted-dark/20'>
+              <TableRow key={i} className='border-b border-muted-foreground/20'>
                 <TableCell className='text-left text-white'>
                   <Skeleton className='h-4 w-12' />
                 </TableCell>
@@ -47,13 +47,13 @@ export const HeldAssetsListSection = () => {
           </TableBody>
         </Table>
       ) : !assets.data?.length ? (
-        <p className='text-sm text-text-muted-dark'>보유 중인 코인이 없습니다.</p>
+        <p className='text-sm text-muted-foreground'>보유 중인 코인이 없습니다.</p>
       ) : null}
 
       {!assets.isLoading && assets.data?.length ? (
-        <Table className='w-full bg-surface-dark/20'>
+        <Table className='w-full bg-card/20'>
           <TableHeader>
-            <TableRow className='border-b border-text-muted-dark/20'>
+            <TableRow className='border-b border-muted-foreground/20'>
               <TableHead className='text-center text-white'>보유자산</TableHead>
               <TableHead className='text-center text-white'>보유수량</TableHead>
               <TableHead className='text-center text-white'>매수금액</TableHead>
@@ -63,7 +63,7 @@ export const HeldAssetsListSection = () => {
           </TableHeader>
           <TableBody>
             {assets.data.map((asset) => (
-              <TableRow key={asset.symbol} className='border-b border-text-muted-dark/20'>
+              <TableRow key={asset.symbol} className='border-b border-muted-foreground/20'>
                 <TableCell className='text-left text-white'>
                   <p className='font-semibold'>{asset.symbol}</p>
                 </TableCell>

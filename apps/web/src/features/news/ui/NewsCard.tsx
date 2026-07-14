@@ -14,7 +14,7 @@ export const NewsCard = ({ item, isLoading }: NewsCardProps) => {
   const config = getSentimentConfig(sentiment);
 
   return (
-    <article className='group flex flex-col gap-4 overflow-hidden bg-surface-dark p-6 transition-all hover:border-white/20'>
+    <article className='group flex flex-col gap-4 overflow-hidden bg-card p-6 transition-all hover:border-white/20'>
       <TitleBox title={item.title} url={item.url} confidence={item.confidence} config={config} isLoading={isLoading} />
 
       {!isLoading && (

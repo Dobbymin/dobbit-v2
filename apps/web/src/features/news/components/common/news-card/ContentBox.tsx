@@ -24,7 +24,7 @@ export const ContentBox = ({ content, isLoading }: Props) => {
   }
 
   return (
-    <p className='line-clamp-4 text-sm leading-relaxed whitespace-pre-wrap text-text-muted-dark transition-all group-hover:line-clamp-none'>
+    <p className='line-clamp-4 text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground transition-all group-hover:line-clamp-none'>
       {content ? cleanContent(content) : ""}
     </p>
   );

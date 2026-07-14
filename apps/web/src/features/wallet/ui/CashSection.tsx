@@ -78,8 +78,8 @@ export const CashSection = () => {
   };
 
   return (
-    <section className='flex w-full items-center justify-between bg-surface-dark/20 p-5'>
-      <p className='text-lg text-text-dark'>가상의 현금을 입금해보아요.</p>
+    <section className='flex w-full items-center justify-between bg-card/20 p-5'>
+      <p className='text-lg text-foreground'>가상의 현금을 입금해보아요.</p>
       <div className='flex gap-2'>
         <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
           <DialogTrigger asChild>

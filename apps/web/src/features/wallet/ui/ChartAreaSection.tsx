@@ -24,7 +24,7 @@ export const ChartAreaSection = () => {
   const background = list.length > 0 ? `conic-gradient(${stops})` : "#2a2a2a";
 
   return (
-    <aside className='flex h-full w-[30%] flex-col items-center justify-center gap-4 bg-surface-dark/20 p-6'>
+    <aside className='flex h-full w-[30%] flex-col items-center justify-center gap-4 bg-card/20 p-6'>
       <div className='relative h-[180px] w-[180px]'>
         {assets.isLoading ? (
           <Skeleton className='h-full w-full rounded-full' />
@@ -32,8 +32,8 @@ export const ChartAreaSection = () => {
           <div className='h-full w-full rounded-full' style={{ background }} />
         )}
         <div className='absolute inset-[28%] flex flex-col items-center justify-center rounded-full bg-background'>
-          <p className='text-xs text-text-muted-dark'>보유 비중</p>
-          <p className='text-xs text-text-muted-dark'>(%)</p>
+          <p className='text-xs text-muted-foreground'>보유 비중</p>
+          <p className='text-xs text-muted-foreground'>(%)</p>
         </div>
       </div>
       <div className='flex flex-wrap justify-center gap-2'>
@@ -45,7 +45,7 @@ export const ChartAreaSection = () => {
           </>
         ) : list.length > 0 ? (
           list.map((asset, index) => (
-            <span key={asset.symbol} className='flex items-center gap-1 text-xs text-text-muted-dark'>
+            <span key={asset.symbol} className='flex items-center gap-1 text-xs text-muted-foreground'>
               <span
                 className='inline-block size-2 rounded-full'
                 style={{ background: COLORS[index % COLORS.length] }}
@@ -54,7 +54,7 @@ export const ChartAreaSection = () => {
             </span>
           ))
         ) : (
-          <span className='text-xs text-text-muted-dark'>보유 자산 없음</span>
+          <span className='text-xs text-muted-foreground'>보유 자산 없음</span>
         )}
       </div>
     </aside>

@@ -22,7 +22,7 @@ export const TradeHistoryPanel = () => {
 
   if (!accessToken) {
     return (
-      <div className='flex flex-1 flex-col items-center justify-center gap-2 p-4 text-center text-sm text-text-muted-dark'>
+      <div className='flex flex-1 flex-col items-center justify-center gap-2 p-4 text-center text-sm text-muted-foreground'>
         <p>로그인하면 개인 거래내역을 볼 수 있습니다.</p>
         <a className='font-semibold text-primary hover:underline' href={ROUTES_PATH.LOGIN}>
           로그인하기
@@ -43,7 +43,7 @@ export const TradeHistoryPanel = () => {
 
   if (trades.length === 0) {
     return (
-      <div className='flex flex-1 items-center justify-center p-4 text-center text-sm text-text-muted-dark'>
+      <div className='flex flex-1 items-center justify-center p-4 text-center text-sm text-muted-foreground'>
         거래내역이 없습니다.
       </div>
     );
@@ -65,7 +65,7 @@ export const TradeHistoryPanel = () => {
         <TableBody>
           {trades.map((trade) => (
             <TableRow className='border-b border-white/10' key={trade.id}>
-              <TableCell className='text-xs text-text-muted-dark' suppressHydrationWarning>
+              <TableCell className='text-xs text-muted-foreground' suppressHydrationWarning>
                 {dayjs(trade.executedAt).format("MM.DD HH:mm")}
               </TableCell>
               <TableCell className='text-xs'>{trade.marketCode.replace("KRW-", "")}</TableCell>

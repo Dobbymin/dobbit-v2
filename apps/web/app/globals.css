@@ -15,6 +15,6 @@
     @apply scrollbar-hide border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-text-dark;
+    @apply bg-background text-foreground;
   }
 }

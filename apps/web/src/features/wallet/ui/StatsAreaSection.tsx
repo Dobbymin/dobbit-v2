@@ -13,10 +13,10 @@ type StatItemProps = {
 const StatItem = ({ label, value, unit }: StatItemProps) => {
   return (
     <div className='flex w-full items-center justify-between'>
-      <span className='text-sm text-text-muted-dark'>{label}</span>
+      <span className='text-sm text-muted-foreground'>{label}</span>
       <div className='flex items-end gap-1'>
-        <span className='text-lg font-bold text-text-dark'>{value}</span>
-        <span className='text-xs font-bold text-text-muted-dark'>{unit}</span>
+        <span className='text-lg font-bold text-foreground'>{value}</span>
+        <span className='text-xs font-bold text-muted-foreground'>{unit}</span>
       </div>
     </div>
   );
@@ -37,7 +37,7 @@ export const StatsAreaSection = () => {
 
   if (summary.isLoading || assets.isLoading) {
     return (
-      <article className='flex h-full w-[70%] flex-col bg-surface-dark/20 px-2 py-6'>
+      <article className='flex h-full w-[70%] flex-col bg-card/20 px-2 py-6'>
         <div className='flex w-full justify-between gap-10 px-6 py-4'>
           <div className='flex w-full items-center justify-between'>
             <Skeleton className='h-4 w-16' />
@@ -49,7 +49,7 @@ export const StatsAreaSection = () => {
           </div>
         </div>
 
-        <Separator className='my-4 border-t border-text-dark/10' />
+        <Separator className='my-4 border-t border-border/10' />
 
         <div className='flex w-full justify-between gap-10 px-6 py-6'>
           <div className='flex w-full items-center justify-between'>
@@ -66,13 +66,13 @@ export const StatsAreaSection = () => {
   }
 
   return (
-    <article className='flex h-full w-[70%] flex-col bg-surface-dark/20 px-2 py-6'>
+    <article className='flex h-full w-[70%] flex-col bg-card/20 px-2 py-6'>
       <div className='flex w-full justify-between gap-10 px-6 py-4'>
         <StatItem label='보유 KRW' value={formatKRW(data?.cashAmount ?? 0)} unit='KRW' />
         <StatItem label='총보유 자산' value={formatKRW(data?.totalAssetAmount ?? 0)} unit='KRW' />
       </div>
 
-      <Separator className='my-4 border-t border-text-dark/10' />
+      <Separator className='my-4 border-t border-border/10' />
 
       <div className='flex w-full justify-between gap-10 px-6 py-6'>
         <StatItem label='총 매수' value={formatKRW(totalPurchase)} unit='KRW' />
