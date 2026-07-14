@@ -6,12 +6,11 @@ import { useRouter } from "next/navigation";
 import {
   Avatar,
   AvatarFallback,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   ROUTES_PATH,
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
 } from "@/shared";
 import { UserRound, Wallet } from "lucide-react";
 
@@ -23,14 +22,6 @@ export const UserMenuButton = () => {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useIsAuth();
   const logout = useLogout();
-
-  const handleSelectChange = (value: string) => {
-    if (value === "logout") {
-      logout.mutate();
-    } else if (value === "setting") {
-      router.push(ROUTES_PATH.SETTING);
-    }
-  };
 
   // 로그인하지 않은 경우 Login 링크 표시
   if (!isLoading && !isAuthenticated) {
@@ -58,21 +49,23 @@ export const UserMenuButton = () => {
           <p className='text-sm font-semibold'>Wallet</p>
         </div>
       </Link>
-      <Select onValueChange={handleSelectChange} disabled={logout.isPending}>
-        <SelectTrigger className='border-0 bg-transparent p-0 shadow-none ring-0 outline-none hover:bg-transparent focus:border-0 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:ring-0 [&>svg]:hidden'>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          aria-label='사용자 메뉴'
+          className='rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50'
+          disabled={logout.isPending}
+        >
           <Avatar>
             <AvatarFallback>
               <UserRound className='size-5' fill='#e0e0e0' />
             </AvatarFallback>
           </Avatar>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectItem value='setting'>Setting</SelectItem>
-            <SelectItem value='logout'>Logout</SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='end'>
+          <DropdownMenuItem onSelect={() => router.push(ROUTES_PATH.SETTING)}>Setting</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => logout.mutate()}>Logout</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
