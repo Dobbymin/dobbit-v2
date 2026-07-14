@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Header } from "@/widgets";
 
-import { MarketChartPanel, MarketListPanel, MarketOrderPanel, useMarkets, useTicker } from "@/features/market";
+import { MarketChartPanel, MarketListPanel, MarketOrderPanel, useMarketTickers, useMarkets, useTicker } from "@/features/market";
 
 export default function HomePage() {
   const [selectedMarketCode, setSelectedMarketCode] = useState("KRW-BTC");
@@ -13,6 +13,12 @@ export default function HomePage() {
   const markets = useMemo(() => marketsQuery.data ?? [], [marketsQuery.data]);
   const selectedMarket = markets.find((market) => market.code === selectedMarketCode);
   const tickerQuery = useTicker(selectedMarketCode);
+
+  // 목록·차트가 같은 실시간 티커를 공유한다. 코인을 바꿔도 이미 수신한 가격을
+  // 즉시 헤더에 표시할 수 있어 로딩 지연이 없다.
+  const marketCodes = useMemo(() => markets.map((market) => market.code), [markets]);
+  const tickers = useMarketTickers(marketCodes);
+  const selectedTicker = tickers[selectedMarketCode] ?? tickerQuery.data;
 
   useEffect(() => {
     const firstKrwMarket =
@@ -35,13 +41,14 @@ export default function HomePage() {
             onSelectMarket={setSelectedMarketCode}
             searchKeyword={searchKeyword}
             selectedMarketCode={selectedMarketCode}
+            tickers={tickers}
           />
           <div className='flex min-w-0 flex-col bg-[#121212]'>
             <MarketChartPanel
               isLoading={tickerQuery.isLoading}
               market={selectedMarket}
               selectedMarketCode={selectedMarketCode}
-              ticker={tickerQuery.data}
+              ticker={selectedTicker}
             />
             <MarketOrderPanel marketCode={selectedMarketCode} />
           </div>

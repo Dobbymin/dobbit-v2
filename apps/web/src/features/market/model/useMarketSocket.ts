@@ -12,6 +12,9 @@ export const useMarketSocket = (marketCode: string) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    // 마켓이 바뀌면 이전 코인의 가격이 잠깐 표시되지 않도록 초기화한다.
+    setTicker(null);
+
     const socket = getSocket();
 
     const handleConnect = () => {

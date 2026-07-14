@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 import { Separator, Skeleton, formatPrice } from "@/shared";
-import type { CandleResponse, CurrentPrice, Market } from "@dobbit/shared";
+import type { CandleResponse, CurrentPrice, Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
 import { ChevronDown } from "lucide-react";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui";
@@ -30,7 +30,8 @@ const ApexCharts = dynamic(() => import("react-apexcharts"), { ssr: false }) as 
 type MarketChartPanelProps = {
   market?: Market;
   selectedMarketCode: string;
-  ticker?: CurrentPrice | null;
+  /** 상위에서 전달한 현재가. 목록과 공유하는 실시간 티커 또는 REST 응답. */
+  ticker?: CurrentPrice | MarketTickerUpdatedEvent | null;
   isLoading: boolean;
 };
 
