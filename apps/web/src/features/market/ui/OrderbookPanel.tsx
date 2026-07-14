@@ -88,12 +88,12 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
                   style={{ width: `${volumePercent}%` }}
                 />
                 <div className='text-muted-foreground relative z-10 px-4 py-2 text-end font-mono text-xs tabular-nums'>
-                  {unit.askSize.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                  {unit.askSize.toLocaleString("ko-KR", { maximumFractionDigits: 4 })}
                 </div>
               </TableCell>
               <TableCell className='w-1/3 p-0'>
                 <div className='text-decrease px-4 py-2 text-center font-mono text-sm font-semibold tabular-nums'>
-                  {unit.askPrice.toLocaleString()}
+                  {unit.askPrice.toLocaleString("ko-KR")}
                 </div>
               </TableCell>
               <TableCell className='w-1/3' />
@@ -116,7 +116,7 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
               <TableCell className='w-1/3' />
               <TableCell className='w-1/3 p-0'>
                 <div className='text-increase px-4 py-2 text-center font-mono text-sm font-semibold tabular-nums'>
-                  {unit.bidPrice.toLocaleString()}
+                  {unit.bidPrice.toLocaleString("ko-KR")}
                 </div>
               </TableCell>
               <TableCell className='relative w-1/3 p-0'>
@@ -126,7 +126,7 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
                   style={{ width: `${volumePercent}%` }}
                 />
                 <div className='text-muted-foreground relative z-10 px-4 py-2 text-start font-mono text-xs tabular-nums'>
-                  {unit.bidSize.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                  {unit.bidSize.toLocaleString("ko-KR", { maximumFractionDigits: 4 })}
                 </div>
               </TableCell>
             </TableRow>
