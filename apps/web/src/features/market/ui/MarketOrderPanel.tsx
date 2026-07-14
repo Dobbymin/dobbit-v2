@@ -59,6 +59,14 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
     }
   };
 
+  const handleSelectOrderbookPrice = (selectedPrice: number) => {
+    // 거래내역 탭에서는 주문 폼이 보이지 않으므로 매수 탭으로 전환한다.
+    if (selectedTab === "거래내역") {
+      setSelectedTab("매수");
+    }
+    handlePriceChange(String(selectedPrice));
+  };
+
   const handleReset = () => {
     setPrice("");
     setAmount("");
@@ -127,7 +135,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   return (
     <section className='flex min-h-[300px] w-full border-t border-white/10 bg-surface-dark/60'>
       <aside className='hidden w-[40%] shrink-0 overflow-y-auto border-r border-white/10 md:block'>
-        <OrderbookPanel marketCode={marketCode} />
+        <OrderbookPanel marketCode={marketCode} onSelectPrice={handleSelectOrderbookPrice} />
       </aside>
       <div className='flex min-w-0 flex-1 flex-col'>
         <nav className='flex h-14 w-full border-b border-white/10 bg-surface-dark/20'>
