@@ -7,4 +7,5 @@ export * from "./useOrderbook";
 export * from "./useBuyOrder";
 export * from "./useSellOrder";
 export * from "./useOrderableCash";
+export * from "./useTradeHistory";
 export * from "./libs";

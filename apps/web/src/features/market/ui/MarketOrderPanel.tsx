@@ -8,6 +8,7 @@ import { RotateCw } from "lucide-react";
 import { useBuyOrder, useOrderableCash, useSellOrder } from "../model";
 
 import { OrderbookPanel } from "./OrderbookPanel";
+import { TradeHistoryPanel } from "./TradeHistoryPanel";
 
 const ORDER_TABS = ["매수", "매도", "거래내역"] as const;
 
@@ -148,9 +149,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
         </nav>
 
         {selectedTab === "거래내역" ? (
-          <div className='flex flex-1 items-center justify-center p-4 text-center text-sm text-text-muted-dark'>
-            public 대시보드에서는 개인 거래내역을 노출하지 않습니다.
-          </div>
+          <TradeHistoryPanel />
         ) : (
           <form
             className='flex w-full flex-col gap-3 p-5'
