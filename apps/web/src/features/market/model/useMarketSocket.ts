@@ -9,12 +9,17 @@ import { useQueryClient } from "@tanstack/react-query";
 export const useMarketSocket = (marketCode: string) => {
   const [ticker, setTicker] = useState<MarketTickerUpdatedEvent | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [prevMarketCode, setPrevMarketCode] = useState(marketCode);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    // 마켓이 바뀌면 이전 코인의 가격이 잠깐 표시되지 않도록 초기화한다.
+  // 마켓이 바뀌면 렌더 중에 초기화한다. effect에서 지우면 한 프레임 동안
+  // 이전 코인의 가격이 그대로 표시된다.
+  if (prevMarketCode !== marketCode) {
+    setPrevMarketCode(marketCode);
     setTicker(null);
+  }
 
+  useEffect(() => {
     const socket = getSocket();
 
     const handleConnect = () => {
