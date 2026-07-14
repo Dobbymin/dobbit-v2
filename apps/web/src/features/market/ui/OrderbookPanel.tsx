@@ -9,13 +9,15 @@ type OrderbookPanelProps = {
   onSelectPrice?: (price: number) => void;
 };
 
+const ROW_COUNT = 15;
+
 export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProps) => {
   const { data, isLoading } = useOrderbook(marketCode);
 
   const isSelectable = Boolean(onSelectPrice);
 
   const units = data?.units ?? [];
-  const top = units.slice(0, 15);
+  const top = units.slice(0, ROW_COUNT);
   const asks = [...top].reverse();
   const bids = top;
   const maxSize = Math.max(...top.flatMap((unit) => [unit.askSize, unit.bidSize]), 0);
@@ -24,40 +26,23 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
     return (
       <Table>
         <TableHeader>
-          <TableRow className='border-b-3 border-text-dark/20'>
-            <TableHead className='text-md py-4 text-center font-semibold text-text-dark' colSpan={3}>
+          <TableRow className='border-border border-b'>
+            <TableHead className='text-muted-foreground py-3 text-center text-xs font-medium' colSpan={3}>
               호가
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Array.from({ length: 8 }).map((_, i) => (
-            <TableRow key={`ask-${i}`} className='border-b border-white bg-blue-100 text-sm'>
-              <TableCell className='relative w-1/3 p-0'>
-                <div className='relative z-10 px-4 py-2 text-end'>
-                  <Skeleton className='ml-auto h-3 w-12' />
-                </div>
+          {Array.from({ length: 10 }).map((_, index) => (
+            <TableRow className='border-border/50 border-b' key={`orderbook-skeleton-${index}`}>
+              <TableCell className='w-1/3 px-4 py-2'>
+                <Skeleton className='ml-auto h-3 w-12' />
               </TableCell>
-              <TableCell className='w-1/3 p-0'>
-                <div className='px-4 py-2 text-center'>
-                  <Skeleton className='h-3 w-20' />
-                </div>
+              <TableCell className='w-1/3 px-4 py-2'>
+                <Skeleton className='mx-auto h-3 w-20' />
               </TableCell>
-              <TableCell className='w-1/3' />
-            </TableRow>
-          ))}
-          {Array.from({ length: 8 }).map((_, i) => (
-            <TableRow key={`bid-${i}`} className='border-b border-white bg-red-100 text-sm'>
-              <TableCell className='w-1/3' />
-              <TableCell className='w-1/3 p-0'>
-                <div className='px-4 py-2 text-center'>
-                  <Skeleton className='h-3 w-20' />
-                </div>
-              </TableCell>
-              <TableCell className='relative w-1/3 p-0'>
-                <div className='relative z-10 px-4 py-2 text-start'>
-                  <Skeleton className='h-3 w-12' />
-                </div>
+              <TableCell className='w-1/3 px-4 py-2'>
+                <Skeleton className='h-3 w-12' />
               </TableCell>
             </TableRow>
           ))}
@@ -68,7 +53,7 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
 
   if (units.length === 0) {
     return (
-      <div className='flex h-full w-full items-center justify-center p-4 text-sm text-text-muted-dark'>
+      <div className='text-muted-foreground flex h-full w-full items-center justify-center p-4 text-sm'>
         호가 정보가 없습니다.
       </div>
     );
@@ -77,8 +62,8 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
   return (
     <Table>
       <TableHeader>
-        <TableRow className='border-b-3 border-text-dark/20'>
-          <TableHead className='text-md py-4 text-center font-semibold text-text-dark' colSpan={3}>
+        <TableRow className='border-border border-b'>
+          <TableHead className='text-muted-foreground py-3 text-center text-xs font-medium' colSpan={3}>
             호가
           </TableHead>
         </TableRow>
@@ -86,23 +71,28 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
       <TableBody>
         {asks.map((unit, index) => {
           const volumePercent = maxSize > 0 ? (unit.askSize / maxSize) * 100 : 0;
+
           return (
             <TableRow
-              key={`ask-${unit.askPrice}-${index}`}
               className={cn(
-                "border-b border-white bg-blue-100 text-sm hover:bg-blue-50",
+                "border-border/40 hover:bg-muted/40 border-b transition-colors",
                 isSelectable && "cursor-pointer",
               )}
+              key={`ask-${unit.askPrice}-${index}`}
               onClick={isSelectable ? () => onSelectPrice?.(unit.askPrice) : undefined}
             >
               <TableCell className='relative w-1/3 p-0'>
-                <div className='absolute top-0 right-0 h-full bg-blue-200' style={{ width: `${volumePercent}%` }} />
-                <div className='relative z-10 px-4 py-2 text-end font-roboto text-xs text-black'>
-                  {unit.askSize.toLocaleString()}
+                {/* 매도 잔량 막대: 하락(파랑) 계열을 저채도 알파로 */}
+                <div
+                  className='bg-decrease/15 absolute top-0 right-0 h-full'
+                  style={{ width: `${volumePercent}%` }}
+                />
+                <div className='text-muted-foreground relative z-10 px-4 py-2 text-end font-mono text-xs tabular-nums'>
+                  {unit.askSize.toLocaleString(undefined, { maximumFractionDigits: 4 })}
                 </div>
               </TableCell>
               <TableCell className='w-1/3 p-0'>
-                <div className='px-4 py-2 text-center font-roboto font-semibold text-increase'>
+                <div className='text-decrease px-4 py-2 text-center font-mono text-sm font-semibold tabular-nums'>
                   {unit.askPrice.toLocaleString()}
                 </div>
               </TableCell>
@@ -113,25 +103,30 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
 
         {bids.map((unit, index) => {
           const volumePercent = maxSize > 0 ? (unit.bidSize / maxSize) * 100 : 0;
+
           return (
             <TableRow
-              key={`bid-${unit.bidPrice}-${index}`}
               className={cn(
-                "border-b border-white bg-red-100 text-sm hover:bg-red-50",
+                "border-border/40 hover:bg-muted/40 border-b transition-colors",
                 isSelectable && "cursor-pointer",
               )}
+              key={`bid-${unit.bidPrice}-${index}`}
               onClick={isSelectable ? () => onSelectPrice?.(unit.bidPrice) : undefined}
             >
               <TableCell className='w-1/3' />
               <TableCell className='w-1/3 p-0'>
-                <div className='px-4 py-2 text-center font-roboto font-semibold text-decrease'>
+                <div className='text-increase px-4 py-2 text-center font-mono text-sm font-semibold tabular-nums'>
                   {unit.bidPrice.toLocaleString()}
                 </div>
               </TableCell>
               <TableCell className='relative w-1/3 p-0'>
-                <div className='absolute top-0 left-0 h-full bg-red-200' style={{ width: `${volumePercent}%` }} />
-                <div className='relative z-10 px-4 py-2 text-start font-roboto text-xs text-black'>
-                  {unit.bidSize.toLocaleString()}
+                {/* 매수 잔량 막대: 상승(빨강) 계열을 저채도 알파로 */}
+                <div
+                  className='bg-increase/15 absolute top-0 left-0 h-full'
+                  style={{ width: `${volumePercent}%` }}
+                />
+                <div className='text-muted-foreground relative z-10 px-4 py-2 text-start font-mono text-xs tabular-nums'>
+                  {unit.bidSize.toLocaleString(undefined, { maximumFractionDigits: 4 })}
                 </div>
               </TableCell>
             </TableRow>

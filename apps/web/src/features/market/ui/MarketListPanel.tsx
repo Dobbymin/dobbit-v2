@@ -144,17 +144,17 @@ export const MarketListPanel = ({
   const visibleRows = filteredRows.slice(0, visibleCount);
 
   return (
-    <aside className='flex min-h-[520px] flex-col border-r border-white/10 bg-surface-dark/20 lg:min-h-[calc(100vh-80px)]'>
-      <div className='border-b border-white/10 p-4'>
+    <aside className='border-border bg-background flex min-h-[520px] flex-col border-r lg:min-h-[calc(100vh-80px)]'>
+      <div className='border-border border-b p-4'>
         <div className='relative'>
           <Input
             aria-label='마켓 검색'
-            className='h-10 rounded-lg border-none bg-surface-dark pl-9 text-sm text-text-dark placeholder:text-text-muted-dark focus-visible:ring-primary/50'
+            className='bg-card text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/40 h-10 rounded-lg border-none pl-9 text-sm'
             onChange={(event) => setLocalSearchKeyword(event.target.value)}
             placeholder='코인명 / 심볼 검색'
             value={localSearchKeyword}
           />
-          <Search className='absolute top-1/2 left-3 -translate-y-1/2 text-text-muted-dark' size={16} />
+          <Search className='text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2' size={16} />
         </div>
         {isLoading ? (
           <span aria-live='polite' className='sr-only'>
@@ -163,7 +163,7 @@ export const MarketListPanel = ({
         ) : null}
       </div>
       <div className='min-h-0 flex-1 overflow-y-auto'>
-        <div className='sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_88px_72px] gap-3 border-b border-white/10 bg-surface-dark/30 px-4 py-3 text-xs font-semibold text-text-muted-dark backdrop-blur-sm'>
+        <div className='border-border bg-background/80 text-muted-foreground sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_88px_72px] gap-3 border-b px-4 py-3 text-xs font-medium backdrop-blur-sm'>
           <span>마켓</span>
           <span className='text-right'>현재가</span>
           <span className='text-right'>변동률</span>
@@ -171,7 +171,10 @@ export const MarketListPanel = ({
         {isLoading && filteredRows.length === 0 ? (
           <div className='space-y-1'>
             {Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} className='grid grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-white/5 px-4 py-3'>
+              <div
+                key={i}
+                className='border-border/60 grid grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b px-4 py-3'
+              >
                 <div className='space-y-1'>
                   <Skeleton className='h-4 w-20' />
                   <Skeleton className='h-3 w-16' />
@@ -182,7 +185,7 @@ export const MarketListPanel = ({
             ))}
           </div>
         ) : filteredRows.length === 0 ? (
-          <p className='px-4 py-8 text-sm text-text-muted-dark'>검색 결과가 없습니다.</p>
+          <p className='text-muted-foreground px-4 py-8 text-sm'>검색 결과가 없습니다.</p>
         ) : (
           <>
             {visibleRows.map((row) => {
@@ -192,8 +195,8 @@ export const MarketListPanel = ({
               return (
                 <button
                   className={cn(
-                    "grid w-full grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-l-2 border-white/5 px-4 py-3 text-left transition-colors hover:bg-white/[0.04]",
-                    active ? "border-l-primary bg-white/5" : "border-l-transparent",
+                    "border-border/60 hover:bg-muted/40 grid w-full grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-l-2 px-4 py-3 text-left transition-colors",
+                    active ? "border-l-primary bg-muted/60" : "border-l-transparent",
                   )}
                   key={row.code}
                   onClick={() => onSelectMarket(row.code)}
@@ -201,20 +204,29 @@ export const MarketListPanel = ({
                 >
                   <span className='min-w-0'>
                     <span
-                      className={cn("block truncate text-xs font-semibold", active ? "text-primary" : "text-white")}
+                      className={cn(
+                        "block truncate text-xs font-semibold",
+                        active ? "text-primary" : "text-foreground",
+                      )}
                     >
                       {row.koreanName}
                     </span>
-                    <span className='mt-1 block truncate text-[10px] font-light text-text-muted-dark'>
-                      {row.symbolPair}
-                    </span>
+                    <span className='text-muted-foreground mt-0.5 block truncate text-[10px]'>{row.symbolPair}</span>
                   </span>
                   <span
-                    className={cn("text-right text-xs font-medium", row.isActive ? activeTone : "text-text-muted-dark")}
+                    className={cn(
+                      "text-right text-xs font-medium tabular-nums",
+                      row.isActive ? activeTone : "text-muted-foreground",
+                    )}
                   >
                     {row.tradePrice}
                   </span>
-                  <span className={cn("text-right text-xs", row.isActive ? activeTone : "text-text-muted-dark")}>
+                  <span
+                    className={cn(
+                      "text-right text-xs tabular-nums",
+                      row.isActive ? activeTone : "text-muted-foreground",
+                    )}
+                  >
                     {row.changeRate}
                   </span>
                 </button>
