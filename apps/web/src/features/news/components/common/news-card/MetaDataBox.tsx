@@ -25,13 +25,13 @@ export const MetaDataBox = ({ keywords, source, isLoading }: Props) => {
       <div className='flex gap-2'>
         {keywords && keywords.length > 0
           ? keywords.map((k, index) => (
-              <span key={`${k}-${index}`} className='text-xs text-text-muted-dark'>
+              <span key={`${k}-${index}`} className='text-xs text-muted-foreground'>
                 # {k}
               </span>
             ))
           : null}
       </div>
-      <span className='text-xs font-medium text-text-muted-dark'>{source}</span>
+      <span className='text-xs font-medium text-muted-foreground'>{source}</span>
     </div>
   );
 };

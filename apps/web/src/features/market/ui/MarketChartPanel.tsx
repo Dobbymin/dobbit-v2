@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui"
 
 import {
   CANDLE_INTERVALS,
+  CHART_COLORS,
   DEFAULT_CANDLE_INTERVAL,
   calculateSMA,
   toCandleSeries,
@@ -72,8 +73,8 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
         brush: { enabled: true, target: "candles" },
         selection: {
           enabled: true,
-          fill: { color: "#ccc", opacity: 0.4 },
-          stroke: { color: "#0D47A1" },
+          fill: { color: CHART_COLORS.brushFill, opacity: 0.4 },
+          stroke: { color: CHART_COLORS.brushStroke },
           xaxis: { min: selectionMin, max: selectionMax },
         },
         events: {
@@ -122,7 +123,7 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
         bar: {
           columnWidth: "100%",
           colors: {
-            ranges: [{ from: 0, to: 1000000000, color: "#555" }],
+            ranges: [{ from: 0, to: 1000000000, color: CHART_COLORS.volumeBar }],
           },
         },
       },
@@ -234,8 +235,8 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
       plotOptions: {
         candlestick: {
           colors: {
-            upward: "#dd3c44",
-            downward: "#1375ec",
+            upward: CHART_COLORS.candleUp,
+            downward: CHART_COLORS.candleDown,
           },
         },
       },
@@ -250,7 +251,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
           formatter: (val: number) => formatPrice(val),
         },
       },
-      grid: { borderColor: "#333" },
+      grid: { borderColor: CHART_COLORS.grid },
     };
     return options;
   }, [chartType]);
@@ -291,7 +292,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
         })),
         stroke: {
           width: 1,
-          colors: ["#FFA500"],
+          colors: [CHART_COLORS.ma7],
         },
       });
 
@@ -305,7 +306,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
           })),
           stroke: {
             width: 1,
-            colors: ["#4169E1"],
+            colors: [CHART_COLORS.ma20],
           },
         });
       }
@@ -320,7 +321,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
           })),
           stroke: {
             width: 1,
-            colors: ["#DC143C"],
+            colors: [CHART_COLORS.ma60],
           },
         });
       }

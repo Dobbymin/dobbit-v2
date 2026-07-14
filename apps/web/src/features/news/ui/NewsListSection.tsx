@@ -54,7 +54,7 @@ export const NewsListSection = ({ query }: NewsListSectionProps) => {
       ) : null}
 
       {!news.isLoading && !news.data?.length ? (
-        <p className='text-sm text-text-muted-dark'>표시할 뉴스가 없습니다.</p>
+        <p className='text-sm text-muted-foreground'>표시할 뉴스가 없습니다.</p>
       ) : null}
 
       {visibleItems.map((item) => (

@@ -24,7 +24,7 @@ export const getSentimentConfig = (sentiment?: string | null) => {
       return {
         label: "중립",
         icon: <Minus className='size-4' />,
-        color: "text-text-muted-dark",
+        color: "text-muted-foreground",
         bg: "bg-text-muted-dark/10",
         border: "border-text-muted-dark/20",
       };

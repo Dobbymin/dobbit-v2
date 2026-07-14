@@ -45,7 +45,7 @@ export const TitleBox = ({ title, url, confidence, config, isLoading }: Props) =
             {config.label}
           </Badge>
           {confidence !== null && confidence !== undefined && (
-            <span className='text-xs text-text-muted-dark'>
+            <span className='text-xs text-muted-foreground'>
               AI 신뢰도 {Math.min(100, Math.max(0, Math.round(confidence * 100)))}%
             </span>
           )}
@@ -57,7 +57,7 @@ export const TitleBox = ({ title, url, confidence, config, isLoading }: Props) =
       <Button
         variant='ghost'
         size='icon'
-        className='shrink-0 text-text-muted-dark hover:bg-white/10 hover:text-white'
+        className='shrink-0 text-muted-foreground hover:bg-white/10 hover:text-white'
         onClick={handleOpenLink}
         aria-label='뉴스 원문 새 창으로 열기'
       >

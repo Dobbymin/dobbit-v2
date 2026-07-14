@@ -33,7 +33,7 @@ export const DistributionBox = ({ positive, neutral, negative, totalNews, isLoad
     {
       key: "neutral",
       value: neutral,
-      color: "bg-text-dark/50",
+      color: "bg-foreground/50",
     },
     {
       key: "negative",
@@ -55,7 +55,7 @@ export const DistributionBox = ({ positive, neutral, negative, totalNews, isLoad
       </div>
       <div className='flex justify-between text-xs'>
         <span className='text-positive'>긍정 {positive}건</span>
-        <span className='text-text-dark/50'>중립 {neutral}건</span>
+        <span className='text-foreground/50'>중립 {neutral}건</span>
         <span className='text-negative'>부정 {negative}건</span>
       </div>
     </>

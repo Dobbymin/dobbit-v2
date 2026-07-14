@@ -30,8 +30,8 @@ export default function WalletPage() {
             <HeldAssetsListSection />
           </>
         ) : (
-          <section className='flex min-h-[300px] w-full items-center justify-center bg-surface-dark/20'>
-            <p className='text-sm text-text-muted-dark'>준비 중입니다.</p>
+          <section className='flex min-h-[300px] w-full items-center justify-center bg-card/20'>
+            <p className='text-sm text-muted-foreground'>준비 중입니다.</p>
           </section>
         )}
       </div>

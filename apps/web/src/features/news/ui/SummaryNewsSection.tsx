@@ -44,7 +44,7 @@ export const SummaryNewsSection = ({ newsItems, isLoading }: Props) => {
   });
 
   return (
-    <section className='bg-surface-dark p-6'>
+    <section className='bg-card p-6'>
       <NewsListHeader
         newsDate={newsDate}
         totalNews={newsItems.length}
@@ -60,7 +60,7 @@ export const SummaryNewsSection = ({ newsItems, isLoading }: Props) => {
         isLoading={isLoading}
       />
 
-      <Separator className='my-6 bg-text-dark/20' />
+      <Separator className='my-6 bg-foreground/20' />
 
       <KeywordBox keywords={topKeywords} isLoading={isLoading} />
     </section>
