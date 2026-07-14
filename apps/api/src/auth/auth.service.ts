@@ -134,10 +134,18 @@ export class AuthService {
   }
 
   async updateNickname(userId: string, nickname: string): Promise<UserProfile> {
-    const trimmed = nickname?.trim() ?? '';
+    const trimmed = typeof nickname === 'string' ? nickname.trim() : '';
 
     if (trimmed.length < NICKNAME_MIN_LENGTH || trimmed.length > NICKNAME_MAX_LENGTH) {
       throw new BadRequestException(`닉네임은 ${NICKNAME_MIN_LENGTH}자 이상 ${NICKNAME_MAX_LENGTH}자 이하여야 합니다.`);
+    }
+
+    const existing = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existing) {
+      throw new UnauthorizedException('User not found');
     }
 
     const user = await this.prisma.user.update({
