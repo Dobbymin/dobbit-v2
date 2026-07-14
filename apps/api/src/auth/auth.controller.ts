@@ -1,7 +1,18 @@
-import { Controller, Post, Body, Res, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Res, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { AuthService } from './auth.service';
+import { AuthService, type UserProfile } from './auth.service';
 import { SignupRequest, LoginRequest, AuthResponse } from '@dobbit/shared';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+
+interface UserRequest extends Request {
+  user: {
+    userId: string;
+  };
+}
+
+interface UpdateNicknameRequest {
+  nickname: string;
+}
 
 const ACCESS_TOKEN_COOKIE_OPTIONS = {
   httpOnly: true,
@@ -44,5 +55,17 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) res: Response): Promise<{ message: string }> {
     res.clearCookie('access_token', { path: '/' });
     return this.authService.logout();
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getMe(@Req() req: UserRequest): Promise<UserProfile> {
+    return this.authService.getProfile(req.user.userId);
+  }
+
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  async updateMe(@Req() req: UserRequest, @Body() request: UpdateNicknameRequest): Promise<UserProfile> {
+    return this.authService.updateNickname(req.user.userId, request.nickname);
   }
 }

@@ -1,8 +1,18 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../common/prisma/prisma.service';
 import type { SignupRequest, LoginRequest, AuthResponse, TokenPayload } from '@dobbit/shared';
 import * as bcrypt from 'bcrypt';
+
+const NICKNAME_MIN_LENGTH = 2;
+const NICKNAME_MAX_LENGTH = 24;
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  nickname: string;
+  createdAt: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -109,6 +119,50 @@ export class AuthService {
 
   logout(): Promise<{ message: string }> {
     return Promise.resolve({ message: 'Logged out successfully' });
+  }
+
+  async getProfile(userId: string): Promise<UserProfile> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return this.toProfile(user);
+  }
+
+  async updateNickname(userId: string, nickname: string): Promise<UserProfile> {
+    const trimmed = typeof nickname === 'string' ? nickname.trim() : '';
+
+    if (trimmed.length < NICKNAME_MIN_LENGTH || trimmed.length > NICKNAME_MAX_LENGTH) {
+      throw new BadRequestException(`닉네임은 ${NICKNAME_MIN_LENGTH}자 이상 ${NICKNAME_MAX_LENGTH}자 이하여야 합니다.`);
+    }
+
+    const existing = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existing) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { nickname: trimmed },
+    });
+
+    return this.toProfile(user);
+  }
+
+  private toProfile(user: { id: string; username: string; nickname: string; createdAt: Date }): UserProfile {
+    return {
+      id: user.id,
+      username: user.username,
+      nickname: user.nickname,
+      createdAt: user.createdAt.toISOString(),
+    };
   }
 
   validateToken(token: string): TokenPayload | null {
