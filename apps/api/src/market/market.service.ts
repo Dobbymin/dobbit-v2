@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { Market, CurrentPrice, CandleResponse, MarketTickerUpdatedEvent, OrderbookResponse } from '@dobbit/shared';
 import { UpbitApiClient } from './external/upbit-api.client';
@@ -9,13 +9,19 @@ interface CandleInterval {
 }
 
 @Injectable()
-export class MarketService {
+export class MarketService implements OnModuleInit {
   private readonly logger = new Logger(MarketService.name);
 
   constructor(
     private readonly upbitApiClient: UpbitApiClient,
     private readonly prisma: PrismaService,
   ) {}
+
+  onModuleInit(): void {
+    this.syncMarkets().catch((error) => {
+      this.logger.error('Failed to sync markets on module init:', error);
+    });
+  }
 
   async getMarkets(): Promise<Market[]> {
     try {
@@ -144,10 +150,36 @@ export class MarketService {
     }
   }
 
-  syncMarkets(): Promise<void> {
-    // TODO: Implement market sync from Upbit
-    // Fetch all markets and update database
-    return Promise.resolve();
+  async syncMarkets(): Promise<void> {
+    try {
+      const markets = await this.getMarkets();
+
+      let syncedCount = 0;
+      for (const market of markets) {
+        await this.prisma.market.upsert({
+          where: { code: market.code },
+          update: {
+            symbol: market.symbol,
+            koreanName: market.koreanName,
+            englishName: market.englishName,
+            isActive: true,
+          },
+          create: {
+            code: market.code,
+            symbol: market.symbol,
+            koreanName: market.koreanName,
+            englishName: market.englishName,
+            isActive: true,
+          },
+        });
+        syncedCount++;
+      }
+
+      this.logger.log(`Successfully synced ${syncedCount} markets from Upbit`);
+    } catch (error) {
+      this.logger.error('Failed to sync markets:', error);
+      throw error;
+    }
   }
 
   syncMarketSnapshots(): Promise<void> {
