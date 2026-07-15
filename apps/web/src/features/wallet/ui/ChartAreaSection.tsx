@@ -1,21 +1,22 @@
 "use client";
 
 import { Skeleton } from "@/shared";
-import { useWalletAssets } from "../model";
+
+import { useHeldAssets } from "../model";
 
 const COLORS = ["#8fa96f", "#a3d9a5", "#e0e0e0", "#5b8def", "#dd3c44", "#f0a868"];
 
 export const ChartAreaSection = () => {
-  const assets = useWalletAssets();
+  const { data: assets, isLoading } = useHeldAssets();
 
-  const list = (assets.data ?? []).filter((asset) => asset.evaluatedAmount > 0);
-  const total = list.reduce((sum, asset) => sum + asset.evaluatedAmount, 0);
+  const list = (assets ?? []).filter((asset) => asset.liveEvaluatedAmount > 0);
+  const total = list.reduce((sum, asset) => sum + asset.liveEvaluatedAmount, 0);
 
   let acc = 0;
   const stops = list
     .map((asset, index) => {
       const start = total > 0 ? (acc / total) * 100 : 0;
-      acc += asset.evaluatedAmount;
+      acc += asset.liveEvaluatedAmount;
       const end = total > 0 ? (acc / total) * 100 : 0;
       return `${COLORS[index % COLORS.length]} ${start}% ${end}%`;
     })
@@ -26,7 +27,7 @@ export const ChartAreaSection = () => {
   return (
     <aside className='flex h-full w-[30%] flex-col items-center justify-center gap-4 bg-card/20 p-6'>
       <div className='relative h-[180px] w-[180px]'>
-        {assets.isLoading ? (
+        {isLoading ? (
           <Skeleton className='h-full w-full rounded-full' />
         ) : (
           <div className='h-full w-full rounded-full' style={{ background }} />
@@ -37,7 +38,7 @@ export const ChartAreaSection = () => {
         </div>
       </div>
       <div className='flex flex-wrap justify-center gap-2'>
-        {assets.isLoading ? (
+        {isLoading ? (
           <>
             <Skeleton className='h-4 w-12' />
             <Skeleton className='h-4 w-12' />

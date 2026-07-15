@@ -11,9 +11,11 @@ import {
   StatsAreaSection,
   TabNavigationSection,
   type WalletTab,
+  useWalletRealtime,
 } from "@/features/wallet";
 
 export default function WalletPage() {
+  useWalletRealtime();
   const [activeTab, setActiveTab] = useState<WalletTab>("보유자산");
 
   return (

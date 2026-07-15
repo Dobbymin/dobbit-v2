@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import {
   ROUTES_PATH,
   Skeleton,
@@ -14,11 +16,20 @@ import {
 } from "@/shared";
 import dayjs from "dayjs";
 
-import { useTradeHistory } from "../model";
+import { useMarkets, useTradeHistory } from "../model";
 
 export const TradeHistoryPanel = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const { data: trades = [], isLoading } = useTradeHistory();
+  const { data: markets = [] } = useMarkets({ quote: "KRW", onlyActive: true });
+
+  const marketMap = useMemo(
+    () =>
+      new Map(
+        markets.map((market) => [`KRW-${market.symbol}`, { koreanName: market.koreanName, symbol: market.symbol }]),
+      ),
+    [markets],
+  );
 
   if (!accessToken) {
     return (
@@ -63,22 +74,33 @@ export const TradeHistoryPanel = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {trades.map((trade) => (
-            <TableRow className='border-b border-white/10' key={trade.id}>
-              <TableCell className='text-xs text-muted-foreground' suppressHydrationWarning>
-                {dayjs(trade.executedAt).format("MM.DD HH:mm")}
-              </TableCell>
-              <TableCell className='text-xs'>{trade.marketCode.replace("KRW-", "")}</TableCell>
-              <TableCell className={trade.side === "BUY" ? "text-increase" : "text-decrease"}>
-                {trade.side === "BUY" ? "매수" : "매도"}
-              </TableCell>
-              <TableCell className='text-right'>{formatPrice(trade.price)}</TableCell>
-              <TableCell className='text-right'>
-                {trade.quantity.toLocaleString(undefined, { maximumFractionDigits: 8 })}
-              </TableCell>
-              <TableCell className='text-right'>{formatPrice(trade.totalAmount)}</TableCell>
-            </TableRow>
-          ))}
+          {trades.map((trade) => {
+            const marketInfo = marketMap.get(trade.marketCode);
+            const koreanName = marketInfo?.koreanName || trade.marketCode.replace("KRW-", "");
+            const symbol = marketInfo?.symbol || trade.marketCode.replace("KRW-", "");
+
+            return (
+              <TableRow className='border-b border-white/10' key={trade.id}>
+                <TableCell className='text-xs text-muted-foreground' suppressHydrationWarning>
+                  {dayjs(trade.executedAt).format("MM.DD HH:mm")}
+                </TableCell>
+                <TableCell className='text-xs'>
+                  <div>
+                    <p className='font-semibold text-foreground'>{koreanName}</p>
+                    <p className='text-muted-foreground'>{symbol}/KRW</p>
+                  </div>
+                </TableCell>
+                <TableCell className={trade.side === "BUY" ? "text-increase" : "text-decrease"}>
+                  {trade.side === "BUY" ? "매수" : "매도"}
+                </TableCell>
+                <TableCell className='text-right'>{formatPrice(trade.price)}</TableCell>
+                <TableCell className='text-right'>
+                  {trade.quantity.toLocaleString(undefined, { maximumFractionDigits: 8 })}
+                </TableCell>
+                <TableCell className='text-right'>{formatPrice(trade.totalAmount)}</TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

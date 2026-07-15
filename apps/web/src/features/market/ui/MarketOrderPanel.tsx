@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 
-import { Button, Input, ROUTES_PATH, cn, formatPrice, useAuthStore } from "@/shared";
+import {
+  Button,
+  Input,
+  ROUTES_PATH,
+  cn,
+  formatPrice,
+  formatThousands,
+  parseNumericInput,
+  useAuthStore,
+} from "@/shared";
 import { RotateCw } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,9 +30,9 @@ type MarketOrderPanelProps = {
 
 export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const [selectedTab, setSelectedTab] = useState<OrderTab>("매수");
-  const [price, setPrice] = useState<number | string>("");
-  const [amount, setAmount] = useState<number | string>("");
-  const [total, setTotal] = useState<number | string>("");
+  const [price, setPrice] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
+  const [total, setTotal] = useState<string>("");
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const coinSymbol = marketCode.replace("KRW-", "");
@@ -33,29 +42,36 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const { data: orderableCash = 0 } = useOrderableCash();
 
   const handlePriceChange = (value: string) => {
-    setPrice(value === "" ? "" : Number(value));
-    if (value === "" || amount === "") {
+    const cleaned = parseNumericInput(value);
+    const numValue = cleaned === "" ? "" : String(Number(cleaned));
+    setPrice(numValue);
+
+    if (numValue === "" || amount === "") {
       setTotal("");
     } else {
-      setTotal(Number(value) * Number(amount));
+      setTotal(String(Math.round(Number(numValue) * Number(amount))));
     }
   };
 
   const handleAmountChange = (value: string) => {
-    setAmount(value === "" ? "" : Number(value));
-    if (value === "" || price === "") {
+    // 숫자와 소수점만 허용, 소수점 1개로 제한 (raw 입력 보존)
+    const cleaned = value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+    setAmount(cleaned);
+    if (cleaned === "" || price === "") {
       setTotal("");
     } else {
-      setTotal(Number(price) * Number(value));
+      setTotal(String(Math.round(Number(price) * Number(cleaned))));
     }
   };
 
   const handleTotalChange = (value: string) => {
-    setTotal(value === "" ? "" : Number(value));
-    if (value === "" || price === "" || Number(price) <= 0) {
+    const cleaned = parseNumericInput(value);
+    const numValue = cleaned === "" ? "" : String(Number(cleaned));
+    setTotal(numValue);
+    if (numValue === "" || price === "" || Number(price) <= 0) {
       setAmount("");
     } else {
-      setAmount(Number(value) / Number(price));
+      setAmount(String(Number(numValue) / Number(price)));
     }
   };
 
@@ -93,6 +109,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
       },
       {
         onSuccess: () => {
+          toast.success("주문이 체결되었습니다.");
           handleReset();
         },
         onError: (error: Error) => {
@@ -118,6 +135,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
       },
       {
         onSuccess: () => {
+          toast.success("주문이 체결되었습니다.");
           handleReset();
         },
         onError: (error: Error) => {
@@ -177,10 +195,11 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
                   className='border-none bg-background text-right text-foreground tabular-nums'
                   disabled={isLoading}
                   id='order-price'
+                  inputMode='numeric'
                   onChange={(event) => handlePriceChange(event.target.value)}
                   placeholder='0'
-                  type='number'
-                  value={price}
+                  type='text'
+                  value={price === "" ? "" : formatThousands(String(price))}
                 />
               </div>
               <div className='flex items-center gap-3'>
@@ -192,9 +211,10 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
                   className='border-none bg-background text-right text-foreground tabular-nums'
                   disabled={isLoading}
                   id='order-amount'
+                  inputMode='decimal'
                   onChange={(event) => handleAmountChange(event.target.value)}
                   placeholder='0.0000'
-                  type='number'
+                  type='text'
                   value={amount}
                 />
               </div>
@@ -207,10 +227,11 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
                   className='border-none bg-background text-right text-foreground tabular-nums'
                   disabled={isLoading}
                   id='order-total'
+                  inputMode='numeric'
                   onChange={(event) => handleTotalChange(event.target.value)}
                   placeholder='0'
-                  type='number'
-                  value={total}
+                  type='text'
+                  value={total === "" ? "" : formatThousands(String(total))}
                 />
               </div>
             </div>
