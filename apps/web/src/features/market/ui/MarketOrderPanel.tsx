@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Button, Input, ROUTES_PATH, cn, formatPrice, useAuthStore } from "@/shared";
 import { RotateCw } from "lucide-react";
+import { toast } from "sonner";
 
 import { useBuyOrder, useOrderableCash, useSellOrder } from "../model";
 
@@ -23,7 +24,6 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const [price, setPrice] = useState<number | string>("");
   const [amount, setAmount] = useState<number | string>("");
   const [total, setTotal] = useState<number | string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const coinSymbol = marketCode.replace("KRW-", "");
@@ -71,7 +71,6 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
     setPrice("");
     setAmount("");
     setTotal("");
-    setErrorMessage("");
   };
 
   const isValidOrder = () => {
@@ -80,10 +79,9 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
 
   const handleBuyOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
 
     if (!isValidOrder()) {
-      setErrorMessage("가격과 수량을 올바르게 입력해주세요.");
+      toast.error("가격과 수량을 올바르게 입력해주세요.");
       return;
     }
 
@@ -98,7 +96,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
           handleReset();
         },
         onError: (error: Error) => {
-          setErrorMessage(error.message || "주문에 실패했습니다.");
+          toast.error(error.message || "주문에 실패했습니다.");
         },
       },
     );
@@ -106,10 +104,9 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
 
   const handleSellOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
 
     if (!isValidOrder()) {
-      setErrorMessage("가격과 수량을 올바르게 입력해주세요.");
+      toast.error("가격과 수량을 올바르게 입력해주세요.");
       return;
     }
 
@@ -124,7 +121,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
           handleReset();
         },
         onError: (error: Error) => {
-          setErrorMessage(error.message || "주문에 실패했습니다.");
+          toast.error(error.message || "주문에 실패했습니다.");
         },
       },
     );
@@ -133,18 +130,18 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const isLoading = buyOrder.isPending || sellOrder.isPending;
 
   return (
-    <section className='border-border bg-background flex min-h-[300px] w-full border-t'>
-      <aside className='border-border hidden w-[40%] shrink-0 overflow-y-auto border-r md:block'>
+    <section className='flex min-h-[300px] w-full border-t border-border bg-background'>
+      <aside className='hidden w-[40%] shrink-0 overflow-y-auto border-r border-border md:block'>
         <OrderbookPanel marketCode={marketCode} onSelectPrice={handleSelectOrderbookPrice} />
       </aside>
       <div className='flex min-w-0 flex-1 flex-col'>
-        <nav className='border-border flex h-14 w-full border-b'>
+        <nav className='flex h-14 w-full border-b border-border'>
           {ORDER_TABS.map((tab) => (
             <button
               className={cn(
                 "h-full flex-1 text-sm transition-colors",
                 selectedTab === tab
-                  ? "border-primary text-primary border-b-2 font-semibold"
+                  ? "border-b-2 border-primary font-semibold text-primary"
                   : "text-muted-foreground hover:text-foreground",
               )}
               key={tab}
@@ -163,21 +160,21 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
             className='flex w-full flex-col gap-3 p-5'
             onSubmit={selectedTab === "매수" ? handleBuyOrder : handleSellOrder}
           >
-            <div className='border-border flex items-center justify-between border-b pb-4'>
-              <p className='text-muted-foreground text-sm'>주문가능</p>
-              <p className='text-foreground text-sm font-semibold tabular-nums'>
+            <div className='flex items-center justify-between border-b border-border pb-4'>
+              <p className='text-sm text-muted-foreground'>주문가능</p>
+              <p className='text-sm font-semibold text-foreground tabular-nums'>
                 {accessToken ? formatPrice(orderableCash) : 0}{" "}
-                <span className='text-muted-foreground text-xs'>KRW</span>
+                <span className='text-xs text-muted-foreground'>KRW</span>
               </p>
             </div>
             <div className='flex flex-col gap-4'>
               <div className='flex items-center gap-3'>
                 <label className='flex w-25 items-center gap-1 text-sm' htmlFor='order-price'>
                   <span>가격</span>
-                  <span className='text-muted-foreground text-[10px] font-medium'>(KRW)</span>
+                  <span className='text-[10px] font-medium text-muted-foreground'>(KRW)</span>
                 </label>
                 <Input
-                  className='bg-background text-foreground border-none text-right tabular-nums'
+                  className='border-none bg-background text-right text-foreground tabular-nums'
                   disabled={isLoading}
                   id='order-price'
                   onChange={(event) => handlePriceChange(event.target.value)}
@@ -189,10 +186,10 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
               <div className='flex items-center gap-3'>
                 <label className='flex w-25 items-center gap-1 text-sm' htmlFor='order-amount'>
                   <span>수량</span>
-                  <span className='text-muted-foreground text-[10px] font-medium'>({coinSymbol})</span>
+                  <span className='text-[10px] font-medium text-muted-foreground'>({coinSymbol})</span>
                 </label>
                 <Input
-                  className='bg-background text-foreground border-none text-right tabular-nums'
+                  className='border-none bg-background text-right text-foreground tabular-nums'
                   disabled={isLoading}
                   id='order-amount'
                   onChange={(event) => handleAmountChange(event.target.value)}
@@ -204,10 +201,10 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
               <div className='flex items-center gap-3'>
                 <label className='flex w-25 items-center gap-1 text-sm' htmlFor='order-total'>
                   <span>총액</span>
-                  <span className='text-muted-foreground text-[10px] font-medium'>(KRW)</span>
+                  <span className='text-[10px] font-medium text-muted-foreground'>(KRW)</span>
                 </label>
                 <Input
-                  className='bg-background text-foreground border-none text-right tabular-nums'
+                  className='border-none bg-background text-right text-foreground tabular-nums'
                   disabled={isLoading}
                   id='order-total'
                   onChange={(event) => handleTotalChange(event.target.value)}
@@ -217,7 +214,6 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
                 />
               </div>
             </div>
-            {errorMessage && <p className='text-sm text-destructive'>{errorMessage}</p>}
             <div className='flex w-full gap-2 pt-2'>
               <Button
                 className='h-10 w-[25%]'

@@ -42,6 +42,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-increase: var(--increase);
   --color-decrease: var(--decrease);
+  --color-change-neutral: var(--change-neutral);
   --color-positive: var(--positive);
   --color-negative: var(--negative);
   --radius-sm: calc(var(--radius) - 4px);
@@ -143,6 +144,7 @@
   /* 도메인 semantic */
   --increase: var(--up-500);
   --decrease: var(--down-500);
+  --change-neutral: var(--neutral-400);
   --positive: var(--pos-500);
   --negative: var(--neg-500);
   /* charts (현행 유지) */
@@ -184,6 +186,7 @@
   --ring: var(--neutral-400);
   --increase: var(--up-600);
   --decrease: var(--down-600);
+  --change-neutral: var(--neutral-500);
   --positive: var(--pos-600);
   --negative: var(--neg-600);
 }

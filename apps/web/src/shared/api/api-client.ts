@@ -25,7 +25,18 @@ const doFetch = async (path: string, options: RequestOptions = {}): Promise<Resp
 const parseResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
     const text = await response.text().catch(() => "");
-    throw new Error(text || `HTTP ${response.status}`);
+    let errorMessage = text || `HTTP ${response.status}`;
+
+    try {
+      const parsed = JSON.parse(text);
+      if (typeof parsed.message === "string") {
+        errorMessage = parsed.message;
+      }
+    } catch {
+      // If JSON parse fails, use the raw text
+    }
+
+    throw new Error(errorMessage);
   }
   return response.json() as Promise<T>;
 };

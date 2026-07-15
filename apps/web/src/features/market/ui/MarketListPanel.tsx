@@ -26,7 +26,7 @@ type MarketDisplayRow = {
   symbolPair: string;
   tradePrice: string;
   changeRate: string;
-  changeTone: "increase" | "decrease";
+  changeTone: "increase" | "decrease" | "neutral";
   isActive: boolean;
 };
 
@@ -144,17 +144,17 @@ export const MarketListPanel = ({
   const visibleRows = filteredRows.slice(0, visibleCount);
 
   return (
-    <aside className='border-border bg-background flex min-h-[520px] flex-col border-r lg:min-h-[calc(100vh-80px)]'>
-      <div className='border-border border-b p-4'>
+    <aside className='flex min-h-[520px] flex-col border-r border-border bg-background lg:min-h-[calc(100vh-80px)]'>
+      <div className='border-b border-border p-4'>
         <div className='relative'>
           <Input
             aria-label='마켓 검색'
-            className='bg-card text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/40 h-10 rounded-lg border-none pl-9 text-sm'
+            className='h-10 rounded-lg border-none bg-card pl-9 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/40'
             onChange={(event) => setLocalSearchKeyword(event.target.value)}
             placeholder='코인명 / 심볼 검색'
             value={localSearchKeyword}
           />
-          <Search className='text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2' size={16} />
+          <Search className='absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground' size={16} />
         </div>
         {isLoading ? (
           <span aria-live='polite' className='sr-only'>
@@ -163,7 +163,7 @@ export const MarketListPanel = ({
         ) : null}
       </div>
       <div className='min-h-0 flex-1 overflow-y-auto'>
-        <div className='border-border bg-background/80 text-muted-foreground sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_88px_72px] gap-3 border-b px-4 py-3 text-xs font-medium backdrop-blur-sm'>
+        <div className='sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_88px_72px] gap-3 border-b border-border bg-background/80 px-4 py-3 text-xs font-medium text-muted-foreground backdrop-blur-sm'>
           <span>마켓</span>
           <span className='text-right'>현재가</span>
           <span className='text-right'>변동률</span>
@@ -173,7 +173,7 @@ export const MarketListPanel = ({
             {Array.from({ length: 7 }).map((_, i) => (
               <div
                 key={i}
-                className='border-border/60 grid grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b px-4 py-3'
+                className='grid grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-border/60 px-4 py-3'
               >
                 <div className='space-y-1'>
                   <Skeleton className='h-4 w-20' />
@@ -185,17 +185,22 @@ export const MarketListPanel = ({
             ))}
           </div>
         ) : filteredRows.length === 0 ? (
-          <p className='text-muted-foreground px-4 py-8 text-sm'>검색 결과가 없습니다.</p>
+          <p className='px-4 py-8 text-sm text-muted-foreground'>검색 결과가 없습니다.</p>
         ) : (
           <>
             {visibleRows.map((row) => {
               const active = row.code === selectedMarketCode;
-              const activeTone = row.changeTone === "increase" ? "text-increase" : "text-decrease";
+              const activeTone =
+                row.changeTone === "increase"
+                  ? "text-increase"
+                  : row.changeTone === "decrease"
+                    ? "text-decrease"
+                    : "text-change-neutral";
 
               return (
                 <button
                   className={cn(
-                    "border-border/60 hover:bg-muted/40 grid w-full grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-l-2 px-4 py-3 text-left transition-colors",
+                    "grid w-full grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-l-2 border-border/60 px-4 py-3 text-left transition-colors hover:bg-muted/40",
                     active ? "border-l-primary bg-muted/60" : "border-l-transparent",
                   )}
                   key={row.code}
@@ -211,7 +216,7 @@ export const MarketListPanel = ({
                     >
                       {row.koreanName}
                     </span>
-                    <span className='text-muted-foreground mt-0.5 block truncate text-[10px]'>{row.symbolPair}</span>
+                    <span className='mt-0.5 block truncate text-[10px] text-muted-foreground'>{row.symbolPair}</span>
                   </span>
                   <span
                     className={cn(
