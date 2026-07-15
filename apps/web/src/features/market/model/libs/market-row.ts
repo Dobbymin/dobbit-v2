@@ -6,7 +6,7 @@ export type MarketRowData = {
   symbolPair: string;
   tradePrice: string;
   changeRate: string;
-  changeTone: "increase" | "decrease";
+  changeTone: "increase" | "decrease" | "neutral";
   isActive: boolean;
 };
 
@@ -33,8 +33,19 @@ export const toMarketRow = (market: Market, ticker?: MarketTickerUpdatedEvent | 
     changeRate = market.isActive ? "0.00%" : "중지";
   }
 
-  // 상승/하락 톤
-  const changeTone: "increase" | "decrease" = ticker && ticker.signedChangeRate >= 0 ? "increase" : "decrease";
+  // 상승/하락/중립 톤
+  let changeTone: "increase" | "decrease" | "neutral";
+  if (ticker) {
+    if (ticker.signedChangeRate > 0) {
+      changeTone = "increase";
+    } else if (ticker.signedChangeRate < 0) {
+      changeTone = "decrease";
+    } else {
+      changeTone = "neutral";
+    }
+  } else {
+    changeTone = "neutral";
+  }
 
   return {
     code: market.code,
