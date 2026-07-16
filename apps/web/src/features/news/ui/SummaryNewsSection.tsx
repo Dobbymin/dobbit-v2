@@ -20,7 +20,9 @@ export const SummaryNewsSection = ({ newsItems, isLoading }: Props) => {
     .filter((item) => item.investmentScore !== null && item.investmentScore !== undefined)
     .map((item) => item.investmentScore as number);
   const avgInvestmentIndex =
-    investmentScores.length > 0 ? investmentScores.reduce((a, b) => a + b, 0) / investmentScores.length : 50;
+    investmentScores.length > 0
+      ? Math.min(100, Math.max(0, (investmentScores.reduce((a, b) => a + b, 0) / investmentScores.length + 1) * 50))
+      : 50;
 
   // 키워드 빈도 계산
   const keywordMap = new Map<string, number>();
