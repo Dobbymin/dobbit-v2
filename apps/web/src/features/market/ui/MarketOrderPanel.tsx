@@ -54,8 +54,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   };
 
   const handleAmountChange = (value: string) => {
-    // 숫자와 소수점만 허용, 소수점 1개로 제한 (raw 입력 보존)
-    const cleaned = value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+    const cleaned = parseNumericInputWithDecimal(value);
     setAmount(cleaned);
     if (cleaned === "" || price === "" || isNaN(Number(cleaned))) {
       setTotal("");

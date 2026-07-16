@@ -9,7 +9,7 @@ export const formatThousands = (value: string | number): string => {
   if (!integerPart) return "";
 
   const formatted = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return decimalPart ? `${formatted}.${decimalPart}` : formatted;
+  return parts.length > 1 ? `${formatted}.${decimalPart}` : formatted;
 };
 
 export const parseNumericInput = (value: string): string => {
@@ -22,5 +22,5 @@ export const parseNumericInputWithDecimal = (value: string): string => {
   if (value === "") return "";
   const cleaned = value.replace(/,/g, "");
   // 숫자와 소수점만 허용, 중복 소수점 제거
-  return cleaned.replace(/[^\d.]/g, "").replace(/\.(?=.*\.)/g, "");
+  return cleaned.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
 };

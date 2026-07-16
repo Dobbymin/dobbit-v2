@@ -4,6 +4,21 @@ import type { TradeResponse } from '@dobbit/shared';
 import { TradeValidator } from './validators/trade.validator';
 import { MarketService } from '../market/market.service';
 
+type CurrentPriceData = {
+  tradePrice: number;
+};
+
+const isCurrentPriceData = (value: unknown): value is CurrentPriceData => {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'tradePrice' in value &&
+    typeof value.tradePrice === 'number' &&
+    Number.isFinite(value.tradePrice) &&
+    value.tradePrice > 0
+  );
+};
+
 @Injectable()
 export class TradeService {
   constructor(
@@ -17,8 +32,8 @@ export class TradeService {
     this.tradeValidator.validateQuantity(quantity);
 
     // Validate price against current market price (±5% tolerance)
-    const currentPriceData = await this.marketService.getCurrentPrice(marketCode);
-    if (!currentPriceData) {
+    const currentPriceData: unknown = await this.marketService.getCurrentPrice(marketCode);
+    if (!isCurrentPriceData(currentPriceData)) {
       throw new BadRequestException('현재가를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.');
     }
 
@@ -132,8 +147,8 @@ export class TradeService {
     this.tradeValidator.validateQuantity(quantity);
 
     // Validate price against current market price (±5% tolerance)
-    const currentPriceData = await this.marketService.getCurrentPrice(marketCode);
-    if (!currentPriceData) {
+    const currentPriceData: unknown = await this.marketService.getCurrentPrice(marketCode);
+    if (!isCurrentPriceData(currentPriceData)) {
       throw new BadRequestException('현재가를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.');
     }
 
