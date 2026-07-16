@@ -38,7 +38,7 @@ export class HermesAnalyzer extends NewsAnalyzer {
             { role: 'system', content: NEWS_ANALYZER_SYSTEM_MESSAGE },
             { role: 'user', content: this.buildPrompt(content) },
           ],
-          max_tokens: 200,
+          max_tokens: 800,
         },
         {
           headers: { Authorization: `Bearer ${this.hermesApiKey}` },
