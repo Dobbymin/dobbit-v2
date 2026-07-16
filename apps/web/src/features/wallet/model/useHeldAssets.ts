@@ -21,29 +21,36 @@ export const useHeldAssets = () => {
   const assets = useWalletAssets();
   const markets = useMarkets({ quote: "KRW", onlyActive: true });
 
+  // Stabilize heldMarketCodes using string key
+  const marketCodesKey = assets.data?.map((asset) => asset.marketCode).join(",") || "";
   const heldMarketCodes = useMemo(() => {
-    if (!assets.data) return [];
-    return assets.data.map((asset) => asset.marketCode);
-  }, [assets.data]);
+    if (!marketCodesKey) return [];
+    return marketCodesKey.split(",");
+  }, [marketCodesKey]);
 
   const tickers = useMarketTickers(heldMarketCodes);
 
+  // Separate marketMap outside heldAssets useMemo
+  const marketMap = useMemo(
+    () =>
+      new Map(
+        (markets.data || []).map((market) => [
+          `KRW-${market.symbol}`,
+          { koreanName: market.koreanName, symbol: market.symbol },
+        ]),
+      ),
+    [markets.data],
+  );
+
   const heldAssets = useMemo(() => {
     if (!assets.data) return [];
-
-    const marketMap = new Map(
-      (markets.data || []).map((market) => [
-        `KRW-${market.symbol}`,
-        { koreanName: market.koreanName, symbol: market.symbol },
-      ]),
-    );
 
     return assets.data.map((asset) => {
       const marketInfo = marketMap.get(asset.marketCode);
       const koreanName = marketInfo?.koreanName || asset.symbol;
       const symbolPair = `${asset.symbol}/KRW`;
 
-      const ticker = tickers[asset.marketCode];
+      const ticker = tickers?.[asset.marketCode];
       const livePrice = ticker ? Number(ticker.tradePrice) : asset.currentPrice;
       const liveEvaluatedAmount = livePrice * asset.quantity;
       const liveProfitAmount = liveEvaluatedAmount - asset.totalCost;
@@ -59,7 +66,7 @@ export const useHeldAssets = () => {
         liveProfitRate,
       };
     });
-  }, [assets.data, markets.data, tickers]);
+  }, [assets.data, marketMap, tickers]);
 
   return {
     data: heldAssets,

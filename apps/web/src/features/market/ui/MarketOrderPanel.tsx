@@ -46,7 +46,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
     const numValue = cleaned === "" ? "" : String(Number(cleaned));
     setPrice(numValue);
 
-    if (numValue === "" || amount === "") {
+    if (numValue === "" || amount === "" || isNaN(Number(amount))) {
       setTotal("");
     } else {
       setTotal(String(Math.round(Number(numValue) * Number(amount))));
@@ -57,7 +57,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
     // 숫자와 소수점만 허용, 소수점 1개로 제한 (raw 입력 보존)
     const cleaned = value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
     setAmount(cleaned);
-    if (cleaned === "" || price === "") {
+    if (cleaned === "" || price === "" || isNaN(Number(cleaned))) {
       setTotal("");
     } else {
       setTotal(String(Math.round(Number(price) * Number(cleaned))));
