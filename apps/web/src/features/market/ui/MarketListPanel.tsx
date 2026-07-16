@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Input, Skeleton, cn } from "@/shared";
 import { useIntersectionObserver } from "@/shared";
 import type { Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
-import { Search } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 
 import { toMarketRow } from "../model";
 
@@ -29,6 +29,9 @@ type MarketDisplayRow = {
   changeTone: "increase" | "decrease" | "neutral";
   isActive: boolean;
 };
+
+type SortKey = "market" | "price" | "changeRate";
+type SortDirection = "asc" | "desc";
 
 const fallbackRows: MarketDisplayRow[] = [
   {
@@ -92,6 +95,8 @@ export const MarketListPanel = ({
   // 로컬 입력 state
   const [localSearchKeyword, setLocalSearchKeyword] = useState(searchKeyword);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   // 300ms debounce
   useEffect(() => {
@@ -129,19 +134,91 @@ export const MarketListPanel = ({
     );
   });
 
+  const sortedRows = useMemo(() => {
+    if (sortKey === null) {
+      return filteredRows;
+    }
+
+    return [...filteredRows].sort((a, b) => {
+      if (sortKey === "market") {
+        const comparison = a.koreanName.localeCompare(b.koreanName, "ko");
+        return sortDirection === "desc" ? -comparison : comparison;
+      }
+
+      const aValue =
+        sortKey === "price"
+          ? tickers[a.code]?.tradePrice
+          : tickers[a.code]?.signedChangeRate;
+      const bValue =
+        sortKey === "price"
+          ? tickers[b.code]?.tradePrice
+          : tickers[b.code]?.signedChangeRate;
+      if (typeof aValue !== "number" || !Number.isFinite(aValue)) {
+        return typeof bValue === "number" && Number.isFinite(bValue) ? 1 : 0;
+      }
+
+      if (typeof bValue !== "number" || !Number.isFinite(bValue)) {
+        return -1;
+      }
+
+      const comparison = aValue - bValue;
+
+      return sortDirection === "desc" ? -comparison : comparison;
+    });
+  }, [filteredRows, sortDirection, sortKey, tickers]);
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey !== key) {
+      setSortKey(key);
+      setSortDirection("desc");
+      return;
+    }
+
+    if (sortDirection === "desc") {
+      setSortDirection("asc");
+      return;
+    }
+
+    setSortKey(null);
+  };
+
+  const getAriaLabelForSort = (key: SortKey, headerName: string) => {
+    if (sortKey !== key) {
+      return `${headerName} 기준 내림차순 정렬`;
+    }
+
+    if (sortDirection === "desc") {
+      return `${headerName} 기준 내림차순 정렬됨. 오름차순으로 변경`;
+    }
+
+    return `${headerName} 기준 오름차순 정렬됨. 정렬 해제`;
+  };
+
+  const renderSortIcon = (key: SortKey) => {
+    if (sortKey !== key) {
+      return <ArrowUpDown aria-hidden='true' size={12} />;
+    }
+
+    return sortDirection === "asc" ? (
+      <ArrowUp aria-hidden='true' size={12} />
+    ) : (
+      <ArrowDown aria-hidden='true' size={12} />
+    );
+  };
+
   useEffect(() => {
     setVisibleCount(ITEMS_PER_PAGE);
-  }, [localSearchKeyword]);
+  }, [localSearchKeyword, sortDirection, sortKey]);
 
   const observerRef = useIntersectionObserver(
     useCallback(() => {
-      if (visibleCount < filteredRows.length) {
+      if (visibleCount < sortedRows.length) {
         setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
       }
-    }, [filteredRows.length, visibleCount]),
+    }, [sortedRows.length, visibleCount]),
   );
 
-  const visibleRows = filteredRows.slice(0, visibleCount);
+  const visibleRows = sortedRows.slice(0, visibleCount);
 
   return (
     <aside className='flex min-h-[520px] flex-col border-r border-border bg-background lg:min-h-[calc(100vh-80px)]'>
@@ -164,11 +241,35 @@ export const MarketListPanel = ({
       </div>
       <div className='min-h-0 flex-1 overflow-y-auto'>
         <div className='sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_88px_72px] gap-3 border-b border-border bg-background/80 px-4 py-3 text-xs font-medium text-muted-foreground backdrop-blur-sm'>
-          <span>마켓</span>
-          <span className='text-right'>현재가</span>
-          <span className='text-right'>변동률</span>
+          <button
+            aria-label={getAriaLabelForSort("market", "마켓")}
+            className='flex items-center gap-1 text-left'
+            onClick={() => handleSort("market")}
+            type='button'
+          >
+            마켓
+            {renderSortIcon("market")}
+          </button>
+          <button
+            aria-label={getAriaLabelForSort("price", "현재가")}
+            className='flex items-center justify-end gap-1 text-right'
+            onClick={() => handleSort("price")}
+            type='button'
+          >
+            현재가
+            {renderSortIcon("price")}
+          </button>
+          <button
+            aria-label={getAriaLabelForSort("changeRate", "변동률")}
+            className='flex items-center justify-end gap-1 text-right'
+            onClick={() => handleSort("changeRate")}
+            type='button'
+          >
+            변동률
+            {renderSortIcon("changeRate")}
+          </button>
         </div>
-        {isLoading && filteredRows.length === 0 ? (
+        {isLoading && sortedRows.length === 0 ? (
           <div className='space-y-1'>
             {Array.from({ length: 7 }).map((_, i) => (
               <div
@@ -184,7 +285,7 @@ export const MarketListPanel = ({
               </div>
             ))}
           </div>
-        ) : filteredRows.length === 0 ? (
+        ) : sortedRows.length === 0 ? (
           <p className='px-4 py-8 text-sm text-muted-foreground'>검색 결과가 없습니다.</p>
         ) : (
           <>
@@ -237,7 +338,7 @@ export const MarketListPanel = ({
                 </button>
               );
             })}
-            {visibleCount < filteredRows.length ? (
+            {visibleCount < sortedRows.length ? (
               <div ref={observerRef} className='h-4 w-full bg-transparent' />
             ) : null}
           </>
