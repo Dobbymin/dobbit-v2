@@ -2,17 +2,21 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../common/prisma/prisma.service';
 import type { TradeResponse } from '@dobbit/shared';
 import { TradeValidator } from './validators/trade.validator';
+import { MarketService } from '../market/market.service';
 
 @Injectable()
 export class TradeService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tradeValidator: TradeValidator,
+    private readonly marketService: MarketService,
   ) {}
 
   async buyOrder(userId: string, marketCode: string, quantity: number, price: number): Promise<TradeResponse> {
     this.tradeValidator.validatePrice(price);
     this.tradeValidator.validateQuantity(quantity);
+
+    await this.validatePriceTolerance(marketCode, price);
 
     const market = await this.prisma.market.findUnique({
       where: { code: marketCode },
@@ -117,6 +121,8 @@ export class TradeService {
     this.tradeValidator.validatePrice(price);
     this.tradeValidator.validateQuantity(quantity);
 
+    await this.validatePriceTolerance(marketCode, price);
+
     const market = await this.prisma.market.findUnique({
       where: { code: marketCode },
     });
@@ -218,6 +224,19 @@ export class TradeService {
   cancelOrder(tradeId: string): Promise<TradeResponse> {
     void tradeId;
     throw new BadRequestException('즉시 체결 방식이므로 취소를 지원하지 않습니다.');
+  }
+
+  private async validatePriceTolerance(marketCode: string, price: number): Promise<void> {
+    const currentPriceData = await this.marketService.getCurrentPrice(marketCode);
+    if (!currentPriceData || currentPriceData.tradePrice <= 0) {
+      throw new BadRequestException('현재가를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.');
+    }
+
+    const currentPrice = currentPriceData.tradePrice;
+    const tolerance = currentPrice * 0.05;
+    if (price < currentPrice - tolerance || price > currentPrice + tolerance) {
+      throw new BadRequestException(`주문가(${price}원)가 현재가(${currentPrice}원)에서 ±5% 범위를 벗어났습니다.`);
+    }
   }
 
   async getTradeHistory(userId: string, limit = 50, offset = 0): Promise<TradeResponse[]> {

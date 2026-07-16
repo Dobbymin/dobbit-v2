@@ -10,6 +10,7 @@ import {
   formatPrice,
   formatThousands,
   parseNumericInput,
+  parseNumericInputWithDecimal,
   useAuthStore,
 } from "@/shared";
 import { RotateCw } from "lucide-react";
@@ -42,22 +43,20 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const { data: orderableCash = 0 } = useOrderableCash();
 
   const handlePriceChange = (value: string) => {
-    const cleaned = parseNumericInput(value);
-    const numValue = cleaned === "" ? "" : String(Number(cleaned));
-    setPrice(numValue);
+    const cleaned = parseNumericInputWithDecimal(value);
+    setPrice(cleaned);
 
-    if (numValue === "" || amount === "" || isNaN(Number(amount))) {
+    if (cleaned === "" || amount === "" || isNaN(Number(cleaned)) || isNaN(Number(amount))) {
       setTotal("");
     } else {
-      setTotal(String(Math.round(Number(numValue) * Number(amount))));
+      setTotal(String(Math.round(Number(cleaned) * Number(amount))));
     }
   };
 
   const handleAmountChange = (value: string) => {
-    // 숫자와 소수점만 허용, 소수점 1개로 제한 (raw 입력 보존)
-    const cleaned = value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
+    const cleaned = parseNumericInputWithDecimal(value);
     setAmount(cleaned);
-    if (cleaned === "" || price === "" || isNaN(Number(cleaned))) {
+    if (cleaned === "" || price === "" || isNaN(Number(price)) || isNaN(Number(cleaned))) {
       setTotal("");
     } else {
       setTotal(String(Math.round(Number(price) * Number(cleaned))));
