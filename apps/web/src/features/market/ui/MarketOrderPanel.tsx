@@ -10,6 +10,7 @@ import {
   formatPrice,
   formatThousands,
   parseNumericInput,
+  parseNumericInputWithDecimal,
   useAuthStore,
 } from "@/shared";
 import { RotateCw } from "lucide-react";
@@ -42,14 +43,13 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const { data: orderableCash = 0 } = useOrderableCash();
 
   const handlePriceChange = (value: string) => {
-    const cleaned = parseNumericInput(value);
-    const numValue = cleaned === "" ? "" : String(Number(cleaned));
-    setPrice(numValue);
+    const cleaned = parseNumericInputWithDecimal(value);
+    setPrice(cleaned);
 
-    if (numValue === "" || amount === "" || isNaN(Number(amount))) {
+    if (cleaned === "" || amount === "" || isNaN(Number(amount))) {
       setTotal("");
     } else {
-      setTotal(String(Math.round(Number(numValue) * Number(amount))));
+      setTotal(String(Math.round(Number(cleaned) * Number(amount))));
     }
   };
 
@@ -80,7 +80,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
     if (selectedTab === "거래내역") {
       setSelectedTab("매수");
     }
-    handlePriceChange(String(selectedPrice));
+    handlePriceChange(parseNumericInputWithDecimal(String(selectedPrice)));
   };
 
   const handleReset = () => {

@@ -17,3 +17,10 @@ export const parseNumericInput = (value: string): string => {
   const cleaned = value.replace(/,/g, "");
   return cleaned.replace(/[^\d]/g, "");
 };
+
+export const parseNumericInputWithDecimal = (value: string): string => {
+  if (value === "") return "";
+  const cleaned = value.replace(/,/g, "");
+  // 숫자와 소수점만 허용, 중복 소수점 제거
+  return cleaned.replace(/[^\d.]/g, "").replace(/\.(?=.*\.)/g, "");
+};

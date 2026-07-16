@@ -2,17 +2,31 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../common/prisma/prisma.service';
 import type { TradeResponse } from '@dobbit/shared';
 import { TradeValidator } from './validators/trade.validator';
+import { MarketService } from '../market/market.service';
 
 @Injectable()
 export class TradeService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tradeValidator: TradeValidator,
+    private readonly marketService: MarketService,
   ) {}
 
   async buyOrder(userId: string, marketCode: string, quantity: number, price: number): Promise<TradeResponse> {
     this.tradeValidator.validatePrice(price);
     this.tradeValidator.validateQuantity(quantity);
+
+    // Validate price against current market price (±5% tolerance)
+    const currentPriceData = await this.marketService.getCurrentPrice(marketCode);
+    if (!currentPriceData) {
+      throw new BadRequestException('현재가를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.');
+    }
+
+    const currentPrice = currentPriceData.tradePrice;
+    const tolerance = currentPrice * 0.05;
+    if (price < currentPrice - tolerance || price > currentPrice + tolerance) {
+      throw new BadRequestException(`주문가(${price}원)가 현재가(${currentPrice}원)에서 ±5% 범위를 벗어났습니다.`);
+    }
 
     const market = await this.prisma.market.findUnique({
       where: { code: marketCode },
@@ -116,6 +130,18 @@ export class TradeService {
   async sellOrder(userId: string, marketCode: string, quantity: number, price: number): Promise<TradeResponse> {
     this.tradeValidator.validatePrice(price);
     this.tradeValidator.validateQuantity(quantity);
+
+    // Validate price against current market price (±5% tolerance)
+    const currentPriceData = await this.marketService.getCurrentPrice(marketCode);
+    if (!currentPriceData) {
+      throw new BadRequestException('현재가를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.');
+    }
+
+    const currentPrice = currentPriceData.tradePrice;
+    const tolerance = currentPrice * 0.05;
+    if (price < currentPrice - tolerance || price > currentPrice + tolerance) {
+      throw new BadRequestException(`주문가(${price}원)가 현재가(${currentPrice}원)에서 ±5% 범위를 벗어났습니다.`);
+    }
 
     const market = await this.prisma.market.findUnique({
       where: { code: marketCode },
