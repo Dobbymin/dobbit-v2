@@ -46,7 +46,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
     const cleaned = parseNumericInputWithDecimal(value);
     setPrice(cleaned);
 
-    if (cleaned === "" || amount === "" || isNaN(Number(amount))) {
+    if (cleaned === "" || amount === "" || isNaN(Number(cleaned)) || isNaN(Number(amount))) {
       setTotal("");
     } else {
       setTotal(String(Math.round(Number(cleaned) * Number(amount))));
@@ -56,7 +56,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const handleAmountChange = (value: string) => {
     const cleaned = parseNumericInputWithDecimal(value);
     setAmount(cleaned);
-    if (cleaned === "" || price === "" || isNaN(Number(cleaned))) {
+    if (cleaned === "" || price === "" || isNaN(Number(price)) || isNaN(Number(cleaned))) {
       setTotal("");
     } else {
       setTotal(String(Math.round(Number(price) * Number(cleaned))));
@@ -79,7 +79,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
     if (selectedTab === "거래내역") {
       setSelectedTab("매수");
     }
-    handlePriceChange(parseNumericInputWithDecimal(String(selectedPrice)));
+    handlePriceChange(String(selectedPrice));
   };
 
   const handleReset = () => {
