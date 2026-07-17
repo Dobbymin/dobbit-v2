@@ -331,7 +331,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
   }, [series, indicators.ma, maSeries, candlesQuery.data, chartType]);
 
   return (
-    <section className='bg-background flex min-h-[560px] flex-col'>
+    <section className='bg-background flex min-h-[560px] shrink-0 flex-col'>
       <header className='border-border flex flex-wrap items-start justify-between gap-3 border-b px-5 py-4'>
         <div className='min-w-0'>
           <h1 className='text-foreground truncate text-xl font-bold'>{displayName}</h1>
