@@ -147,11 +147,16 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const isLoading = buyOrder.isPending || sellOrder.isPending;
 
   return (
-    <section className='relative flex min-h-[300px] w-full shrink-0 border-t border-border bg-background md:min-h-[400px]'>
+    <section className='relative flex min-h-[300px] w-full shrink-0 border-t border-border bg-background'>
       <aside className='hidden w-[40%] shrink-0 border-r border-border md:block'>
         <OrderbookPanel marketCode={marketCode} onSelectPrice={handleSelectOrderbookPrice} />
       </aside>
-      <div className='flex min-h-0 min-w-0 flex-1 flex-col md:absolute md:inset-y-0 md:right-0 md:w-[60%]'>
+      <div
+        className={cn(
+          "flex min-h-0 min-w-0 flex-1 flex-col md:w-[60%]",
+          selectedTab === "거래내역" && "md:absolute md:inset-y-0 md:right-0",
+        )}
+      >
         <nav className='flex h-14 w-full shrink-0 border-b border-border'>
           {ORDER_TABS.map((tab) => (
             <button
