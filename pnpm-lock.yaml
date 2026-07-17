@@ -114,6 +114,9 @@ importers:
       passport-jwt:
         specifier: ^4.0.0
         version: 4.0.1
+      prisma:
+        specifier: ^5.0.0
+        version: 5.22.0
       reflect-metadata:
         specifier: ^0.1.14
         version: 0.1.14
@@ -160,9 +163,6 @@ importers:
       globals:
         specifier: ^16.0.0
         version: 16.5.0
-      prisma:
-        specifier: ^5.0.0
-        version: 5.22.0
       ts-node:
         specifier: ^10.9.0
         version: 10.9.2(@types/node@20.19.43)(typescript@5.9.2)
