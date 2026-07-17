@@ -24,7 +24,7 @@ Codex가 직접 해도 되는 것:
 
 - 파일 **읽기** (`Read`, `Bash cat/grep` 등 조회 전용)
 - `AGENTS.md`, `SKILL.md` 등 **하네스 문서** 수정
-- `pnpm typecheck`, `pnpm lint` 등 **검증 명령** 실행
+- `pnpm check-types`, `pnpm lint` 등 **검증 명령** 실행
 - Obsidian 작업 로그 **기록**
 
 위임 경로: Codex → implementer 에이전트 → Codex(`codex:rescue` 서브에이전트)

@@ -158,7 +158,7 @@ branch convention 검증:
 소스 변경이 포함된 경우:
 
 ```bash
-pnpm typecheck
+pnpm check-types
 pnpm lint
 pnpm test
 ```

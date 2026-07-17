@@ -28,7 +28,7 @@ Claude Code가 직접 해도 되는 것:
 
 - 파일 **읽기** (`Read`, `Bash cat/grep`)
 - `CLAUDE.md`, `SKILL.md` 등 **하네스 문서** 수정
-- `pnpm typecheck` 같은 **검증 명령** 실행
+- `pnpm check-types` 같은 **검증 명령** 실행
 - Obsidian 작업 로그 **기록**
 
 ---
