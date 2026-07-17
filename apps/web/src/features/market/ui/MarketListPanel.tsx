@@ -112,27 +112,31 @@ export const MarketListPanel = ({
     setLocalSearchKeyword(searchKeyword);
   }, [searchKeyword]);
 
-  const rows: MarketDisplayRow[] =
-    markets.length > 0
-      ? markets.map((market) => {
-          const tickerData = tickers[market.code];
-          return toMarketRow(market, tickerData);
-        })
-      : fallbackRows;
+  const rows = useMemo(
+    () =>
+      markets.length > 0
+        ? markets.map((market) => {
+            const tickerData = tickers[market.code];
+            return toMarketRow(market, tickerData);
+          })
+        : fallbackRows,
+    [markets, tickers],
+  );
 
-  const filteredRows = rows.filter((row) => {
+  const filteredRows = useMemo(() => {
     const keyword = localSearchKeyword.trim().toLowerCase();
 
     if (!keyword) {
-      return true;
+      return rows;
     }
 
-    return (
-      row.code.toLowerCase().includes(keyword) ||
-      row.koreanName.toLowerCase().includes(keyword) ||
-      row.symbolPair.toLowerCase().includes(keyword)
+    return rows.filter(
+      (row) =>
+        row.code.toLowerCase().includes(keyword) ||
+        row.koreanName.toLowerCase().includes(keyword) ||
+        row.symbolPair.toLowerCase().includes(keyword),
     );
-  });
+  }, [rows, localSearchKeyword]);
 
   const sortedRows = useMemo(() => {
     if (sortKey === null) {
