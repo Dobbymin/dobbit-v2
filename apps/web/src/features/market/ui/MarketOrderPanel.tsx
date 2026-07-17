@@ -147,7 +147,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const isLoading = buyOrder.isPending || sellOrder.isPending;
 
   return (
-    <section className='relative flex min-h-[300px] w-full border-t border-border bg-background'>
+    <section className='relative flex shrink-0 min-h-[300px] w-full border-t border-border bg-background'>
       <aside className='hidden w-[40%] shrink-0 border-r border-border md:block'>
         <OrderbookPanel marketCode={marketCode} onSelectPrice={handleSelectOrderbookPrice} />
       </aside>
