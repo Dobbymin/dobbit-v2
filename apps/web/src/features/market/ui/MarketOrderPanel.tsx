@@ -151,8 +151,13 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
       <aside className='hidden w-[40%] shrink-0 border-r border-border md:block'>
         <OrderbookPanel marketCode={marketCode} onSelectPrice={handleSelectOrderbookPrice} />
       </aside>
-      <div className='flex min-h-0 min-w-0 flex-1 flex-col md:absolute md:inset-y-0 md:right-0 md:w-[60%]'>
-        <nav className='flex h-14 w-full border-b border-border'>
+      <div
+        className={cn(
+          "flex min-h-0 min-w-0 flex-1 flex-col md:w-[60%]",
+          selectedTab === "거래내역" && "md:absolute md:inset-y-0 md:right-0",
+        )}
+      >
+        <nav className='flex h-14 w-full shrink-0 border-b border-border'>
           {ORDER_TABS.map((tab) => (
             <button
               className={cn(
