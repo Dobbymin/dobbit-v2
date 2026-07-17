@@ -225,7 +225,7 @@ export const MarketListPanel = ({
   const visibleRows = sortedRows.slice(0, visibleCount);
 
   return (
-    <aside className='flex min-h-[520px] flex-col border-r border-border bg-background lg:min-h-[calc(100vh-80px)]'>
+    <aside className='flex min-h-[520px] flex-col border-r border-border bg-background lg:h-[calc(100vh-80px)] lg:min-h-0 lg:overflow-hidden'>
       <div className='border-b border-border p-4'>
         <div className='relative'>
           <Input
