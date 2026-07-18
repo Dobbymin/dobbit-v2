@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FavoritesService } from './favorites.service';
 
 interface UserRequest extends Request {

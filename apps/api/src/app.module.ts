@@ -9,7 +9,7 @@ import { WalletModule } from './wallet/wallet.module';
 import { AlertModule } from './alert/alert.module';
 import { NewsModule } from './news/news.module';
 import { RealtimeModule } from './realtime/realtime.module';
-import { FavoritesModule } from './modules/favorites/favorites.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
   imports: [

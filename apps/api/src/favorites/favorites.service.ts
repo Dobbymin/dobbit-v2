@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common/prisma/prisma.service';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PrismaService } from '../common/prisma/prisma.service';
 
 @Injectable()
 export class FavoritesService {
@@ -16,6 +16,10 @@ export class FavoritesService {
   }
 
   async addFavorite(userId: string, marketCode: string): Promise<void> {
+    if (typeof marketCode !== 'string' || !/^KRW-[A-Z0-9]+$/.test(marketCode)) {
+      throw new BadRequestException('유효하지 않은 마켓 코드입니다.');
+    }
+
     await this.prisma.favorite.upsert({
       where: { userId_marketCode: { userId, marketCode } },
       create: { userId, marketCode },

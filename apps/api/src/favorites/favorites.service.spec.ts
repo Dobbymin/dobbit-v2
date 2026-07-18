@@ -1,8 +1,8 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { GUARDS_METADATA } from '@nestjs/common/constants';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { PrismaService } from '../../common/prisma/prisma.service';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import type { PrismaService } from '../common/prisma/prisma.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FavoritesController } from './favorites.controller';
 import { FavoritesService } from './favorites.service';
 
@@ -46,8 +46,23 @@ describe('FavoritesService', () => {
     expect(() => guard.handleRequest(null, false, undefined)).toThrow('Unauthorized');
   });
 
-  it('does not throw when favorite already exists', async () => {
-    await expect(service.addFavorite(userId, 'KRW-BTC')).resolves.toBeUndefined();
+  it('rejects invalid marketCodes before upsert', async () => {
+    for (const marketCode of ['', 'krw-btc', 'KRWBTC', 'KRW-', 'KRW-BTC-USD', 123, undefined]) {
+      await expect(service.addFavorite(userId, marketCode as string)).rejects.toThrow(BadRequestException);
+    }
+
+    expect(prisma.favorite.upsert).not.toHaveBeenCalled();
+  });
+
+  it('accepts valid marketCodes', async () => {
+    for (const marketCode of ['KRW-BTC', 'KRW-ETH', 'KRW-1INCH', 'KRW-API3', 'KRW-0G', 'KRW-2Z']) {
+      await expect(service.addFavorite(userId, marketCode)).resolves.toBeUndefined();
+      expect(prisma.favorite.upsert).toHaveBeenCalledWith({
+        where: { userId_marketCode: { userId, marketCode } },
+        create: { userId, marketCode },
+        update: {},
+      });
+    }
   });
 
   // Complex PK collision validation requires live DB; defer to integration tests.
