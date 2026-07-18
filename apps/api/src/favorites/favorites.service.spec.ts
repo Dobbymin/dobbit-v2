@@ -9,6 +9,9 @@ import { FavoritesService } from './favorites.service';
 describe('FavoritesService', () => {
   const userId = 'context-user-id';
   let prisma: {
+    market: {
+      findUnique: ReturnType<typeof vi.fn>;
+    };
     favorite: {
       findMany: ReturnType<typeof vi.fn>;
       upsert: ReturnType<typeof vi.fn>;
@@ -19,6 +22,9 @@ describe('FavoritesService', () => {
 
   beforeEach(() => {
     prisma = {
+      market: {
+        findUnique: vi.fn().mockResolvedValue({ code: 'KRW-BTC' }),
+      },
       favorite: {
         findMany: vi.fn().mockResolvedValue([{ marketCode: 'KRW-BTC' }]),
         upsert: vi.fn().mockResolvedValue({}),
@@ -51,6 +57,13 @@ describe('FavoritesService', () => {
       await expect(service.addFavorite(userId, marketCode as string)).rejects.toThrow(BadRequestException);
     }
 
+    expect(prisma.favorite.upsert).not.toHaveBeenCalled();
+  });
+
+  it('rejects nonexistent markets before upsert', async () => {
+    prisma.market.findUnique.mockResolvedValue(null);
+
+    await expect(service.addFavorite(userId, 'KRW-BTC')).rejects.toThrow(BadRequestException);
     expect(prisma.favorite.upsert).not.toHaveBeenCalled();
   });
 

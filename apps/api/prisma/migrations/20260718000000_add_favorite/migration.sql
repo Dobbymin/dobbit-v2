@@ -11,3 +11,8 @@ CREATE TABLE "public"."favorites" (
 ALTER TABLE "public"."favorites"
 ADD CONSTRAINT "favorites_userId_fkey"
 FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."favorites"
+ADD CONSTRAINT "favorites_marketCode_fkey"
+FOREIGN KEY ("marketCode") REFERENCES "public"."markets"("code") ON DELETE CASCADE ON UPDATE CASCADE;

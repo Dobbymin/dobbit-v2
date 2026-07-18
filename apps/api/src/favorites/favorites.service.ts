@@ -20,6 +20,9 @@ export class FavoritesService {
       throw new BadRequestException('유효하지 않은 마켓 코드입니다.');
     }
 
+    const market = await this.prisma.market.findUnique({ where: { code: marketCode } });
+    if (!market) throw new BadRequestException(`Market ${marketCode} not found`);
+
     await this.prisma.favorite.upsert({
       where: { userId_marketCode: { userId, marketCode } },
       create: { userId, marketCode },
