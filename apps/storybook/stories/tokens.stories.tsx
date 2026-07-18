@@ -12,7 +12,9 @@ const BRAND: { name: string; label: string }[] = [
 const SEMANTIC = [
   "background",
   "foreground",
+  "subtle-foreground",
   "card",
+  "surface-sunken",
   "card-foreground",
   "popover",
   "popover-foreground",
