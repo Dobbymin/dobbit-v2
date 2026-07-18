@@ -3,12 +3,23 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Header } from "@/widgets";
+import { Heart, List } from "lucide-react";
 
-import { MarketChartPanel, MarketListPanel, MarketOrderPanel, useMarketTickers, useMarkets, useTicker } from "@/features/market";
+import {
+  MarketChartPanel,
+  MarketListPanel,
+  MarketOrderPanel,
+  useMarketTickers,
+  useMarkets,
+  useTicker,
+} from "@/features/market";
+
+type MarketListTab = "all" | "favorite";
 
 export default function HomePage() {
   const [selectedMarketCode, setSelectedMarketCode] = useState("KRW-BTC");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [activeMarketListTab, setActiveMarketListTab] = useState<MarketListTab>("all");
   const marketsQuery = useMarkets({ quote: "KRW", onlyActive: true });
   const markets = useMemo(() => marketsQuery.data ?? [], [marketsQuery.data]);
   const selectedMarket = markets.find((market) => market.code === selectedMarketCode);
@@ -32,18 +43,47 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <main className='bg-background text-foreground min-h-[calc(100vh-80px)]'>
-        <div className='mx-auto grid max-w-7xl px-10 lg:h-[calc(100vh-80px)] lg:grid-cols-[minmax(280px,28%)_minmax(0,72%)]'>
+      <main className='min-h-[calc(100vh-80px)] bg-background text-foreground'>
+        <div className='mx-auto grid max-w-7xl px-10 lg:h-[calc(100vh-80px)] lg:grid-cols-[48px_minmax(280px,32%)_minmax(0,1fr)]'>
+          <nav aria-label='마켓 목록' className='hidden flex-col border-r border-border bg-background lg:flex'>
+            {(
+              [
+                ["all", "전체", List],
+                ["favorite", "관심", Heart],
+              ] as const
+            ).map(([tab, label, Icon]) => {
+              const active = activeMarketListTab === tab;
+
+              return (
+                <button
+                  aria-pressed={active}
+                  className={`flex h-16 flex-col items-center justify-center gap-1 text-[11px] transition-colors ${
+                    active
+                      ? "bg-surface-sunken text-foreground"
+                      : "text-subtle-foreground hover:bg-card hover:text-foreground"
+                  }`}
+                  key={tab}
+                  onClick={() => setActiveMarketListTab(tab)}
+                  type='button'
+                >
+                  <Icon aria-hidden='true' className={active && Icon === Heart ? "fill-current" : undefined} size={18} />
+                  {label}
+                </button>
+              );
+            })}
+          </nav>
           <MarketListPanel
+            activeTab={activeMarketListTab}
             isLoading={marketsQuery.isLoading}
             markets={markets}
+            onActiveTabChange={setActiveMarketListTab}
             onSearchKeywordChange={setSearchKeyword}
             onSelectMarket={setSelectedMarketCode}
             searchKeyword={searchKeyword}
             selectedMarketCode={selectedMarketCode}
             tickers={tickers}
           />
-          <div className='bg-background flex min-w-0 flex-col lg:min-h-0 lg:overflow-y-auto'>
+          <div className='flex min-w-0 flex-col bg-background lg:min-h-0 lg:overflow-y-auto'>
             <MarketChartPanel
               isLoading={tickerQuery.isLoading}
               market={selectedMarket}

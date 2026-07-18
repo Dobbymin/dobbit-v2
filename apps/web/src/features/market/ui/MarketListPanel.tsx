@@ -1,134 +1,87 @@
 "use client";
 
+import Link from "next/link";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Input, Skeleton, cn } from "@/shared";
-import { useIntersectionObserver } from "@/shared";
+import { Button, Input, ROUTES_PATH, Skeleton, cn, useIntersectionObserver, useIsAuth } from "@/shared";
 import type { Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
-import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Heart, Search } from "lucide-react";
 
-import { toMarketRow } from "../model";
+import { FavoriteButton, useFavorites } from "@/features/favorite";
+
+import { CoinIcon } from "@/entities/market";
+
+import { filterFavoriteMarkets, getTopMarketsByTradeVolume, toMarketRow } from "../model";
+
+type MarketListTab = "all" | "favorite";
 
 type MarketListPanelProps = {
+  activeTab: MarketListTab;
   markets: Market[];
   selectedMarketCode: string;
   searchKeyword: string;
   isLoading: boolean;
-  /** 상위(HomePage)에서 구독한 실시간 티커. 차트 패널과 공유한다. */
   tickers: Record<string, MarketTickerUpdatedEvent>;
+  onActiveTabChange: (tab: MarketListTab) => void;
   onSearchKeywordChange: (value: string) => void;
   onSelectMarket: (marketCode: string) => void;
-};
-
-type MarketDisplayRow = {
-  code: string;
-  koreanName: string;
-  symbolPair: string;
-  tradePrice: string;
-  changeRate: string;
-  changeTone: "increase" | "decrease" | "neutral";
-  isActive: boolean;
 };
 
 type SortKey = "market" | "price" | "changeRate";
 type SortDirection = "asc" | "desc";
 
-const fallbackRows: MarketDisplayRow[] = [
-  {
-    code: "KRW-BTC",
-    koreanName: "비트코인",
-    symbolPair: "BTC/KRW",
-    tradePrice: "98,501,000",
-    changeRate: "-0.69%",
-    changeTone: "decrease",
-    isActive: true,
-  },
-  {
-    code: "KRW-WAXP",
-    koreanName: "왁스",
-    symbolPair: "WAXP/KRW",
-    tradePrice: "24.42",
-    changeRate: "+5.41%",
-    changeTone: "increase",
-    isActive: true,
-  },
-  {
-    code: "KRW-XRP",
-    koreanName: "리플",
-    symbolPair: "XRP/KRW",
-    tradePrice: "2,927",
-    changeRate: "-1.24%",
-    changeTone: "decrease",
-    isActive: true,
-  },
-  {
-    code: "KRW-ETH",
-    koreanName: "이더리움",
-    symbolPair: "ETH/KRW",
-    tradePrice: "4,783,000",
-    changeRate: "+1.18%",
-    changeTone: "increase",
-    isActive: true,
-  },
-  {
-    code: "KRW-SOL",
-    koreanName: "솔라나",
-    symbolPair: "SOL/KRW",
-    tradePrice: "211,400",
-    changeRate: "-2.36%",
-    changeTone: "decrease",
-    isActive: true,
-  },
-];
-
 const ITEMS_PER_PAGE = 20;
 
 export const MarketListPanel = ({
+  activeTab,
   markets,
   selectedMarketCode,
   searchKeyword,
   isLoading,
   tickers,
+  onActiveTabChange,
   onSearchKeywordChange,
   onSelectMarket,
 }: MarketListPanelProps) => {
-  // 로컬 입력 state
+  const { isAuthenticated } = useIsAuth();
+  const favoritesQuery = useFavorites();
   const [localSearchKeyword, setLocalSearchKeyword] = useState(searchKeyword);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
-  // 300ms debounce
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onSearchKeywordChange(localSearchKeyword);
-    }, 300);
-
+    const timer = setTimeout(() => onSearchKeywordChange(localSearchKeyword), 300);
     return () => clearTimeout(timer);
   }, [localSearchKeyword, onSearchKeywordChange]);
 
-  // 외부에서 searchKeyword가 변경되면 로컬 state도 동기화
-  useEffect(() => {
-    setLocalSearchKeyword(searchKeyword);
-  }, [searchKeyword]);
+  useEffect(() => setLocalSearchKeyword(searchKeyword), [searchKeyword]);
 
+  const favoriteMarkets = useMemo(
+    () => filterFavoriteMarkets(markets, favoritesQuery.data ?? new Set()),
+    [favoritesQuery.data, markets],
+  );
+  const hasNoFavorites = isAuthenticated && favoritesQuery.data !== undefined && favoriteMarkets.length === 0;
+  const sourceMarkets = useMemo(() => {
+    if (activeTab === "all") {
+      return markets;
+    }
+
+    if (!isAuthenticated) {
+      return [];
+    }
+
+    return hasNoFavorites ? getTopMarketsByTradeVolume(markets, tickers) : favoriteMarkets;
+  }, [activeTab, favoriteMarkets, hasNoFavorites, isAuthenticated, markets, tickers]);
   const rows = useMemo(
-    () =>
-      markets.length > 0
-        ? markets.map((market) => {
-            const tickerData = tickers[market.code];
-            return toMarketRow(market, tickerData);
-          })
-        : fallbackRows,
-    [markets, tickers],
+    () => sourceMarkets.map((market) => toMarketRow(market, tickers[market.code])),
+    [sourceMarkets, tickers],
   );
 
   const filteredRows = useMemo(() => {
     const keyword = localSearchKeyword.trim().toLowerCase();
-
-    if (!keyword) {
-      return rows;
-    }
+    if (!keyword) return rows;
 
     return rows.filter(
       (row) =>
@@ -136,12 +89,10 @@ export const MarketListPanel = ({
         row.koreanName.toLowerCase().includes(keyword) ||
         row.symbolPair.toLowerCase().includes(keyword),
     );
-  }, [rows, localSearchKeyword]);
+  }, [localSearchKeyword, rows]);
 
   const sortedRows = useMemo(() => {
-    if (sortKey === null) {
-      return filteredRows;
-    }
+    if (sortKey === null) return filteredRows;
 
     return [...filteredRows].sort((a, b) => {
       if (sortKey === "market") {
@@ -149,25 +100,13 @@ export const MarketListPanel = ({
         return sortDirection === "desc" ? -comparison : comparison;
       }
 
-      const aValue =
-        sortKey === "price"
-          ? tickers[a.code]?.tradePrice
-          : tickers[a.code]?.signedChangeRate;
-      const bValue =
-        sortKey === "price"
-          ? tickers[b.code]?.tradePrice
-          : tickers[b.code]?.signedChangeRate;
+      const aValue = sortKey === "price" ? tickers[a.code]?.tradePrice : tickers[a.code]?.signedChangeRate;
+      const bValue = sortKey === "price" ? tickers[b.code]?.tradePrice : tickers[b.code]?.signedChangeRate;
       if (typeof aValue !== "number" || !Number.isFinite(aValue)) {
         return typeof bValue === "number" && Number.isFinite(bValue) ? 1 : 0;
       }
-
-      if (typeof bValue !== "number" || !Number.isFinite(bValue)) {
-        return -1;
-      }
-
-      const comparison = aValue - bValue;
-
-      return sortDirection === "desc" ? -comparison : comparison;
+      if (typeof bValue !== "number" || !Number.isFinite(bValue)) return -1;
+      return sortDirection === "desc" ? bValue - aValue : aValue - bValue;
     });
   }, [filteredRows, sortDirection, sortKey, tickers]);
 
@@ -175,34 +114,21 @@ export const MarketListPanel = ({
     if (sortKey !== key) {
       setSortKey(key);
       setSortDirection("desc");
-      return;
-    }
-
-    if (sortDirection === "desc") {
+    } else if (sortDirection === "desc") {
       setSortDirection("asc");
-      return;
+    } else {
+      setSortKey(null);
     }
-
-    setSortKey(null);
   };
 
   const getAriaLabelForSort = (key: SortKey, headerName: string) => {
-    if (sortKey !== key) {
-      return `${headerName} 기준 내림차순 정렬`;
-    }
-
-    if (sortDirection === "desc") {
-      return `${headerName} 기준 내림차순 정렬됨. 오름차순으로 변경`;
-    }
-
+    if (sortKey !== key) return `${headerName} 기준 내림차순 정렬`;
+    if (sortDirection === "desc") return `${headerName} 기준 내림차순 정렬됨. 오름차순으로 변경`;
     return `${headerName} 기준 오름차순 정렬됨. 정렬 해제`;
   };
 
   const renderSortIcon = (key: SortKey) => {
-    if (sortKey !== key) {
-      return <ArrowUpDown aria-hidden='true' size={12} />;
-    }
-
+    if (sortKey !== key) return <ArrowUpDown aria-hidden='true' size={12} />;
     return sortDirection === "asc" ? (
       <ArrowUp aria-hidden='true' size={12} />
     ) : (
@@ -210,23 +136,40 @@ export const MarketListPanel = ({
     );
   };
 
-  useEffect(() => {
-    setVisibleCount(ITEMS_PER_PAGE);
-  }, [localSearchKeyword, sortDirection, sortKey]);
+  useEffect(() => setVisibleCount(ITEMS_PER_PAGE), [activeTab, localSearchKeyword, sortDirection, sortKey]);
 
   const observerRef = useIntersectionObserver(
     useCallback(() => {
-      if (visibleCount < sortedRows.length) {
-        setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
-      }
+      if (visibleCount < sortedRows.length) setVisibleCount((previous) => previous + ITEMS_PER_PAGE);
     }, [sortedRows.length, visibleCount]),
   );
-
   const visibleRows = sortedRows.slice(0, visibleCount);
+  const showLoginPrompt = activeTab === "favorite" && !isAuthenticated;
 
   return (
     <aside className='flex min-h-[520px] flex-col border-r border-border bg-background lg:h-full lg:min-h-0 lg:overflow-hidden'>
       <div className='border-b border-border p-4'>
+        <div className='mb-3 grid grid-cols-2 rounded-lg bg-surface-sunken p-1 lg:hidden'>
+          {(
+            [
+              ["all", "전체"],
+              ["favorite", "관심"],
+            ] as const
+          ).map(([tab, label]) => (
+            <button
+              aria-pressed={activeTab === tab}
+              className={cn(
+                "h-8 rounded-md text-sm font-medium transition-colors",
+                activeTab === tab ? "bg-card text-foreground" : "text-subtle-foreground",
+              )}
+              key={tab}
+              onClick={() => onActiveTabChange(tab)}
+              type='button'
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         <div className='relative'>
           <Input
             aria-label='마켓 검색'
@@ -244,46 +187,49 @@ export const MarketListPanel = ({
         ) : null}
       </div>
       <div className='min-h-0 flex-1 overflow-y-auto'>
-        <div className='sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_88px_72px] gap-3 border-b border-border bg-background/80 px-4 py-3 text-xs font-medium text-muted-foreground backdrop-blur-sm'>
-          <button
-            aria-label={getAriaLabelForSort("market", "마켓")}
-            className='flex items-center gap-1 text-left'
-            onClick={() => handleSort("market")}
-            type='button'
-          >
-            마켓
-            {renderSortIcon("market")}
-          </button>
-          <button
-            aria-label={getAriaLabelForSort("price", "현재가")}
-            className='flex items-center justify-end gap-1 text-right'
-            onClick={() => handleSort("price")}
-            type='button'
-          >
-            현재가
-            {renderSortIcon("price")}
-          </button>
-          <button
-            aria-label={getAriaLabelForSort("changeRate", "변동률")}
-            className='flex items-center justify-end gap-1 text-right'
-            onClick={() => handleSort("changeRate")}
-            type='button'
-          >
-            변동률
-            {renderSortIcon("changeRate")}
-          </button>
+        <div className='sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_80px_64px] gap-3 bg-background/80 px-4 py-3 text-xs font-medium text-muted-foreground backdrop-blur-sm'>
+          {(
+            [
+              ["market", "마켓", "text-left"],
+              ["price", "현재가", "justify-end text-right"],
+              ["changeRate", "변동률", "justify-end text-right"],
+            ] as const
+          ).map(([key, label, alignment]) => (
+            <button
+              aria-label={getAriaLabelForSort(key, label)}
+              className={`flex items-center gap-1 ${alignment}`}
+              key={key}
+              onClick={() => handleSort(key)}
+              type='button'
+            >
+              {label}
+              {renderSortIcon(key)}
+            </button>
+          ))}
         </div>
-        {isLoading && sortedRows.length === 0 ? (
+        {showLoginPrompt ? (
+          <div className='flex flex-col items-center gap-3 px-4 py-10 text-center'>
+            <Heart aria-hidden='true' className='text-subtle-foreground' size={24} />
+            <p className='text-sm text-muted-foreground'>로그인하고 관심 코인을 모아보세요.</p>
+            <Button asChild size='sm'>
+              <Link href={ROUTES_PATH.LOGIN}>로그인</Link>
+            </Button>
+          </div>
+        ) : favoritesQuery.isLoading && activeTab === "favorite" ? (
           <div className='space-y-1'>
-            {Array.from({ length: 7 }).map((_, i) => (
-              <div
-                key={i}
-                className='grid grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-border/60 px-4 py-3'
-              >
-                <div className='space-y-1'>
-                  <Skeleton className='h-4 w-20' />
-                  <Skeleton className='h-3 w-16' />
-                </div>
+            {Array.from({ length: 7 }).map((_, index) => (
+              <div className='grid h-[52px] grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 px-4' key={index}>
+                <Skeleton className='h-7 w-32' />
+                <Skeleton className='ml-auto h-4 w-20' />
+                <Skeleton className='ml-auto h-4 w-12' />
+              </div>
+            ))}
+          </div>
+        ) : isLoading && sortedRows.length === 0 ? (
+          <div className='space-y-1'>
+            {Array.from({ length: 7 }).map((_, index) => (
+              <div className='grid h-[52px] grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 px-4' key={index}>
+                <Skeleton className='h-7 w-32' />
                 <Skeleton className='ml-auto h-4 w-20' />
                 <Skeleton className='ml-auto h-4 w-12' />
               </div>
@@ -293,9 +239,12 @@ export const MarketListPanel = ({
           <p className='px-4 py-8 text-sm text-muted-foreground'>검색 결과가 없습니다.</p>
         ) : (
           <>
+            {hasNoFavorites ? (
+              <p className='px-4 pt-3 text-xs text-muted-foreground'>거래대금이 높은 코인을 살펴보세요.</p>
+            ) : null}
             {visibleRows.map((row) => {
               const active = row.code === selectedMarketCode;
-              const activeTone =
+              const tone =
                 row.changeTone === "increase"
                   ? "text-increase"
                   : row.changeTone === "decrease"
@@ -303,48 +252,51 @@ export const MarketListPanel = ({
                     : "text-change-neutral";
 
               return (
-                <button
+                <div
                   className={cn(
-                    "grid w-full grid-cols-[minmax(0,1fr)_88px_72px] items-center gap-3 border-b border-l-2 border-border/60 px-4 py-3 text-left transition-colors hover:bg-muted/40",
-                    active ? "border-l-primary bg-muted/60" : "border-l-transparent",
+                    "grid h-[52px] w-full grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 border-l-2 px-4 text-left transition-colors hover:bg-card",
+                    active ? "border-l-primary bg-surface-sunken" : "border-l-transparent",
                   )}
                   key={row.code}
                   onClick={() => onSelectMarket(row.code)}
-                  type='button'
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") onSelectMarket(row.code);
+                  }}
+                  role='button'
+                  tabIndex={0}
                 >
-                  <span className='min-w-0'>
-                    <span
-                      className={cn(
-                        "block truncate text-xs font-semibold",
-                        active ? "text-primary" : "text-foreground",
-                      )}
-                    >
-                      {row.koreanName}
+                  <div className='flex min-w-0 items-center gap-1'>
+                    <FavoriteButton marketCode={row.code} />
+                    <CoinIcon marketCode={row.code} />
+                    <span className='min-w-0 flex-1'>
+                      <span
+                        className={cn(
+                          "block truncate text-sm font-semibold",
+                          active ? "text-primary" : "text-foreground",
+                        )}
+                      >
+                        {row.koreanName}
+                      </span>
+                      <span className='block truncate text-[10px] text-muted-foreground'>{row.symbolPair}</span>
                     </span>
-                    <span className='mt-0.5 block truncate text-[10px] text-muted-foreground'>{row.symbolPair}</span>
-                  </span>
+                  </div>
                   <span
                     className={cn(
                       "text-right text-xs font-medium tabular-nums",
-                      row.isActive ? activeTone : "text-muted-foreground",
+                      row.isActive ? tone : "text-muted-foreground",
                     )}
                   >
                     {row.tradePrice}
                   </span>
                   <span
-                    className={cn(
-                      "text-right text-xs tabular-nums",
-                      row.isActive ? activeTone : "text-muted-foreground",
-                    )}
+                    className={cn("text-right text-xs tabular-nums", row.isActive ? tone : "text-muted-foreground")}
                   >
                     {row.changeRate}
                   </span>
-                </button>
+                </div>
               );
             })}
-            {visibleCount < sortedRows.length ? (
-              <div ref={observerRef} className='h-4 w-full bg-transparent' />
-            ) : null}
+            {visibleCount < sortedRows.length ? <div ref={observerRef} className='h-4 w-full bg-transparent' /> : null}
           </>
         )}
       </div>
