@@ -21,6 +21,8 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-surface-sunken: var(--surface-sunken);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -65,6 +67,8 @@
   --neutral-850: oklch(0.205 0 0);
   --neutral-900: oklch(0.145 0 0);
   --neutral-950: oklch(0.11 0 0);
+  --neutral-50-alpha-42: oklch(0.985 0 0 / 42%);
+  --neutral-900-alpha-42: oklch(0.145 0 0 / 42%);
   /* --- Base: lime (brand) --- */
   --lime-50: oklch(0.9769 0.096 142.83);
   --lime-100: oklch(0.9319 0.1189 142.83);
@@ -81,6 +85,7 @@
   --up-100: oklch(0.7892 0.1025 22.99);
   --up-200: oklch(0.7142 0.138 22.99);
   --up-300: oklch(0.6542 0.1676 22.99);
+  --up-350: oklch(0.653259 0.208944 22.99);
   --up-400: oklch(0.6192 0.1873 22.99);
   --up-500: oklch(0.5992 0.1972 22.99);
   --up-600: oklch(0.5442 0.1972 22.99);
@@ -91,6 +96,7 @@
   --down-50: oklch(0.8148 0.0833 257.28);
   --down-100: oklch(0.7698 0.1031 257.28);
   --down-200: oklch(0.6948 0.1388 257.28);
+  --down-250: oklch(0.663998 0.179538 257.28);
   --down-300: oklch(0.6348 0.1686 257.28);
   --down-400: oklch(0.5998 0.1884 257.28);
   --down-500: oklch(0.5798 0.1983 257.28);
@@ -124,7 +130,9 @@
   /* --- Semantic (다크 = 기본) --- */
   --background: var(--neutral-900);
   --foreground: var(--neutral-50);
+  --subtle-foreground: var(--neutral-50-alpha-42);
   --card: var(--neutral-850);
+  --surface-sunken: var(--neutral-950);
   --card-foreground: var(--neutral-50);
   --popover: var(--neutral-850);
   --popover-foreground: var(--neutral-50);
@@ -142,8 +150,8 @@
   --ring: var(--neutral-500);
   --radius: 0.625rem;
   /* 도메인 semantic */
-  --increase: var(--up-500);
-  --decrease: var(--down-500);
+  --increase: var(--up-350);
+  --decrease: var(--down-250);
   --change-neutral: var(--neutral-400);
   --positive: var(--pos-500);
   --negative: var(--neg-500);
@@ -168,7 +176,9 @@
   /* --- Semantic (라이트 = .light, 향후 토글용) --- */
   --background: var(--neutral-50);
   --foreground: var(--neutral-900);
+  --subtle-foreground: var(--neutral-900-alpha-42);
   --card: oklch(1 0 0);
+  --surface-sunken: var(--neutral-100);
   --card-foreground: var(--neutral-900);
   --popover: oklch(1 0 0);
   --popover-foreground: var(--neutral-900);
