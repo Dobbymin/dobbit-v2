@@ -40,6 +40,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.0.0",
     "socket.io-client": "^4.8.3",
+    "sharp": "^0.35.3",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.1.18",
@@ -48,6 +49,7 @@
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
+    "@testing-library/react": "^16.3.2",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -55,6 +57,7 @@
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.2.9",
     "immer": "^11.1.8",
+    "jsdom": "^26.1.0",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "shadcn": "^4.11.0",
