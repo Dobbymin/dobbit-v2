@@ -22,10 +22,15 @@ const toRgb = (color: string): string | null => {
     return null;
   }
 
+  context.fillStyle = "rgba(0, 0, 0, 0)";
   context.fillStyle = color;
   context.fillRect(0, 0, 1, 1);
 
-  const [red, green, blue] = context.getImageData(0, 0, 1, 1).data;
+  const [red, green, blue, alpha] = context.getImageData(0, 0, 1, 1).data;
+  if (alpha === 0) {
+    return null;
+  }
+
   return `rgb(${red},${green},${blue})`;
 };
 

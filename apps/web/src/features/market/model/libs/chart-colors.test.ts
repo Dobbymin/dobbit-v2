@@ -43,4 +43,34 @@ describe("chart colors", () => {
     expect(chartColors.candleUp).toBe("rgb(245,72,80)");
     expect(chartColors.candleDown).toBe("rgb(67,146,255)");
   });
+
+  it("유효하지 않은 토큰 색상은 캔들 폴백 색상을 사용한다", async () => {
+    let fillStyle = "#000000";
+    let alpha = 255;
+    const context = {
+      set fillStyle(value: string) {
+        if (value === "rgba(0, 0, 0, 0)") {
+          fillStyle = value;
+        }
+      },
+      fillRect: () => {
+        alpha = fillStyle === "rgba(0, 0, 0, 0)" ? 0 : 255;
+      },
+      getImageData: () => ({ data: [0, 0, 0, alpha] }),
+    };
+
+    vi.stubGlobal("window", {});
+    vi.stubGlobal("document", {
+      documentElement: {},
+      createElement: () => ({
+        getContext: () => context,
+      }),
+    });
+    vi.stubGlobal("getComputedStyle", () => ({ getPropertyValue: () => "invalid-color" }));
+
+    const chartColors = await loadChartColors();
+
+    expect(chartColors.candleUp).toBe("rgb(245,72,80)");
+    expect(chartColors.candleDown).toBe("rgb(67,146,255)");
+  });
 });
