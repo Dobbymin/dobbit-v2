@@ -242,18 +242,18 @@ describe("toMarketRow", () => {
     expect(row.changeTone).toBe("decrease");
   });
 
-  it("should show 0.00% and decrease tone when ticker is null and market is active", () => {
+  it("should show 0.00% and neutral tone when ticker is null and market is active", () => {
     const row = toMarketRow(mockMarket, null);
 
     expect(row.changeRate).toBe("0.00%");
-    expect(row.changeTone).toBe("decrease");
+    expect(row.changeTone).toBe("neutral");
   });
 
   it("should show 중지 when market is inactive and ticker is null", () => {
     const row = toMarketRow(mockInactiveMarket, null);
 
     expect(row.changeRate).toBe("중지");
-    expect(row.changeTone).toBe("decrease");
+    expect(row.changeTone).toBe("neutral");
   });
 
   it("should convert symbol to symbolPair format", () => {
