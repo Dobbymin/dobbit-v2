@@ -77,7 +77,7 @@ export const SignupForm = () => {
         </div>
         {signup.isError ? <p className='text-sm text-destructive'>{signup.error.message}</p> : null}
         <div className='flex w-80 justify-center gap-4'>
-          <Button className='w-full py-5 text-white' disabled={signup.isPending} type='submit' variant='secondary'>
+          <Button className='w-full py-5' disabled={signup.isPending} type='submit' variant='secondary'>
             {signup.isPending ? "가입 중" : "회원가입"}
           </Button>
         </div>

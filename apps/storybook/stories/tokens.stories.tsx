@@ -4,6 +4,7 @@ const NEUTRAL = [50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950];
 const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 const BRAND: { name: string; label: string }[] = [
   { name: "lime", label: "lime (brand)" },
+  { name: "sea", label: "sea (CTA)" },
   { name: "up", label: "up (등락 상승)" },
   { name: "down", label: "down (등락 하락)" },
   { name: "pos", label: "pos (손익 +)" },

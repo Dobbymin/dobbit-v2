@@ -4,6 +4,7 @@
  * Base(원시 팔레트, OKLCH 50~900) → Semantic(역할) 2계층.
  * 앱은 다크가 기본(:root). 라이트(.light)는 향후 테마 토글용으로 정의.
  * 컴포넌트는 semantic 토큰만 참조한다(Base·raw hex 직접 사용 금지).
+ * --primary는 강조·선택, --secondary는 주 액션 CTA 역할이다.
  *
  * 참고: Dobbit/docs/설계/디자인시스템/03-토큰 명세.md, ADR/008
  */
@@ -80,6 +81,8 @@
   --lime-700: oklch(0.6219 0.2172 142.83);
   --lime-800: oklch(0.5519 0.1966 142.83);
   --lime-900: oklch(0.4869 0.1646 142.83);
+  /* --- Base: sea (CTA) --- */
+  --sea-500: oklch(0.5685 0.1187 154.95);
   /* --- Base: up (등락 상승) --- */
   --up-50: oklch(0.8342 0.0828 22.99);
   --up-100: oklch(0.7892 0.1025 22.99);
@@ -138,7 +141,7 @@
   --popover-foreground: var(--neutral-50);
   --primary: var(--lime-500);
   --primary-foreground: var(--neutral-900);
-  --secondary: oklch(0.5685 0.1187 154.95);
+  --secondary: var(--sea-500);
   --secondary-foreground: var(--neutral-50);
   --muted: var(--neutral-800);
   --muted-foreground: var(--neutral-400);
@@ -184,7 +187,7 @@
   --popover-foreground: var(--neutral-900);
   --primary: var(--lime-700);
   --primary-foreground: var(--neutral-50);
-  --secondary: oklch(0.5685 0.1187 154.95);
+  --secondary: var(--sea-500);
   --secondary-foreground: var(--neutral-50);
   --muted: var(--neutral-100);
   --muted-foreground: var(--neutral-500);
