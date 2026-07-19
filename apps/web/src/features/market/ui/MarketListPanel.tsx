@@ -50,6 +50,7 @@ export const MarketListPanel = ({
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [topMarketCodes, setTopMarketCodes] = useState<string[] | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => onSearchKeywordChange(localSearchKeyword), 300);
@@ -63,6 +64,19 @@ export const MarketListPanel = ({
     [favoritesQuery.data, markets],
   );
   const hasNoFavorites = isAuthenticated && favoritesQuery.data !== undefined && favoriteMarkets.length === 0;
+
+  useEffect(() => {
+    if (activeTab !== "favorite") {
+      setTopMarketCodes(null);
+      return;
+    }
+
+    if (!hasNoFavorites || topMarketCodes !== null) return;
+
+    const topMarkets = getTopMarketsByTradeVolume(markets, tickers);
+    if (topMarkets.length > 0) setTopMarketCodes(topMarkets.map((market) => market.code));
+  }, [activeTab, hasNoFavorites, markets, tickers, topMarketCodes]);
+
   const sourceMarkets = useMemo(() => {
     if (activeTab === "all") {
       return markets;
@@ -72,8 +86,14 @@ export const MarketListPanel = ({
       return [];
     }
 
-    return hasNoFavorites ? getTopMarketsByTradeVolume(markets, tickers) : favoriteMarkets;
-  }, [activeTab, favoriteMarkets, hasNoFavorites, isAuthenticated, markets, tickers]);
+    if (!hasNoFavorites) return favoriteMarkets;
+
+    const marketsByCode = new Map(markets.map((market) => [market.code, market]));
+    return topMarketCodes?.flatMap((code) => {
+      const market = marketsByCode.get(code);
+      return market ? [market] : [];
+    }) ?? [];
+  }, [activeTab, favoriteMarkets, hasNoFavorites, isAuthenticated, markets, topMarketCodes]);
   const rows = useMemo(
     () => sourceMarkets.map((market) => toMarketRow(market, tickers[market.code])),
     [sourceMarkets, tickers],
@@ -254,45 +274,45 @@ export const MarketListPanel = ({
               return (
                 <div
                   className={cn(
-                    "grid h-[52px] w-full grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 border-l-2 px-4 text-left transition-colors hover:bg-card",
+                    "grid h-[52px] w-full grid-cols-[auto_1fr] items-center border-l-2 px-4 transition-colors",
                     active ? "border-l-primary bg-surface-sunken" : "border-l-transparent",
                   )}
                   key={row.code}
-                  onClick={() => onSelectMarket(row.code)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") onSelectMarket(row.code);
-                  }}
-                  role='button'
-                  tabIndex={0}
                 >
-                  <div className='flex min-w-0 items-center gap-1'>
-                    <FavoriteButton marketCode={row.code} />
-                    <CoinIcon marketCode={row.code} />
-                    <span className='min-w-0 flex-1'>
-                      <span
-                        className={cn(
-                          "block truncate text-sm font-semibold",
-                          active ? "text-primary" : "text-foreground",
-                        )}
-                      >
-                        {row.koreanName}
+                  <FavoriteButton marketCode={row.code} />
+                  <button
+                    className='grid h-full min-w-0 grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 text-left transition-colors hover:bg-card focus-visible:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40'
+                    onClick={() => onSelectMarket(row.code)}
+                    type='button'
+                  >
+                    <div className='flex min-w-0 items-center gap-1'>
+                      <CoinIcon marketCode={row.code} />
+                      <span className='min-w-0 flex-1'>
+                        <span
+                          className={cn(
+                            "block truncate text-sm font-semibold",
+                            active ? "text-primary" : "text-foreground",
+                          )}
+                        >
+                          {row.koreanName}
+                        </span>
+                        <span className='block truncate text-[10px] text-muted-foreground'>{row.symbolPair}</span>
                       </span>
-                      <span className='block truncate text-[10px] text-muted-foreground'>{row.symbolPair}</span>
+                    </div>
+                    <span
+                      className={cn(
+                        "text-right text-xs font-medium tabular-nums",
+                        row.isActive ? tone : "text-muted-foreground",
+                      )}
+                    >
+                      {row.tradePrice}
                     </span>
-                  </div>
-                  <span
-                    className={cn(
-                      "text-right text-xs font-medium tabular-nums",
-                      row.isActive ? tone : "text-muted-foreground",
-                    )}
-                  >
-                    {row.tradePrice}
-                  </span>
-                  <span
-                    className={cn("text-right text-xs tabular-nums", row.isActive ? tone : "text-muted-foreground")}
-                  >
-                    {row.changeRate}
-                  </span>
+                    <span
+                      className={cn("text-right text-xs tabular-nums", row.isActive ? tone : "text-muted-foreground")}
+                    >
+                      {row.changeRate}
+                    </span>
+                  </button>
                 </div>
               );
             })}

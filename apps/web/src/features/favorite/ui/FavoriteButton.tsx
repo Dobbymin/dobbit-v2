@@ -24,7 +24,7 @@ const LoginPopoverButton = () => (
         <Heart size={24} />
       </button>
     </PopoverTrigger>
-    <PopoverContent className='w-56 space-y-3'>
+    <PopoverContent className='w-56 space-y-3' onClick={(event) => event.stopPropagation()}>
       <p className='text-sm text-foreground'>관심 등록이 필요해요</p>
       <div className='flex items-center gap-3'>
         <Button asChild size='sm'>
