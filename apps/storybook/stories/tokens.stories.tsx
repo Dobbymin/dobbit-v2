@@ -2,12 +2,13 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const NEUTRAL = [50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950];
 const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
-const BRAND: { name: string; label: string }[] = [
-  { name: "lime", label: "lime (brand)" },
-  { name: "up", label: "up (등락 상승)" },
-  { name: "down", label: "down (등락 하락)" },
-  { name: "pos", label: "pos (손익 +)" },
-  { name: "neg", label: "neg (손익 −)" },
+const BRAND: { name: string; label: string; steps?: number[] }[] = [
+  { name: "lime", label: "lime (brand)", steps: STEPS },
+  { name: "sea", label: "sea (CTA)", steps: [500] },
+  { name: "up", label: "up (등락 상승)", steps: [50, 100, 200, 300, 350, 400, 500, 600, 700, 800, 900] },
+  { name: "down", label: "down (등락 하락)", steps: [50, 100, 200, 250, 300, 400, 500, 600, 700, 800, 900] },
+  { name: "pos", label: "pos (손익 +)", steps: STEPS },
+  { name: "neg", label: "neg (손익 −)", steps: STEPS },
 ];
 const SEMANTIC = [
   "background",
@@ -82,9 +83,9 @@ export const Overview: Story = {
         ))}
       </Row>
 
-      {BRAND.map(({ name, label }) => (
+      {BRAND.map(({ name, label, steps }) => (
         <Row key={name} title={`Base · ${label}`}>
-          {STEPS.map((s) => (
+          {(steps ?? STEPS).map((s) => (
             <Swatch key={s} varName={`--${name}-${s}`} label={`${name}-${s}`} />
           ))}
         </Row>

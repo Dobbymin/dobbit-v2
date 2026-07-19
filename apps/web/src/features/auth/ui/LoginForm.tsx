@@ -62,7 +62,7 @@ export const LoginForm = () => {
         </div>
         {login.isError ? <p className='text-sm text-destructive'>{login.error.message}</p> : null}
         <div className='flex w-80 justify-center gap-4'>
-          <Button className='w-full py-5 text-white' disabled={login.isPending} type='submit' variant='secondary'>
+          <Button className='w-full py-5' disabled={login.isPending} type='submit' variant='secondary'>
             {login.isPending ? "로그인 중" : "로그인"}
           </Button>
         </div>

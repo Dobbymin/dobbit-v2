@@ -144,7 +144,7 @@ export function NewsAlertSettings() {
         <button
           type='submit'
           disabled={!marketCode.trim() || createMutation.isPending}
-          className='rounded-md bg-primary px-3 py-2 text-sm font-medium text-black disabled:cursor-not-allowed disabled:bg-primary/40 disabled:text-black/60'
+          className='rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:cursor-not-allowed disabled:bg-primary/40 disabled:text-primary-foreground/60'
         >
           {createMutation.isPending ? "저장 중" : "규칙 추가"}
         </button>
