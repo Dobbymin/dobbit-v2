@@ -5,7 +5,7 @@
 .git
 _workspace_prev
 **/*.log
-.claude
+**/.claude
 .env
 .env.*
 !.env.example
