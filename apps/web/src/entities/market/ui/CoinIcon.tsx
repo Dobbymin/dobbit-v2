@@ -17,7 +17,7 @@ const getHash = (value: string) => {
 
 export const getCoinIconColor = (symbol: string) => `oklch(0.45 0.12 ${getHash(symbol) % 360})`;
 
-export const CoinIcon = ({ marketCode, size = 30 }: CoinIconProps) => {
+export const CoinIcon = ({ marketCode, size = 26 }: CoinIconProps) => {
   const [hasImageError, setHasImageError] = useState(false);
   const symbol = getSymbol(marketCode);
   const label = symbol.length > 4 ? symbol.slice(0, 4) : symbol;
