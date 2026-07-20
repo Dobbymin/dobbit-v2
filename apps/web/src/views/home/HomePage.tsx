@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Header } from "@/widgets";
-import { Heart, List } from "lucide-react";
+import { Heart, List, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import {
   MarketChartPanel,
@@ -20,6 +20,7 @@ export default function HomePage() {
   const [selectedMarketCode, setSelectedMarketCode] = useState("KRW-BTC");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [activeMarketListTab, setActiveMarketListTab] = useState<MarketListTab>("all");
+  const [isMarketListOpen, setIsMarketListOpen] = useState(true);
   const marketsQuery = useMarkets({ quote: "KRW", onlyActive: true });
   const markets = useMemo(() => marketsQuery.data ?? [], [marketsQuery.data]);
   const selectedMarket = markets.find((market) => market.code === selectedMarketCode);
@@ -44,8 +45,23 @@ export default function HomePage() {
     <>
       <Header />
       <main className='min-h-[calc(100vh-80px)] bg-background text-foreground'>
-        <div className='mx-auto grid max-w-7xl px-10 lg:h-[calc(100vh-80px)] lg:grid-cols-[48px_minmax(280px,32%)_minmax(0,1fr)]'>
+        <div
+          className={`grid lg:h-[calc(100vh-80px)] ${
+            isMarketListOpen
+              ? "lg:grid-cols-[48px_440px_minmax(0,1fr)]"
+              : "lg:grid-cols-[48px_minmax(0,1fr)]"
+          }`}
+        >
           <nav aria-label='마켓 목록' className='hidden flex-col border-r border-border bg-background lg:flex'>
+            <button
+              aria-expanded={isMarketListOpen}
+              aria-label={isMarketListOpen ? "코인 목록 접기" : "코인 목록 펼치기"}
+              className='flex h-12 flex-col items-center justify-center gap-1 border-b border-border text-subtle-foreground transition-colors hover:bg-card hover:text-foreground'
+              onClick={() => setIsMarketListOpen((isOpen) => !isOpen)}
+              type='button'
+            >
+              {isMarketListOpen ? <PanelLeftClose aria-hidden='true' size={18} /> : <PanelLeftOpen aria-hidden='true' size={18} />}
+            </button>
             {(
               [
                 ["all", "전체", List],
@@ -72,18 +88,20 @@ export default function HomePage() {
               );
             })}
           </nav>
-          <MarketListPanel
-            activeTab={activeMarketListTab}
-            isLoading={marketsQuery.isLoading}
-            markets={markets}
-            onActiveTabChange={setActiveMarketListTab}
-            onSearchKeywordChange={setSearchKeyword}
-            onSelectMarket={setSelectedMarketCode}
-            searchKeyword={searchKeyword}
-            selectedMarketCode={selectedMarketCode}
-            tickers={tickers}
-          />
-          <div className='flex min-w-0 flex-col bg-background lg:min-h-0 lg:overflow-y-auto'>
+          <div className={isMarketListOpen ? "contents" : "lg:hidden"}>
+            <MarketListPanel
+              activeTab={activeMarketListTab}
+              isLoading={marketsQuery.isLoading}
+              markets={markets}
+              onActiveTabChange={setActiveMarketListTab}
+              onSearchKeywordChange={setSearchKeyword}
+              onSelectMarket={setSelectedMarketCode}
+              searchKeyword={searchKeyword}
+              selectedMarketCode={selectedMarketCode}
+              tickers={tickers}
+            />
+          </div>
+          <div className='flex min-w-0 flex-col bg-background px-4 lg:min-h-0 lg:overflow-y-auto lg:px-10'>
             <MarketChartPanel
               isLoading={tickerQuery.isLoading}
               market={selectedMarket}
