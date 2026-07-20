@@ -10,10 +10,12 @@ import { AlertModule } from './alert/alert.module';
 import { NewsModule } from './news/news.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { PrismaModule } from './common/prisma/prisma.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
     AuthModule,
     MarketModule,
     TradeModule,

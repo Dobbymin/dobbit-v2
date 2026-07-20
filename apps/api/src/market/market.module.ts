@@ -3,11 +3,10 @@ import { HttpModule } from '@nestjs/axios';
 import { MarketService } from './market.service';
 import { MarketController } from './market.controller';
 import { UpbitApiClient } from './external/upbit-api.client';
-import { PrismaService } from '../common/prisma/prisma.service';
 
 @Module({
   imports: [HttpModule],
-  providers: [UpbitApiClient, MarketService, PrismaService],
+  providers: [UpbitApiClient, MarketService],
   controllers: [MarketController],
   exports: [MarketService],
 })

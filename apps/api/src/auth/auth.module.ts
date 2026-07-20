@@ -4,7 +4,6 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { PrismaService } from '../common/prisma/prisma.service';
 
 const jwtSecret = process.env.JWT_SECRET ?? '<JWT_SECRET_PLACEHOLDER>';
 
@@ -16,7 +15,7 @@ const jwtSecret = process.env.JWT_SECRET ?? '<JWT_SECRET_PLACEHOLDER>';
       signOptions: { expiresIn: '7d' },
     }),
   ],
-  providers: [AuthService, JwtStrategy, PrismaService],
+  providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })
