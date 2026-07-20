@@ -1,10 +1,11 @@
-node_modules
+**/node_modules
 .pnpm-store
-.next
-.turbo
+**/.next
+**/.turbo
 .git
 _workspace_prev
-*.log
+**/*.log
+**/.claude
 .env
 .env.*
 !.env.example
