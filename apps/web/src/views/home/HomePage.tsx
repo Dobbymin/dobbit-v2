@@ -44,7 +44,7 @@ export default function HomePage() {
     <>
       <Header />
       <main className='min-h-[calc(100vh-80px)] bg-background text-foreground'>
-        <div className='mx-auto grid max-w-7xl px-10 lg:h-[calc(100vh-80px)] lg:grid-cols-[48px_minmax(280px,32%)_minmax(0,1fr)]'>
+        <div className='grid px-10 lg:h-[calc(100vh-80px)] lg:grid-cols-[48px_minmax(280px,32%)_minmax(0,1fr)]'>
           <nav aria-label='마켓 목록' className='hidden flex-col border-r border-border bg-background lg:flex'>
             {(
               [
