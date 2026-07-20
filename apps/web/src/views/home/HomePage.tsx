@@ -88,7 +88,7 @@ export default function HomePage() {
               );
             })}
           </nav>
-          {isMarketListOpen && (
+          <div className={isMarketListOpen ? "contents" : "lg:hidden"}>
             <MarketListPanel
               activeTab={activeMarketListTab}
               isLoading={marketsQuery.isLoading}
@@ -100,7 +100,7 @@ export default function HomePage() {
               selectedMarketCode={selectedMarketCode}
               tickers={tickers}
             />
-          )}
+          </div>
           <div className='flex min-w-0 flex-col bg-background px-4 lg:min-h-0 lg:overflow-y-auto lg:px-10'>
             <MarketChartPanel
               isLoading={tickerQuery.isLoading}
