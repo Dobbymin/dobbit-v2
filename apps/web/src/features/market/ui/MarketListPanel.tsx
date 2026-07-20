@@ -274,7 +274,7 @@ export const MarketListPanel = ({
               return (
                 <div
                   className={cn(
-                    "grid h-[52px] w-full grid-cols-[auto_1fr] items-center border-l-2 px-4 transition-colors",
+                    "grid h-[52px] w-full grid-cols-[auto_1fr] items-center gap-2 border-l-2 px-4 transition-colors",
                     active ? "border-l-primary bg-surface-sunken" : "border-l-transparent",
                   )}
                   key={row.code}
@@ -285,8 +285,8 @@ export const MarketListPanel = ({
                     onClick={() => onSelectMarket(row.code)}
                     type='button'
                   >
-                    <div className='flex min-w-0 items-center gap-1'>
-                      <CoinIcon marketCode={row.code} />
+                    <div className='flex min-w-0 items-center gap-2.5'>
+                      <CoinIcon marketCode={row.code} size={26} />
                       <span className='min-w-0 flex-1'>
                         <span
                           className={cn(
