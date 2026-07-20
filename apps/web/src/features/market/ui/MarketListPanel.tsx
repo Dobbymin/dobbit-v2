@@ -286,7 +286,7 @@ export const MarketListPanel = ({
                     type='button'
                   >
                     <div className='flex min-w-0 items-center gap-2.5'>
-                      <CoinIcon marketCode={row.code} />
+                      <CoinIcon marketCode={row.code} size={26} />
                       <span className='min-w-0 flex-1'>
                         <span
                           className={cn(
