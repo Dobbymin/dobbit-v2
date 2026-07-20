@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
-import { PrismaService } from '../common/prisma/prisma.service';
 import { FavoritesController } from './favorites.controller';
 import { FavoritesService } from './favorites.service';
 
 @Module({
-  providers: [FavoritesService, PrismaService],
+  providers: [FavoritesService],
   controllers: [FavoritesController],
   exports: [FavoritesService],
 })

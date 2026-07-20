@@ -3,7 +3,6 @@ import { HttpModule } from '@nestjs/axios';
 import { AlertModule } from '../alert/alert.module';
 import { NewsService } from './news.service';
 import { NewsController } from './news.controller';
-import { PrismaService } from '../common/prisma/prisma.service';
 import { NaverNewsCollector } from './collectors/naver-news.collector';
 import { HermesAnalyzer } from './analyzers/hermes.analyzer';
 import { GeminiAnalyzer } from './analyzers/gemini.analyzer';
@@ -14,7 +13,6 @@ import { UpbitApiClient } from '../market/external/upbit-api.client';
   imports: [AlertModule, HttpModule],
   providers: [
     NewsService,
-    PrismaService,
     NaverNewsCollector,
     HermesAnalyzer,
     GeminiAnalyzer,
