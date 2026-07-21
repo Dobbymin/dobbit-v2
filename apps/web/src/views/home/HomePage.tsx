@@ -99,7 +99,7 @@ export default function HomePage() {
             })}
           </nav>
           <div
-            aria-hidden={!isMarketListOpen && isLg}
+            aria-hidden={!isMarketListOpen && isLg ? true : undefined}
             className={`overflow-hidden lg:h-full lg:transition-[width] lg:duration-300 lg:ease-out motion-reduce:transition-none ${
               isMarketListOpen ? "lg:w-[440px]" : "lg:pointer-events-none lg:w-0"
             }`}

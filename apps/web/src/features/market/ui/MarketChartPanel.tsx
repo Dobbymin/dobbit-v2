@@ -370,8 +370,8 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
 
   return (
     <section className='bg-background flex min-h-[560px] shrink-0 flex-col'>
-      <header className='border-border flex h-11 flex-nowrap items-center justify-between gap-3 overflow-x-auto border-b px-5'>
-        <div className='min-w-0 shrink-0'>
+      <header className='border-border flex flex-nowrap items-start justify-between gap-3 border-b px-5 py-4'>
+        <div className='min-w-0'>
           <h1 className='text-foreground truncate text-xl font-bold'>{displayName}</h1>
           <p className='text-muted-foreground mt-1 text-sm'>{displayCode}</p>
         </div>
