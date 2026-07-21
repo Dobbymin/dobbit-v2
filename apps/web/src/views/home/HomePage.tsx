@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Header } from "@/widgets";
-import { Heart, List, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Heart, List, PanelLeftClose } from "lucide-react";
 
 import {
   MarketChartPanel,
@@ -21,6 +21,7 @@ export default function HomePage() {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [activeMarketListTab, setActiveMarketListTab] = useState<MarketListTab>("all");
   const [isMarketListOpen, setIsMarketListOpen] = useState(true);
+  const [isLg, setIsLg] = useState(false);
   const marketsQuery = useMarkets({ quote: "KRW", onlyActive: true });
   const markets = useMemo(() => marketsQuery.data ?? [], [marketsQuery.data]);
   const selectedMarket = markets.find((market) => market.code === selectedMarketCode);
@@ -31,6 +32,15 @@ export default function HomePage() {
   const marketCodes = useMemo(() => markets.map((market) => market.code), [markets]);
   const tickers = useMarketTickers(marketCodes);
   const selectedTicker = tickers[selectedMarketCode] ?? tickerQuery.data;
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const handleChange = (e: MediaQueryListEvent) => setIsLg(e.matches);
+
+    setIsLg(mq.matches);
+    mq.addEventListener("change", handleChange);
+    return () => mq.removeEventListener("change", handleChange);
+  }, []);
 
   useEffect(() => {
     const firstKrwMarket =
@@ -45,22 +55,22 @@ export default function HomePage() {
     <>
       <Header />
       <main className='min-h-[calc(100vh-80px)] bg-background text-foreground'>
-        <div
-          className={`grid lg:h-[calc(100vh-80px)] ${
-            isMarketListOpen
-              ? "lg:grid-cols-[48px_440px_minmax(0,1fr)]"
-              : "lg:grid-cols-[48px_minmax(0,1fr)]"
-          }`}
-        >
+        <div className='grid lg:h-[calc(100vh-80px)] lg:grid-cols-[48px_auto_minmax(0,1fr)]'>
           <nav aria-label='마켓 목록' className='hidden flex-col border-r border-border bg-background lg:flex'>
             <button
               aria-expanded={isMarketListOpen}
               aria-label={isMarketListOpen ? "코인 목록 접기" : "코인 목록 펼치기"}
-              className='flex h-12 flex-col items-center justify-center gap-1 border-b border-border text-subtle-foreground transition-colors hover:bg-card hover:text-foreground'
+              className='flex h-12 flex-col items-center justify-center gap-1 border-b border-border text-subtle-foreground transition-colors active:scale-95 hover:bg-card hover:text-foreground'
               onClick={() => setIsMarketListOpen((isOpen) => !isOpen)}
               type='button'
             >
-              {isMarketListOpen ? <PanelLeftClose aria-hidden='true' size={18} /> : <PanelLeftOpen aria-hidden='true' size={18} />}
+              <PanelLeftClose
+                aria-hidden='true'
+                className={`transition-transform duration-300 ease-out motion-reduce:transition-none ${
+                  isMarketListOpen ? "" : "rotate-180"
+                }`}
+                size={18}
+              />
             </button>
             {(
               [
@@ -88,18 +98,26 @@ export default function HomePage() {
               );
             })}
           </nav>
-          <div className={isMarketListOpen ? "contents" : "lg:hidden"}>
-            <MarketListPanel
-              activeTab={activeMarketListTab}
-              isLoading={marketsQuery.isLoading}
-              markets={markets}
-              onActiveTabChange={setActiveMarketListTab}
-              onSearchKeywordChange={setSearchKeyword}
-              onSelectMarket={setSelectedMarketCode}
-              searchKeyword={searchKeyword}
-              selectedMarketCode={selectedMarketCode}
-              tickers={tickers}
-            />
+          <div
+            aria-hidden={!isMarketListOpen && isLg}
+            className={`overflow-hidden lg:h-full lg:transition-[width] lg:duration-300 lg:ease-out motion-reduce:transition-none ${
+              isMarketListOpen ? "lg:w-[440px]" : "lg:pointer-events-none lg:w-0"
+            }`}
+            inert={!isMarketListOpen && isLg}
+          >
+            <div className='lg:h-full lg:w-[440px] lg:shrink-0'>
+              <MarketListPanel
+                activeTab={activeMarketListTab}
+                isLoading={marketsQuery.isLoading}
+                markets={markets}
+                onActiveTabChange={setActiveMarketListTab}
+                onSearchKeywordChange={setSearchKeyword}
+                onSelectMarket={setSelectedMarketCode}
+                searchKeyword={searchKeyword}
+                selectedMarketCode={selectedMarketCode}
+                tickers={tickers}
+              />
+            </div>
           </div>
           <div className='flex min-w-0 flex-col bg-background px-4 lg:min-h-0 lg:overflow-y-auto lg:px-10'>
             <MarketChartPanel
