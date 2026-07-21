@@ -40,9 +40,10 @@ type VolumeChartProps = {
   selectedMarketCode: string;
   selectedInterval: CandleInterval;
   candlesData: CandleResponse[];
+  chartWidth: number | "100%";
 };
 
-const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: VolumeChartProps) => {
+const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData, chartWidth }: VolumeChartProps) => {
   const lastValidSelection = useRef<{ min: number; max: number } | null>(null);
 
   const volumeSeries = useMemo(
@@ -144,6 +145,7 @@ const VolumeChart = ({ selectedMarketCode, selectedInterval, candlesData }: Volu
         options={volumeOptions}
         series={volumeSeries}
         type='bar'
+        width={chartWidth}
         height='100%'
       />
     </div>
@@ -173,6 +175,42 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
   const [selectedInterval, setSelectedInterval] = useState<CandleInterval>(DEFAULT_CANDLE_INTERVAL);
   const [chartType, setChartType] = useState<"candlestick" | "line">("candlestick");
   const [indicators, setIndicators] = useState({ ma: false });
+  const [chartWidth, setChartWidth] = useState<number | "100%">("100%");
+  const chartWrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const chartWrapper = chartWrapperRef.current;
+    if (!chartWrapper) return;
+
+    let animationFrameId: number | null = null;
+
+    const updateChartWidth = () => {
+      animationFrameId = null;
+      const width = Math.round(chartWrapper.getBoundingClientRect().width);
+      setChartWidth((previousWidth) => {
+        const nextWidth = width > 0 ? width : "100%";
+        return nextWidth === previousWidth ? previousWidth : nextWidth;
+      });
+    };
+
+    const scheduleChartWidthUpdate = () => {
+      if (animationFrameId === null) {
+        animationFrameId = requestAnimationFrame(updateChartWidth);
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(scheduleChartWidthUpdate);
+
+    resizeObserver.observe(chartWrapper);
+    scheduleChartWidthUpdate();
+
+    return () => {
+      resizeObserver.disconnect();
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, []);
 
   // 캔들 데이터 로드
   const candlesQuery = useCandles(selectedMarketCode, selectedInterval);
@@ -332,12 +370,12 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
 
   return (
     <section className='bg-background flex min-h-[560px] shrink-0 flex-col'>
-      <header className='border-border flex flex-wrap items-start justify-between gap-3 border-b px-5 py-4'>
+      <header className='border-border flex flex-nowrap items-start justify-between gap-3 border-b px-5 py-4'>
         <div className='min-w-0'>
           <h1 className='text-foreground truncate text-xl font-bold'>{displayName}</h1>
           <p className='text-muted-foreground mt-1 text-sm'>{displayCode}</p>
         </div>
-        <div className='text-right'>
+        <div className='shrink-0 text-right'>
           {displayPrice == null && (isLoading || candlesQuery.isLoading) ? (
             <Skeleton className='ml-auto h-8 w-40' />
           ) : (
@@ -365,7 +403,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
         </div>
       </header>
 
-      <div className='border-border flex flex-wrap items-center gap-2 border-b px-5 py-2'>
+      <div className='border-border flex h-11 flex-nowrap items-center gap-2 overflow-x-auto border-b px-5'>
         {CANDLE_INTERVALS.map((interval) => (
           <Fragment key={`${interval.type}-${interval.unit ?? "none"}`}>
             <button
@@ -373,23 +411,23 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
               data-active={
                 selectedInterval.type === interval.type && (selectedInterval.unit ?? 0) === (interval.unit ?? 0)
               }
-              className='text-muted-foreground hover:bg-muted hover:text-foreground data-[active=true]:bg-muted data-[active=true]:text-foreground h-7 rounded px-2 text-xs font-medium transition-colors'
+              className='text-muted-foreground hover:bg-muted hover:text-foreground data-[active=true]:bg-muted data-[active=true]:text-foreground h-7 shrink-0 whitespace-nowrap rounded px-2 text-xs font-medium transition-colors'
               type='button'
             >
               {interval.label}
             </button>
             {interval.type === "minutes" && interval.unit === 60 && (
-              <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
+              <Separator orientation='vertical' className='shrink-0 data-[orientation=vertical]:h-4' />
             )}
           </Fragment>
         ))}
 
-        <Separator orientation='vertical' className='data-[orientation=vertical]:h-4' />
+        <Separator orientation='vertical' className='shrink-0 data-[orientation=vertical]:h-4' />
 
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-7 items-center gap-1 rounded px-2 text-xs font-medium transition-colors'
+              className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-7 shrink-0 items-center gap-1 whitespace-nowrap rounded px-2 text-xs font-medium transition-colors'
               type='button'
             >
               차트설정
@@ -425,7 +463,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-7 items-center gap-1 rounded px-2 text-xs font-medium transition-colors'
+              className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-7 shrink-0 items-center gap-1 whitespace-nowrap rounded px-2 text-xs font-medium transition-colors'
               type='button'
             >
               지표
@@ -448,7 +486,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
       </div>
 
       <div className='min-h-0 flex-1 px-5 py-4'>
-        <div className='flex h-full flex-col'>
+        <div ref={chartWrapperRef} className='flex h-full flex-col overflow-hidden'>
           <div className='min-h-0 flex-1'>
             {(isLoading || candlesQuery.isLoading) && !candlesQuery.data ? (
               <Skeleton className='h-full w-full' />
@@ -458,6 +496,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
                 options={chartOptions}
                 series={chartSeries}
                 type={chartType}
+                width={chartWidth}
                 height='100%'
               />
             )}
@@ -468,6 +507,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
               selectedMarketCode={selectedMarketCode}
               selectedInterval={selectedInterval}
               candlesData={candlesQuery.data}
+              chartWidth={chartWidth}
             />
           )}
         </div>
