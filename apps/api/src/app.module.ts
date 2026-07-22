@@ -11,6 +11,7 @@ import { NewsModule } from './news/news.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { PrismaModule } from './common/prisma/prisma.module';
+import { HomeModule } from './home/home.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PrismaModule } from './common/prisma/prisma.module';
     NewsModule,
     RealtimeModule,
     FavoritesModule,
+    HomeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

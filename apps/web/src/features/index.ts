@@ -6,3 +6,4 @@ export * from "./news";
 export * from "./setting";
 export * from "./notification";
 export * from "./favorite";
+export * from "./home";
