@@ -48,8 +48,12 @@ describe('FavoritesService', () => {
     expect(Reflect.getMetadata(GUARDS_METADATA, FavoritesController)).toContain(JwtAuthGuard);
 
     const guard = new JwtAuthGuard();
-    expect(() => guard.handleRequest(null, false, undefined)).toThrow(UnauthorizedException);
-    expect(() => guard.handleRequest(null, false, undefined)).toThrow('Unauthorized');
+    expect(() => {
+      guard.handleRequest(null, false, undefined);
+    }).toThrow(UnauthorizedException);
+    expect(() => {
+      guard.handleRequest(null, false, undefined);
+    }).toThrow('Unauthorized');
   });
 
   it('rejects invalid marketCodes before upsert', async () => {
