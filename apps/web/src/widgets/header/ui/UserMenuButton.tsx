@@ -28,7 +28,7 @@ export const UserMenuButton = () => {
     return (
       <div className='flex items-center justify-end'>
         <Link
-          className='text-sm font-semibold text-white transition-colors hover:text-primary'
+          className='h-8 rounded-lg bg-[#3182F6] px-3 text-sm font-semibold text-white hover:bg-[#1B64DA] flex items-center'
           href={ROUTES_PATH.LOGIN}
         >
           Login
@@ -39,13 +39,13 @@ export const UserMenuButton = () => {
 
   // 로딩 중이거나 인증된 경우 Wallet 버튼과 Avatar 표시
   return (
-    <div className='flex items-center justify-end gap-4'>
+    <div className='flex items-center justify-end gap-2'>
       <Link
         href={ROUTES_PATH.WALLET}
-        className='rounded-md bg-card px-3 py-2 text-muted-foreground transition-colors hover:bg-white/10 hover:text-white'
+        className='h-8 rounded-lg px-3 py-0 flex items-center text-muted-foreground transition-colors hover:bg-white/10 hover:text-white'
       >
         <div className='flex items-center gap-2'>
-          <Wallet className='size-5' />
+          <Wallet className='size-4' />
           <p className='text-sm font-semibold'>Wallet</p>
         </div>
       </Link>
@@ -55,9 +55,9 @@ export const UserMenuButton = () => {
           className='rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50'
           disabled={logout.isPending}
         >
-          <Avatar>
+          <Avatar className='size-8'>
             <AvatarFallback>
-              <UserRound className='size-5' fill='#e0e0e0' />
+              <UserRound className='size-4' fill='#e0e0e0' />
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
