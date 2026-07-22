@@ -11,14 +11,7 @@ import { UpbitApiClient } from '../market/external/upbit-api.client';
 
 @Module({
   imports: [AlertModule, HttpModule],
-  providers: [
-    NewsService,
-    NaverNewsCollector,
-    HermesAnalyzer,
-    GeminiAnalyzer,
-    InternalTokenGuard,
-    UpbitApiClient,
-  ],
+  providers: [NewsService, NaverNewsCollector, HermesAnalyzer, GeminiAnalyzer, InternalTokenGuard, UpbitApiClient],
   controllers: [NewsController],
   exports: [NewsService],
 })
