@@ -6,7 +6,7 @@ import { NAV_ITEMS } from "./nav-items";
 
 export const Header = () => {
   return (
-    <header className='sticky top-0 z-50 h-14 w-full bg-background/80 backdrop-blur'>
+    <header className='fixed top-0 z-50 h-[52px] w-full bg-background/80 backdrop-blur'>
       <div className='flex h-full w-full items-center justify-between px-4'>
         <div className='flex items-center gap-4'>
           <MobileNavMenu />

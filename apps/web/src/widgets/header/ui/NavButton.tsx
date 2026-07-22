@@ -15,7 +15,7 @@ type NavButtonProps = {
 
 export const NavButton = ({ href, disabled = false, children }: NavButtonProps) => {
   const pathname = usePathname();
-  const active = pathname === href;
+  const active = pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
 
   if (disabled) {
     return (

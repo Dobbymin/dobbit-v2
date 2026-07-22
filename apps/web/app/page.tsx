@@ -1,5 +1,10 @@
 import { HomePage } from "@/views/home";
+import { AppLayout } from "@/widgets";
 
 export default function Page() {
-  return <HomePage />;
+  return (
+    <AppLayout>
+      <HomePage />
+    </AppLayout>
+  );
 }
