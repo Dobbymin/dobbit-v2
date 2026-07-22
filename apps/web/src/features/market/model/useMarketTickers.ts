@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { getSocket } from "@/shared";
 import type { MarketTickerUpdatedEvent } from "@dobbit/shared";
 
+const marketSubscriptionCounts = new Map<string, number>();
+
 export const useMarketTickers = (marketCodes: string[]): Record<string, MarketTickerUpdatedEvent> => {
   const [tickers, setTickers] = useState<Record<string, MarketTickerUpdatedEvent>>({});
   // Stable dependency key for marketCodes
@@ -40,15 +42,36 @@ export const useMarketTickers = (marketCodes: string[]): Record<string, MarketTi
 
     // Connect or subscribe immediately if already connected
     if (socket.connected) {
-      joinAll();
+      codes.forEach((code) => {
+        const currentCount = marketSubscriptionCounts.get(code) ?? 0;
+        marketSubscriptionCounts.set(code, currentCount + 1);
+
+        if (currentCount === 0) {
+          socket.emit("market:join", { marketCode: code });
+        }
+      });
     } else {
+      codes.forEach((code) => {
+        const currentCount = marketSubscriptionCounts.get(code) ?? 0;
+        marketSubscriptionCounts.set(code, currentCount + 1);
+      });
       socket.connect();
     }
 
     // Cleanup
     return () => {
       codes.forEach((code) => {
-        socket.emit("market:leave", { marketCode: code });
+        const currentCount = marketSubscriptionCounts.get(code) ?? 0;
+
+        if (currentCount === 1) {
+          marketSubscriptionCounts.delete(code);
+          socket.emit("market:leave", { marketCode: code });
+          return;
+        }
+
+        if (currentCount > 1) {
+          marketSubscriptionCounts.set(code, currentCount - 1);
+        }
       });
       socket.off("connect", joinAll);
       socket.off("market.ticker.updated", handleTickerUpdate);
