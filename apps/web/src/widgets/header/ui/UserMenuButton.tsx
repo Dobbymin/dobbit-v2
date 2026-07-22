@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Avatar,
   AvatarFallback,
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -27,12 +28,9 @@ export const UserMenuButton = () => {
   if (!isLoading && !isAuthenticated) {
     return (
       <div className='flex items-center justify-end'>
-        <Link
-          className='h-8 rounded-lg bg-[#3182F6] px-3 text-sm font-semibold text-white hover:bg-[#1B64DA] flex items-center'
-          href={ROUTES_PATH.LOGIN}
-        >
-          Login
-        </Link>
+        <Button asChild variant='secondary'>
+          <Link href={ROUTES_PATH.LOGIN}>로그인</Link>
+        </Button>
       </div>
     );
   }
