@@ -15,10 +15,31 @@ type Ticker = {
   acc_trade_volume_24h: number;
 };
 
+type MarketDataResult = {
+  data: Pick<HomeSummaryResponse, 'highlights' | 'rankings'>;
+  success: boolean;
+};
+
+type NewsResult = {
+  data: HomeNewsItem[];
+  success: boolean;
+};
+
+type HighlightsResult = {
+  data: HomeHighlight[];
+  success: boolean;
+};
+
+type RankingsResult = {
+  data: HomeSummaryResponse['rankings'];
+  success: boolean;
+};
+
 @Injectable()
 export class HomeService {
   private readonly logger = new Logger(HomeService.name);
   private cache: { value: HomeSummaryResponse; expiresAt: number } | null = null;
+  private inFlightSummary: Promise<HomeSummaryResponse> | null = null;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -30,13 +51,34 @@ export class HomeService {
       return this.cache.value;
     }
 
+    if (this.inFlightSummary !== null) {
+      return this.inFlightSummary;
+    }
+
+    const request = this.createSummary();
+    this.inFlightSummary = request;
+
+    try {
+      return await request;
+    } finally {
+      if (this.inFlightSummary === request) {
+        this.inFlightSummary = null;
+      }
+    }
+  }
+
+  private async createSummary(): Promise<HomeSummaryResponse> {
     const [marketData, news] = await Promise.all([this.getMarketData(), this.getNews()]);
-    const summary = { ...marketData, news };
-    this.cache = { value: summary, expiresAt: Date.now() + CACHE_TTL_MS };
+    const summary = { ...marketData.data, news: news.data };
+
+    if (marketData.success && news.success) {
+      this.cache = { value: summary, expiresAt: Date.now() + CACHE_TTL_MS };
+    }
+
     return summary;
   }
 
-  private async getMarketData(): Promise<Pick<HomeSummaryResponse, 'highlights' | 'rankings'>> {
+  private async getMarketData(): Promise<MarketDataResult> {
     try {
       const [tickers, markets] = await Promise.all([
         this.upbitApiClient.getAllKrwTickers(),
@@ -44,44 +86,55 @@ export class HomeService {
       ]);
       const tickerByCode = new Map(tickers.map((ticker) => [ticker.market, ticker]));
       const marketByCode = new Map(markets.map((market) => [market.code, market]));
+      const [highlights, rankings] = await Promise.all([
+        this.getHighlights(tickerByCode, marketByCode),
+        this.getRankings(tickers, marketByCode, markets),
+      ]);
 
       return {
-        highlights: await this.getHighlights(tickerByCode, marketByCode),
-        rankings: await this.getRankings(tickers, marketByCode, markets),
+        data: {
+          highlights: highlights.data,
+          rankings: rankings.data,
+        },
+        success: highlights.success && rankings.success,
       };
     } catch (error) {
       this.logger.error('Failed to get home market data:', error);
-      return this.emptyMarketData();
+      return { data: this.emptyMarketData(), success: false };
     }
   }
 
   private async getHighlights(
     tickerByCode: Map<string, Ticker>,
     marketByCode: Map<string, { id: string; code: string; koreanName: string }>,
-  ): Promise<HomeHighlight[]> {
-    if (HIGHLIGHT_CODES.some((code) => !tickerByCode.has(code) || !marketByCode.has(code))) {
-      return [];
+  ): Promise<HighlightsResult> {
+    const availableCodes = HIGHLIGHT_CODES.filter((code) => tickerByCode.has(code) && marketByCode.has(code));
+    if (availableCodes.length === 0) {
+      return { data: [], success: true };
     }
 
     try {
       const candlesByMarket = await Promise.all(
-        HIGHLIGHT_CODES.map((code) => this.upbitApiClient.getCandles(code, { type: 'minutes', unit: 60 }, 24)),
+        availableCodes.map((code) => this.upbitApiClient.getCandles(code, { type: 'minutes', unit: 60 }, 24)),
       );
 
-      return HIGHLIGHT_CODES.map((marketCode, index) => {
-        const ticker = tickerByCode.get(marketCode)!;
-        const market = marketByCode.get(marketCode)!;
-        return {
-          marketCode,
-          koreanName: market.koreanName,
-          tradePrice: ticker.trade_price,
-          signedChangeRate: ticker.signed_change_rate,
-          sparkline: candlesByMarket[index].reverse().map((candle) => candle.trade_price),
-        };
-      });
+      return {
+        data: availableCodes.map((marketCode, index) => {
+          const ticker = tickerByCode.get(marketCode);
+          const market = marketByCode.get(marketCode);
+          return {
+            marketCode,
+            koreanName: market.koreanName,
+            tradePrice: ticker.trade_price,
+            signedChangeRate: ticker.signed_change_rate,
+            sparkline: candlesByMarket[index].reverse().map((candle) => candle.trade_price),
+          };
+        }),
+        success: true,
+      };
     } catch (error) {
       this.logger.error('Failed to get home highlights:', error);
-      return [];
+      return { data: [], success: false };
     }
   }
 
@@ -89,7 +142,7 @@ export class HomeService {
     tickers: Ticker[],
     marketByCode: Map<string, { id: string; code: string; koreanName: string }>,
     markets: Array<{ id: string; code: string; koreanName: string }>,
-  ): Promise<HomeSummaryResponse['rankings']> {
+  ): Promise<RankingsResult> {
     const makeRanking = (items: Ticker[]): HomeRankingItem[] =>
       items
         .filter((ticker) => marketByCode.has(ticker.market))
@@ -97,7 +150,7 @@ export class HomeService {
         .map((ticker, index) => ({
           rank: index + 1,
           marketCode: ticker.market,
-          koreanName: marketByCode.get(ticker.market)!.koreanName,
+          koreanName: marketByCode.get(ticker.market).koreanName,
           tradePrice: ticker.trade_price,
           signedChangeRate: ticker.signed_change_rate,
           accTradePrice24h: ticker.acc_trade_price_24h,
@@ -130,34 +183,35 @@ export class HomeService {
         }
       }
 
-      if (popularityByCode.size === 0) {
+      const tickerByCode = new Map(tickers.map((ticker) => [ticker.market, ticker]));
+      rankings.popular = [...popularityByCode.entries()]
+        .sort(([, left], [, right]) => right - left)
+        .map(([code]) => tickerByCode.get(code))
+        .filter((ticker): ticker is Ticker => Boolean(ticker))
+        .slice(0, RANKING_LIMIT)
+        .map((ticker, index) => ({
+          rank: index + 1,
+          marketCode: ticker.market,
+          koreanName: marketByCode.get(ticker.market)?.koreanName ?? ticker.market,
+          tradePrice: ticker.trade_price,
+          signedChangeRate: ticker.signed_change_rate,
+          accTradePrice24h: ticker.acc_trade_price_24h,
+          accTradeVolume24h: ticker.acc_trade_volume_24h,
+        }));
+
+      if (rankings.popular.length === 0) {
         rankings.popular = tradePrice;
-      } else {
-        const tickerByCode = new Map(tickers.map((ticker) => [ticker.market, ticker]));
-        rankings.popular = [...popularityByCode.entries()]
-          .sort(([, left], [, right]) => right - left)
-          .map(([code]) => tickerByCode.get(code))
-          .filter((ticker): ticker is Ticker => Boolean(ticker))
-          .slice(0, RANKING_LIMIT)
-          .map((ticker, index) => ({
-            rank: index + 1,
-            marketCode: ticker.market,
-            koreanName: marketByCode.get(ticker.market)?.koreanName ?? ticker.market,
-            tradePrice: ticker.trade_price,
-            signedChangeRate: ticker.signed_change_rate,
-            accTradePrice24h: ticker.acc_trade_price_24h,
-            accTradeVolume24h: ticker.acc_trade_volume_24h,
-          }));
       }
     } catch (error) {
       this.logger.error('Failed to get popular rankings:', error);
       rankings.popular = tradePrice;
+      return { data: rankings, success: false };
     }
 
-    return rankings;
+    return { data: rankings, success: true };
   }
 
-  private async getNews(): Promise<HomeNewsItem[]> {
+  private async getNews(): Promise<NewsResult> {
     try {
       const articles = await this.prisma.newsArticle.findMany({
         take: 5,
@@ -171,17 +225,20 @@ export class HomeService {
           analyses: { take: 1, orderBy: { analyzedAt: 'desc' }, select: { sentiment: true } },
         },
       });
-      return articles.map((article) => ({
-        id: article.id,
-        title: article.title,
-        url: article.url,
-        publisher: article.publisher,
-        publishedAt: article.publishedAt.toISOString(),
-        sentiment: this.toSentiment(article.analyses[0]?.sentiment),
-      }));
+      return {
+        data: articles.map((article) => ({
+          id: article.id,
+          title: article.title,
+          url: article.url,
+          publisher: article.publisher,
+          publishedAt: article.publishedAt.toISOString(),
+          sentiment: this.toSentiment(article.analyses[0]?.sentiment),
+        })),
+        success: true,
+      };
     } catch (error) {
       this.logger.error('Failed to get home news:', error);
-      return [];
+      return { data: [], success: false };
     }
   }
 
