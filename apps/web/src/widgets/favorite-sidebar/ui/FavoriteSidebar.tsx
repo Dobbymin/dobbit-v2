@@ -13,7 +13,7 @@ export const FavoriteSidebar = () => {
   const router = useRouter();
   const { isAuthenticated, isLoading: isAuthLoading } = useIsAuth();
   const favoritesQuery = useFavorites();
-  const marketsQuery = useMarkets({ quote: "KRW", onlyActive: true });
+  const marketsQuery = useMarkets({ quote: "KRW", onlyActive: true, enabled: isAuthenticated });
   const favoriteCodes = useMemo(() => [...(favoritesQuery.data ?? [])], [favoritesQuery.data]);
   const tickers = useMarketTickers(favoriteCodes);
   const marketsByCode = useMemo(
@@ -40,7 +40,11 @@ export const FavoriteSidebar = () => {
             로그인
           </Link>
         </div>
-      ) : favoritesQuery.data !== undefined && favoriteCodes.length === 0 ? (
+      ) : favoritesQuery.isLoading ? (
+        <div className='flex flex-1 items-center justify-center px-6 text-center text-sm text-subtle-foreground'>
+          관심 목록을 불러오는 중...
+        </div>
+      ) : favoriteCodes.length === 0 ? (
         <div className='flex flex-1 items-center justify-center px-6 text-center text-sm text-subtle-foreground'>
           관심 코인을 담아보세요
         </div>

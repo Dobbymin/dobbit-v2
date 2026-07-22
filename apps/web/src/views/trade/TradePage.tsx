@@ -38,6 +38,12 @@ export default function TradePage({ marketCode }: TradePageProps) {
   const selectedTicker = tickers[marketCode] ?? tickerQuery.data;
 
   useEffect(() => {
+    if (!marketsQuery.isLoading && markets.length > 0 && !markets.find((m) => m.code === marketCode)) {
+      router.replace("/trade/KRW-BTC");
+    }
+  }, [marketCode, marketsQuery.isLoading, markets, router]);
+
+  useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
     const handleChange = (e: MediaQueryListEvent) => setIsLg(e.matches);
 

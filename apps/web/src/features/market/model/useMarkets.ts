@@ -6,11 +6,12 @@ import { type MarketListQuery, getMarketsApi, getTickerApi } from "../api";
 
 import { marketKeys } from "./market-query-keys";
 
-export const useMarkets = (query?: MarketListQuery) => {
+export const useMarkets = (query?: MarketListQuery & { enabled?: boolean }) => {
   return useQuery({
     queryKey: marketKeys.list(query),
     queryFn: () => getMarketsApi(query),
     staleTime: 30_000,
+    enabled: query?.enabled !== false,
   });
 };
 
