@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Avatar,
   AvatarFallback,
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -23,21 +24,18 @@ export const UserMenuButton = () => {
   const { isAuthenticated, isLoading } = useIsAuth();
   const logout = useLogout();
 
-  // 로그인하지 않은 경우 Login 링크 표시
+  // 로그인하지 않은 경우 로그인 버튼 표시
   if (!isLoading && !isAuthenticated) {
     return (
       <div className='flex items-center justify-end'>
-        <Link
-          className='h-8 rounded-lg bg-[#3182F6] px-3 text-sm font-semibold text-white hover:bg-[#1B64DA] flex items-center'
-          href={ROUTES_PATH.LOGIN}
-        >
-          Login
-        </Link>
+        <Button asChild variant='secondary'>
+          <Link href={ROUTES_PATH.LOGIN}>로그인</Link>
+        </Button>
       </div>
     );
   }
 
-  // 로딩 중이거나 인증된 경우 Wallet 버튼과 Avatar 표시
+  // 로딩 중이거나 인증된 경우 지갑 버튼과 Avatar 표시
   return (
     <div className='flex items-center justify-end gap-2'>
       <Link
@@ -46,7 +44,7 @@ export const UserMenuButton = () => {
       >
         <div className='flex items-center gap-2'>
           <Wallet className='size-4' />
-          <p className='text-sm font-semibold'>Wallet</p>
+          <p className='text-sm font-semibold'>지갑</p>
         </div>
       </Link>
       <DropdownMenu>
@@ -62,8 +60,8 @@ export const UserMenuButton = () => {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
-          <DropdownMenuItem onSelect={() => router.push(ROUTES_PATH.SETTING)}>Setting</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => logout.mutate()}>Logout</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push(ROUTES_PATH.SETTING)}>설정</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => logout.mutate()}>로그아웃</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
