@@ -11,4 +11,11 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ["**/*.test.{ts,tsx}"],
+    rules: {
+      "@next/next/no-img-element": "off",
+      "react/display-name": "off",
+    },
+  },
 ]);
