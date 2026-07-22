@@ -19,7 +19,7 @@ const getSparklinePoints = (values: number[]) => {
   return values
     .map((value, index) => {
       const x = values.length === 1 ? 50 : (index / (values.length - 1)) * 100;
-      const y = range === 0 ? 50 : 100 - ((value - min) / range) * 100;
+      const y = range === 0 ? 50 : 95 - ((value - min) / range) * 90;
 
       return `${x},${y}`;
     })
@@ -49,7 +49,7 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
       </div>
       <p className='mt-4 text-xl font-bold tabular-nums text-foreground'>{tradePrice.toLocaleString("ko-KR")}</p>
       <svg aria-hidden='true' className={`mt-5 h-12 w-full ${changeClassName}`} preserveAspectRatio='none' viewBox='0 0 100 100'>
-        <polyline fill='none' points={getSparklinePoints(item.sparkline)} stroke='currentColor' strokeLinecap='round' strokeLinejoin='round' strokeWidth='5' vectorEffect='non-scaling-stroke' />
+        {item.sparkline.length === 1 ? <circle cx='50' cy='50' fill='currentColor' r='2.5' /> : <polyline fill='none' points={getSparklinePoints(item.sparkline)} stroke='currentColor' strokeLinecap='round' strokeLinejoin='round' strokeWidth='5' vectorEffect='non-scaling-stroke' />}
       </svg>
     </button>
   );
@@ -106,7 +106,19 @@ export const MarketHighlightCarousel = () => {
           </button>
         </div>
       </div>
-      <div className='-mx-1 overflow-x-auto px-1 pb-1' onScroll={updateScrollButtons} ref={scrollRef}>
+      <div
+        aria-label='주요 시세 목록'
+        className='-mx-1 overflow-x-auto px-1 pb-1'
+        onKeyDown={(event) => {
+          if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+
+          event.preventDefault();
+          scrollByCard(event.key === "ArrowLeft" ? "left" : "right");
+        }}
+        onScroll={updateScrollButtons}
+        ref={scrollRef}
+        tabIndex={0}
+      >
         <div className='flex w-max gap-3'>
           {cards.map((item, index) => item ? <HighlightCard item={item} key={item.marketCode} /> : <HighlightSkeleton key={index} />)}
         </div>
