@@ -7,6 +7,8 @@ import type { ReactNode } from "react";
 
 import { type RoutePath, cn } from "@/shared";
 
+import { isNavActive } from "./is-nav-active";
+
 type NavButtonProps = {
   href: RoutePath;
   disabled?: boolean;
@@ -15,7 +17,7 @@ type NavButtonProps = {
 
 export const NavButton = ({ href, disabled = false, children }: NavButtonProps) => {
   const pathname = usePathname();
-  const active = pathname === href;
+  const active = isNavActive(pathname, href);
 
   if (disabled) {
     return (

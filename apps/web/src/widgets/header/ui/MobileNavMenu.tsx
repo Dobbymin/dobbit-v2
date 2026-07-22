@@ -7,6 +7,7 @@ import { cn, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTr
 import { Menu } from "lucide-react";
 
 import { NAV_ITEMS } from "./nav-items";
+import { isNavActive } from "./is-nav-active";
 
 export const MobileNavMenu = () => {
   const pathname = usePathname();
@@ -22,7 +23,7 @@ export const MobileNavMenu = () => {
       <DropdownMenuContent align='start'>
         {NAV_ITEMS.map((item) => (
           <DropdownMenuItem asChild key={item.href}>
-            <Link className={cn("text-muted-foreground", pathname === item.href && "text-foreground")} href={item.href}>
+            <Link className={cn("text-muted-foreground", isNavActive(pathname, item.href) && "text-foreground")} href={item.href}>
               {item.label}
             </Link>
           </DropdownMenuItem>

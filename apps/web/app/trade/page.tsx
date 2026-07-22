@@ -1,9 +1,5 @@
-import { AppLayout } from "@/widgets";
+import { redirect } from "next/navigation";
 
-export default function TradePage() {
-  return (
-    <AppLayout>
-      <div className='py-10'>TradePage</div>
-    </AppLayout>
-  );
+export default function Page() {
+  redirect("/trade/KRW-BTC");
 }
