@@ -1,11 +1,13 @@
 "use client";
 
-import { MarketRankingTable } from "@/widgets";
+import { HomeNewsPanel, MarketHighlightCarousel, MarketRankingTable } from "@/widgets";
 
 export default function HomePage() {
   return (
-    <div className='py-6'>
+    <div className='space-y-6'>
+      <MarketHighlightCarousel />
       <MarketRankingTable />
+      <HomeNewsPanel />
     </div>
   );
 }
