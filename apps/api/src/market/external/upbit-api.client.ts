@@ -13,6 +13,7 @@ interface UpbitTicker {
   trade_price: number;
   signed_change_rate: number;
   signed_change_price: number;
+  acc_trade_price_24h: number;
   acc_trade_volume_24h: number;
   trade_timestamp: number;
 }
@@ -66,6 +67,20 @@ export class UpbitApiClient {
       return response.data || [];
     } catch (error) {
       console.error('Failed to fetch tickers:', error);
+      return [];
+    }
+  }
+
+  async getAllKrwTickers(): Promise<UpbitTicker[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<UpbitTicker[]>(`${this.baseUrl}/ticker/all`, {
+          params: { quote_currencies: 'KRW' },
+        }),
+      );
+      return response.data || [];
+    } catch (error) {
+      console.error('Failed to fetch all KRW tickers:', error);
       return [];
     }
   }

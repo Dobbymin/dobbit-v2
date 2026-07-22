@@ -45,3 +45,4 @@ export * from "./dtos/news.dto";
 // ============================================================================
 export * from "./types/websocket-events";
 export * from "./types/websocket-channels";
+export * from "./types/home-summary";

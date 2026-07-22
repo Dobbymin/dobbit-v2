@@ -1,3 +1,11 @@
+"use client";
+
+import { MarketRankingTable } from "@/widgets";
+
 export default function HomePage() {
-  return <div className='py-10 text-subtle-foreground'>대시보드 준비 중</div>;
+  return (
+    <div className='py-6'>
+      <MarketRankingTable />
+    </div>
+  );
 }
