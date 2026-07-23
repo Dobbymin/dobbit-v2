@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -29,7 +29,6 @@ const getSparklinePoints = (values: number[]) => {
 };
 
 const HighlightCard = ({ item }: { item: HomeHighlight }) => {
-  const router = useRouter();
   const tickers = useMarketTickers([item.marketCode]);
   const ticker = tickers[item.marketCode];
   const tradePrice = ticker?.tradePrice ?? item.tradePrice;
@@ -37,10 +36,9 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
   const changeClassName = signedChangeRate >= 0 ? "text-increase" : "text-decrease";
 
   return (
-    <button
+    <Link
       className='h-[180px] w-[281px] shrink-0 rounded-lg border border-border bg-card p-5 text-left transition-colors hover:bg-surface-sunken'
-      onClick={() => router.push(`/trade/${item.marketCode}`)}
-      type='button'
+      href={`/trade/${item.marketCode}`}
     >
       <div className='flex items-start justify-between gap-3'>
         <div className='min-w-0'>
@@ -72,7 +70,7 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
           />
         )}
       </svg>
-    </button>
+    </Link>
   );
 };
 

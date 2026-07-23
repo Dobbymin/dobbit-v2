@@ -116,7 +116,6 @@ export default function TradePage({ marketCode }: TradePageProps) {
                 markets={markets}
                 onActiveTabChange={setActiveMarketListTab}
                 onSearchKeywordChange={setSearchKeyword}
-                onSelectMarket={(code) => router.push(`/trade/${code}`)}
                 searchKeyword={searchKeyword}
                 selectedMarketCode={marketCode}
                 tickers={tickers}

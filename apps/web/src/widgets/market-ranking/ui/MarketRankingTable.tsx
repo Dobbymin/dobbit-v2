@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { useMemo, useState } from "react";
 
@@ -55,7 +55,6 @@ const RankingRowsSkeleton = () => (
 );
 
 export const MarketRankingTable = () => {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<RankingTab>("tradePrice");
   const homeSummaryQuery = useHomeSummary();
   const rankings = useMemo(() => homeSummaryQuery.data?.rankings[activeTab] ?? [], [activeTab, homeSummaryQuery.data]);
@@ -126,27 +125,37 @@ export const MarketRankingTable = () => {
                     : "text-subtle-foreground";
 
               return (
-                <tr
-                  className='h-10 cursor-pointer border-b border-border text-foreground transition-colors hover:bg-surface-sunken'
-                  key={item.marketCode}
-                  onClick={() => router.push(`/trade/${item.marketCode}`)}
-                >
-                  <td className='px-3 text-subtle-foreground'>{item.rank}</td>
+                <tr className='h-10 border-b border-border text-foreground transition-colors hover:bg-surface-sunken' key={item.marketCode}>
+                  <td className='px-3 text-subtle-foreground'>
+                    <Link className='block' href={`/trade/${item.marketCode}`}>
+                      {item.rank}
+                    </Link>
+                  </td>
                   <td className='text-center'>
                     <FavoriteButton marketCode={item.marketCode} />
                   </td>
                   <td className='min-w-0'>
-                    <span className='block truncate'>{item.koreanName}</span>
-                    <span className='block truncate text-[11px] font-medium text-subtle-foreground'>
-                      {item.marketCode}
-                    </span>
+                    <Link className='block min-w-0' href={`/trade/${item.marketCode}`}>
+                      <span className='block truncate'>{item.koreanName}</span>
+                      <span className='block truncate text-[11px] font-medium text-subtle-foreground'>
+                        {item.marketCode}
+                      </span>
+                    </Link>
                   </td>
-                  <td className='truncate px-2 text-right tabular-nums'>{formatCoinPrice(item.tradePrice)}</td>
+                  <td className='truncate px-2 text-right tabular-nums'>
+                    <Link className='block truncate' href={`/trade/${item.marketCode}`}>
+                      {formatCoinPrice(item.tradePrice)}
+                    </Link>
+                  </td>
                   <td className={`truncate px-2 text-right tabular-nums ${changeClassName}`}>
-                    {formatChangeRate(item.signedChangeRate)}
+                    <Link className='block truncate' href={`/trade/${item.marketCode}`}>
+                      {formatChangeRate(item.signedChangeRate)}
+                    </Link>
                   </td>
                   <td className='hidden truncate px-3 text-right tabular-nums lg:table-cell'>
-                    {formatTradeAmount(item.accTradePrice24h)}
+                    <Link className='block truncate' href={`/trade/${item.marketCode}`}>
+                      {formatTradeAmount(item.accTradePrice24h)}
+                    </Link>
                   </td>
                 </tr>
               );

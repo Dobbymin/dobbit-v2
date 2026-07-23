@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useState } from "react";
 
 import {
@@ -260,7 +262,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
                 </Button>
               ) : (
                 <Button asChild className='h-10 flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90'>
-                  <a href={`${ROUTES_PATH.LOGIN}?from=${ROUTES_PATH.WALLET}`}>주문하기</a>
+                  <Link href={`${ROUTES_PATH.LOGIN}?from=${ROUTES_PATH.WALLET}`}>주문하기</Link>
                 </Button>
               )}
             </div>

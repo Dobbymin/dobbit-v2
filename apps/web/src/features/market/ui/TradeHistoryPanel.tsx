@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useMemo } from "react";
 
 import {
@@ -36,9 +38,9 @@ export const TradeHistoryPanel = () => {
     return (
       <div className='flex flex-1 flex-col items-center justify-center gap-2 p-4 text-center text-sm text-muted-foreground'>
         <p>로그인하면 개인 거래내역을 볼 수 있습니다.</p>
-        <a className='font-semibold text-primary hover:underline' href={ROUTES_PATH.LOGIN}>
+        <Link className='font-semibold text-primary hover:underline' href={ROUTES_PATH.LOGIN}>
           로그인하기
-        </a>
+        </Link>
       </div>
     );
   }
