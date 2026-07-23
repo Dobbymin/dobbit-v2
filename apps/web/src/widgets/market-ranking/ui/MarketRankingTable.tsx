@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { FavoriteButton } from "@/features/favorite";
 import { useHomeSummary, useMarketTickers } from "@/features";
+import { formatCoinPrice } from "@/shared";
 import type { HomeRankingItem, HomeSummaryResponse } from "@dobbit/shared";
 
 type RankingTab = keyof HomeSummaryResponse["rankings"];
@@ -125,7 +126,7 @@ export const MarketRankingTable = () => {
                     <span className='block truncate'>{item.koreanName}</span>
                     <span className='block truncate text-[11px] font-medium text-subtle-foreground'>{item.marketCode}</span>
                   </td>
-                  <td className='truncate px-2 text-right tabular-nums'>{item.tradePrice.toLocaleString("ko-KR")}</td>
+                  <td className='truncate px-2 text-right tabular-nums'>{formatCoinPrice(item.tradePrice)}</td>
                   <td className={`truncate px-2 text-right tabular-nums ${changeClassName}`}>{formatChangeRate(item.signedChangeRate)}</td>
                   <td className='hidden truncate px-3 text-right tabular-nums lg:table-cell'>{formatTradeAmount(item.accTradePrice24h)}</td>
                 </tr>

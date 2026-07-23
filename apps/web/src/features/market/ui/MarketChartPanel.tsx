@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
-import { Separator, Skeleton, cn, formatPrice } from "@/shared";
+import { Separator, Skeleton, cn, formatCoinPrice, formatPrice } from "@/shared";
 import type { CandleResponse, CurrentPrice, Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
 import { ChevronDown } from "lucide-react";
 
@@ -286,7 +286,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
       yaxis: {
         tooltip: { enabled: true },
         labels: {
-          formatter: (val: number) => formatPrice(val),
+          formatter: (val: number) => formatCoinPrice(val),
         },
       },
       grid: { borderColor: CHART_COLORS.grid },
@@ -385,7 +385,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
                 displayPrice != null ? changeTone : "text-foreground",
               )}
             >
-              {displayPrice != null ? `${formatPrice(displayPrice)} KRW` : "-"}
+              {displayPrice != null ? `${formatCoinPrice(displayPrice)} KRW` : "-"}
             </p>
           )}
           <div className={cn("flex justify-end gap-3 text-sm tabular-nums", changeTone)}>

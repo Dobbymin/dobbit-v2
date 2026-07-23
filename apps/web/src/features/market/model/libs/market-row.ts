@@ -1,5 +1,7 @@
 import type { Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
 
+import { formatCoinPrice } from "@/shared";
+
 export type MarketRowData = {
   code: string;
   koreanName: string;
@@ -21,7 +23,7 @@ export const toMarketRow = (market: Market, ticker?: MarketTickerUpdatedEvent | 
   const symbolPair = market.code.replace("KRW-", "") + "/KRW";
 
   // 가격 포맷
-  const tradePrice = ticker ? Number(ticker.tradePrice).toLocaleString("ko-KR") : "-";
+  const tradePrice = ticker ? formatCoinPrice(Number(ticker.tradePrice)) : "-";
 
   // 변동률 포맷
   let changeRate: string;

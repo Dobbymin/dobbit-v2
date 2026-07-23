@@ -1,6 +1,6 @@
 "use client";
 
-import { Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, cn } from "@/shared";
+import { Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, cn, formatCoinPrice } from "@/shared";
 
 import { useOrderbook } from "../model";
 
@@ -93,7 +93,7 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
               </TableCell>
               <TableCell className='w-1/3 p-0'>
                 <div className='text-decrease px-4 py-2 text-center font-mono text-sm font-semibold tabular-nums'>
-                  {unit.askPrice.toLocaleString("ko-KR")}
+                  {formatCoinPrice(unit.askPrice)}
                 </div>
               </TableCell>
               <TableCell className='w-1/3' />
@@ -116,7 +116,7 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
               <TableCell className='w-1/3' />
               <TableCell className='w-1/3 p-0'>
                 <div className='text-increase px-4 py-2 text-center font-mono text-sm font-semibold tabular-nums'>
-                  {unit.bidPrice.toLocaleString("ko-KR")}
+                  {formatCoinPrice(unit.bidPrice)}
                 </div>
               </TableCell>
               <TableCell className='relative w-1/3 p-0'>

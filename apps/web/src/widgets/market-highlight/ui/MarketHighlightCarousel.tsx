@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { useHomeSummary, useMarketTickers } from "@/features";
+import { formatCoinPrice } from "@/shared";
 import type { HomeHighlight } from "@dobbit/shared";
 
 const formatChangeRate = (value: number) => `${value >= 0 ? "+" : ""}${(value * 100).toFixed(2)}%`;
@@ -47,7 +48,7 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
         </div>
         <p className={`shrink-0 text-sm font-semibold tabular-nums ${changeClassName}`}>{formatChangeRate(signedChangeRate)}</p>
       </div>
-      <p className='mt-4 text-xl font-bold tabular-nums text-foreground'>{tradePrice.toLocaleString("ko-KR")}</p>
+      <p className='mt-4 text-xl font-bold tabular-nums text-foreground'>{formatCoinPrice(tradePrice)}</p>
       <svg aria-hidden='true' className={`mt-5 h-12 w-full ${changeClassName}`} preserveAspectRatio='none' viewBox='0 0 100 100'>
         {item.sparkline.length === 1 ? <circle cx='50' cy='50' fill='currentColor' r='2.5' /> : <polyline fill='none' points={getSparklinePoints(item.sparkline)} stroke='currentColor' strokeLinecap='round' strokeLinejoin='round' strokeWidth='5' vectorEffect='non-scaling-stroke' />}
       </svg>
