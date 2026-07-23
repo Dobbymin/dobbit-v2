@@ -211,25 +211,35 @@ export const MarketListPanel = ({
         ) : null}
       </div>
       <div className='min-h-0 flex-1 overflow-y-auto'>
-        <div className='sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_80px_64px] gap-3 bg-background/80 px-4 py-3 text-xs font-medium text-muted-foreground backdrop-blur-sm'>
-          {(
-            [
-              ["market", "마켓", "text-left"],
-              ["price", "현재가", "justify-end text-right"],
-              ["changeRate", "변동률", "justify-end text-right"],
-            ] as const
-          ).map(([key, label, alignment]) => (
-            <button
-              aria-label={getAriaLabelForSort(key, label)}
-              className={`flex items-center gap-1 ${alignment}`}
-              key={key}
-              onClick={() => handleSort(key)}
-              type='button'
-            >
-              {label}
-              {renderSortIcon(key)}
-            </button>
-          ))}
+        <div className='sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_76px] items-start gap-3 bg-background/80 px-4 py-3 text-xs font-medium text-muted-foreground backdrop-blur-sm'>
+          <button
+            aria-label={getAriaLabelForSort("market", "마켓")}
+            className='flex items-center gap-1 text-left'
+            onClick={() => handleSort("market")}
+            type='button'
+          >
+            마켓
+            {renderSortIcon("market")}
+          </button>
+          <div className='flex flex-col items-end gap-0.5'>
+            {(
+              [
+                ["price", "현재가"],
+                ["changeRate", "변동률"],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                aria-label={getAriaLabelForSort(key, label)}
+                className='flex items-center justify-end gap-1 text-right'
+                key={key}
+                onClick={() => handleSort(key)}
+                type='button'
+              >
+                {label}
+                {renderSortIcon(key)}
+              </button>
+            ))}
+          </div>
         </div>
         {showLoginPrompt ? (
           <div className='flex flex-col items-center gap-3 px-4 py-10 text-center'>
@@ -242,20 +252,24 @@ export const MarketListPanel = ({
         ) : favoritesQuery.isLoading && activeTab === "favorite" ? (
           <div className='space-y-1'>
             {Array.from({ length: 7 }).map((_, index) => (
-              <div className='grid h-[52px] grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 px-4' key={index}>
+              <div className='grid h-[52px] grid-cols-[minmax(0,1fr)_76px] items-center gap-3 px-4' key={index}>
                 <Skeleton className='h-7 w-32' />
-                <Skeleton className='ml-auto h-4 w-20' />
-                <Skeleton className='ml-auto h-4 w-12' />
+                <div className='flex flex-col items-end gap-0.5'>
+                  <Skeleton className='h-3.5 w-16' />
+                  <Skeleton className='h-3 w-10' />
+                </div>
               </div>
             ))}
           </div>
         ) : isLoading && sortedRows.length === 0 ? (
           <div className='space-y-1'>
             {Array.from({ length: 7 }).map((_, index) => (
-              <div className='grid h-[52px] grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 px-4' key={index}>
+              <div className='grid h-[52px] grid-cols-[minmax(0,1fr)_76px] items-center gap-3 px-4' key={index}>
                 <Skeleton className='h-7 w-32' />
-                <Skeleton className='ml-auto h-4 w-20' />
-                <Skeleton className='ml-auto h-4 w-12' />
+                <div className='flex flex-col items-end gap-0.5'>
+                  <Skeleton className='h-3.5 w-16' />
+                  <Skeleton className='h-3 w-10' />
+                </div>
               </div>
             ))}
           </div>
@@ -285,7 +299,7 @@ export const MarketListPanel = ({
                 >
                   <FavoriteButton marketCode={row.code} />
                   <Link
-                    className='grid h-full min-w-0 grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 text-left transition-colors hover:bg-card focus-visible:bg-card focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none'
+                    className='grid h-full min-w-0 grid-cols-[minmax(0,1fr)_76px] items-center gap-3 text-left transition-colors hover:bg-card focus-visible:bg-card focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none'
                     href={`/trade/${row.code}`}
                   >
                     <div className='flex min-w-0 items-center gap-2.5'>
@@ -302,18 +316,20 @@ export const MarketListPanel = ({
                         <span className='block truncate text-[10px] text-muted-foreground'>{row.symbolPair}</span>
                       </span>
                     </div>
-                    <span
-                      className={cn(
-                        "text-right text-xs font-medium tabular-nums",
-                        row.isActive ? tone : "text-muted-foreground",
-                      )}
-                    >
-                      {row.tradePrice}
-                    </span>
-                    <span
-                      className={cn("text-right text-xs tabular-nums", row.isActive ? tone : "text-muted-foreground")}
-                    >
-                      {row.changeRate}
+                    <span className='flex min-w-0 flex-col items-end gap-0.5'>
+                      <span
+                        className={cn(
+                          "truncate text-xs font-medium tabular-nums",
+                          row.isActive ? tone : "text-muted-foreground",
+                        )}
+                      >
+                        {row.tradePrice}
+                      </span>
+                      <span
+                        className={cn("truncate text-xs tabular-nums", row.isActive ? tone : "text-muted-foreground")}
+                      >
+                        {row.changeRate}
+                      </span>
                     </span>
                   </Link>
                 </div>
