@@ -1,13 +1,12 @@
 // @vitest-environment jsdom
-
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
+import { CoinIcon, getCoinIconColor } from "./CoinIcon";
 
 vi.mock("next/image", () => ({
   default: ({ onError, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => <img {...props} onError={onError} />,
 }));
-
-import { CoinIcon, getCoinIconColor } from "./CoinIcon";
 
 describe("CoinIcon", () => {
   it("uses a deterministic color for each symbol", () => {

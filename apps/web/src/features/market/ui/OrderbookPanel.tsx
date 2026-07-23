@@ -26,15 +26,15 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
     return (
       <Table>
         <TableHeader>
-          <TableRow className='border-border border-b'>
-            <TableHead className='text-muted-foreground py-3 text-center text-xs font-medium' colSpan={3}>
+          <TableRow className='border-b border-border'>
+            <TableHead className='py-3 text-center text-xs font-medium text-muted-foreground' colSpan={3}>
               호가
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {Array.from({ length: 10 }).map((_, index) => (
-            <TableRow className='border-border/50 border-b' key={`orderbook-skeleton-${index}`}>
+            <TableRow className='border-b border-border/50' key={`orderbook-skeleton-${index}`}>
               <TableCell className='w-1/3 px-4 py-2'>
                 <Skeleton className='ml-auto h-3 w-12' />
               </TableCell>
@@ -53,7 +53,7 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
 
   if (units.length === 0) {
     return (
-      <div className='text-muted-foreground flex h-full w-full items-center justify-center p-4 text-sm'>
+      <div className='flex h-full w-full items-center justify-center p-4 text-sm text-muted-foreground'>
         호가 정보가 없습니다.
       </div>
     );
@@ -62,8 +62,8 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
   return (
     <Table>
       <TableHeader>
-        <TableRow className='border-border border-b'>
-          <TableHead className='text-muted-foreground py-3 text-center text-xs font-medium' colSpan={3}>
+        <TableRow className='border-b border-border'>
+          <TableHead className='py-3 text-center text-xs font-medium text-muted-foreground' colSpan={3}>
             호가
           </TableHead>
         </TableRow>
@@ -75,7 +75,7 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
           return (
             <TableRow
               className={cn(
-                "border-border/40 hover:bg-muted/40 border-b transition-colors",
+                "border-b border-border/40 transition-colors hover:bg-muted/40",
                 isSelectable && "cursor-pointer",
               )}
               key={`ask-${unit.askPrice}-${index}`}
@@ -83,16 +83,13 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
             >
               <TableCell className='relative w-1/3 p-0'>
                 {/* 매도 잔량 막대: 하락(파랑) 계열을 저채도 알파로 */}
-                <div
-                  className='bg-decrease/15 absolute top-0 right-0 h-full'
-                  style={{ width: `${volumePercent}%` }}
-                />
-                <div className='text-muted-foreground relative z-10 px-4 py-2 text-end font-mono text-xs tabular-nums'>
+                <div className='absolute top-0 right-0 h-full bg-decrease/15' style={{ width: `${volumePercent}%` }} />
+                <div className='relative z-10 px-4 py-2 text-end font-mono text-xs text-muted-foreground tabular-nums'>
                   {unit.askSize.toLocaleString("ko-KR", { maximumFractionDigits: 4 })}
                 </div>
               </TableCell>
               <TableCell className='w-1/3 p-0'>
-                <div className='text-decrease px-4 py-2 text-center font-mono text-sm font-semibold tabular-nums'>
+                <div className='px-4 py-2 text-center font-mono text-sm font-semibold text-decrease tabular-nums'>
                   {formatCoinPrice(unit.askPrice)}
                 </div>
               </TableCell>
@@ -107,7 +104,7 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
           return (
             <TableRow
               className={cn(
-                "border-border/40 hover:bg-muted/40 border-b transition-colors",
+                "border-b border-border/40 transition-colors hover:bg-muted/40",
                 isSelectable && "cursor-pointer",
               )}
               key={`bid-${unit.bidPrice}-${index}`}
@@ -115,17 +112,14 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
             >
               <TableCell className='w-1/3' />
               <TableCell className='w-1/3 p-0'>
-                <div className='text-increase px-4 py-2 text-center font-mono text-sm font-semibold tabular-nums'>
+                <div className='px-4 py-2 text-center font-mono text-sm font-semibold text-increase tabular-nums'>
                   {formatCoinPrice(unit.bidPrice)}
                 </div>
               </TableCell>
               <TableCell className='relative w-1/3 p-0'>
                 {/* 매수 잔량 막대: 상승(빨강) 계열을 저채도 알파로 */}
-                <div
-                  className='bg-increase/15 absolute top-0 left-0 h-full'
-                  style={{ width: `${volumePercent}%` }}
-                />
-                <div className='text-muted-foreground relative z-10 px-4 py-2 text-start font-mono text-xs tabular-nums'>
+                <div className='absolute top-0 left-0 h-full bg-increase/15' style={{ width: `${volumePercent}%` }} />
+                <div className='relative z-10 px-4 py-2 text-start font-mono text-xs text-muted-foreground tabular-nums'>
                   {unit.bidSize.toLocaleString("ko-KR", { maximumFractionDigits: 4 })}
                 </div>
               </TableCell>

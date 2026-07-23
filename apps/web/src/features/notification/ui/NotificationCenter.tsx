@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import type { NotificationItem } from "@dobbit/shared";
 import { Skeleton } from "@/shared";
+import type { NotificationItem } from "@dobbit/shared";
 
 type Props = {
   notifications: NotificationItem[];
@@ -47,10 +47,7 @@ export const NotificationCenter = ({ notifications, unreadCount, onMarkAsRead, i
               {isLoading ? (
                 <>
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className='border-b px-4 py-3 last:border-b-0'
-                    >
+                    <div key={i} className='border-b px-4 py-3 last:border-b-0'>
                       <div className='flex items-start gap-2'>
                         <Skeleton className='mt-1.5 h-2 w-2 shrink-0 rounded-full' />
                         <div className='min-w-0 flex-1 space-y-2'>

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-
 import { useRouter } from "next/navigation";
 
+import { useEffect, useMemo, useState } from "react";
+
+import { AppLayout } from "@/widgets";
 import { Heart, List, PanelLeftClose } from "lucide-react";
 
 import {
@@ -14,7 +15,6 @@ import {
   useMarkets,
   useTicker,
 } from "@/features/market";
-import { AppLayout } from "@/widgets";
 
 type MarketListTab = "all" | "favorite";
 
@@ -60,7 +60,7 @@ export default function TradePage({ marketCode }: TradePageProps) {
             <button
               aria-expanded={isMarketListOpen}
               aria-label={isMarketListOpen ? "코인 목록 접기" : "코인 목록 펼치기"}
-              className='flex h-12 flex-col items-center justify-center gap-1 border-b border-border text-subtle-foreground transition-colors active:scale-95 hover:bg-card hover:text-foreground'
+              className='flex h-12 flex-col items-center justify-center gap-1 border-b border-border text-subtle-foreground transition-colors hover:bg-card hover:text-foreground active:scale-95'
               onClick={() => setIsMarketListOpen((isOpen) => !isOpen)}
               type='button'
             >
@@ -92,7 +92,11 @@ export default function TradePage({ marketCode }: TradePageProps) {
                   onClick={() => setActiveMarketListTab(tab)}
                   type='button'
                 >
-                  <Icon aria-hidden='true' className={active && Icon === Heart ? "fill-current" : undefined} size={18} />
+                  <Icon
+                    aria-hidden='true'
+                    className={active && Icon === Heart ? "fill-current" : undefined}
+                    size={18}
+                  />
                   {label}
                 </button>
               );
@@ -100,7 +104,7 @@ export default function TradePage({ marketCode }: TradePageProps) {
           </nav>
           <div
             aria-hidden={!isMarketListOpen && isLg ? true : undefined}
-            className={`overflow-hidden lg:h-full lg:transition-[width] lg:duration-300 lg:ease-out motion-reduce:transition-none ${
+            className={`overflow-hidden motion-reduce:transition-none lg:h-full lg:transition-[width] lg:duration-300 lg:ease-out ${
               isMarketListOpen ? "lg:w-[440px]" : "lg:pointer-events-none lg:w-0"
             }`}
             inert={!isMarketListOpen && isLg}

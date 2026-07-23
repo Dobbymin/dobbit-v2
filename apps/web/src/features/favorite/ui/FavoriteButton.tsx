@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Heart } from "lucide-react";
 
 import { Button, Popover, PopoverContent, PopoverTrigger, ROUTES_PATH } from "@/shared";
+import { Heart } from "lucide-react";
+
 import { useIsAuth } from "@/shared/store";
 
 import { useFavorites, useToggleFavorite } from "../model";

@@ -30,28 +30,28 @@ export const NewsListSection = ({ query }: NewsListSectionProps) => {
 
   return (
     <section className='flex flex-col gap-6'>
-      {news.isLoading && !visibleItems.length ? (
-        Array.from({ length: 3 }).map((_, i) => (
-          <NewsCard
-            key={`skeleton-${i}`}
-            item={{
-              id: `skeleton-${i}`,
-              title: "",
-              url: "",
-              source: "",
-              publisher: "",
-              publishedAt: "",
-              summary: "",
-              content: "",
-              reason: "",
-              keywords: [],
-              sentiment: undefined,
-              confidence: 0,
-            }}
-            isLoading={true}
-          />
-        ))
-      ) : null}
+      {news.isLoading && !visibleItems.length
+        ? Array.from({ length: 3 }).map((_, i) => (
+            <NewsCard
+              key={`skeleton-${i}`}
+              item={{
+                id: `skeleton-${i}`,
+                title: "",
+                url: "",
+                source: "",
+                publisher: "",
+                publishedAt: "",
+                summary: "",
+                content: "",
+                reason: "",
+                keywords: [],
+                sentiment: undefined,
+                confidence: 0,
+              }}
+              isLoading={true}
+            />
+          ))
+        : null}
 
       {!news.isLoading && !news.data?.length ? (
         <p className='text-sm text-muted-foreground'>표시할 뉴스가 없습니다.</p>

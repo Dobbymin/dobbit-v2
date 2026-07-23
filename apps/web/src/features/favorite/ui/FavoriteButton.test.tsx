@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
-
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { FavoriteButton } from "./FavoriteButton";
 
 const mocks = vi.hoisted(() => ({
   mutate: vi.fn(),
@@ -18,8 +19,6 @@ vi.mock("../model", () => ({
   useFavorites: mocks.useFavorites,
   useToggleFavorite: mocks.useToggleFavorite,
 }));
-
-import { FavoriteButton } from "./FavoriteButton";
 
 describe("FavoriteButton", () => {
   beforeEach(() => {

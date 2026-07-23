@@ -21,7 +21,10 @@ export const NavButton = ({ href, disabled = false, children }: NavButtonProps) 
 
   if (disabled) {
     return (
-      <span aria-disabled='true' className='shrink-0 cursor-not-allowed text-sm font-semibold text-muted-foreground/45 rounded-lg px-3 py-2'>
+      <span
+        aria-disabled='true'
+        className='shrink-0 cursor-not-allowed rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground/45'
+      >
         {children}
       </span>
     );
@@ -30,7 +33,7 @@ export const NavButton = ({ href, disabled = false, children }: NavButtonProps) 
   return (
     <Link
       className={cn(
-        "shrink-0 text-sm leading-normal font-semibold text-muted-foreground transition-colors hover:text-foreground hover:bg-accent rounded-lg px-3 py-2",
+        "shrink-0 rounded-lg px-3 py-2 text-sm leading-normal font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
         active && "text-foreground",
       )}
       href={href}

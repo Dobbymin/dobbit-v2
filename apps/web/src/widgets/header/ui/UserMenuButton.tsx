@@ -40,7 +40,7 @@ export const UserMenuButton = () => {
     <div className='flex items-center justify-end gap-2'>
       <Link
         href={ROUTES_PATH.WALLET}
-        className='h-8 rounded-lg px-3 py-0 flex items-center text-muted-foreground transition-colors hover:bg-accent hover:text-foreground'
+        className='flex h-8 items-center rounded-lg px-3 py-0 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground'
       >
         <div className='flex items-center gap-2'>
           <Wallet className='size-4' />

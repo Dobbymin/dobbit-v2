@@ -1,6 +1,5 @@
-import type { Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
-
 import { formatCoinPrice } from "@/shared";
+import type { Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
 
 export type MarketRowData = {
   code: string;
