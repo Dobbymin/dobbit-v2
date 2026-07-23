@@ -7,6 +7,7 @@ import { useMemo } from "react";
 
 import { useFavorites } from "@/features/favorite";
 import { useMarketTickers, useMarkets } from "@/features/market";
+import { formatCoinPrice } from "@/shared";
 import { useIsAuth } from "@/shared/store";
 
 export const FavoriteSidebar = () => {
@@ -70,7 +71,7 @@ export const FavoriteSidebar = () => {
                   <span className='block truncate text-xs text-subtle-foreground'>{code}</span>
                 </span>
                 <span className='text-sm text-foreground'>
-                  {ticker ? Number(ticker.tradePrice).toLocaleString("ko-KR") : "-"}
+                  {ticker ? formatCoinPrice(Number(ticker.tradePrice)) : "-"}
                 </span>
                 <span className={`text-sm ${changeClassName}`}>
                   {ticker ? `${signedChangeRate >= 0 ? "+" : ""}${(signedChangeRate * 100).toFixed(2)}%` : "-"}
