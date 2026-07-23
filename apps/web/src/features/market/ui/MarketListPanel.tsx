@@ -22,6 +22,7 @@ type MarketListPanelProps = {
   selectedMarketCode: string;
   searchKeyword: string;
   isLoading: boolean;
+  showTabs?: boolean;
   tickers: Record<string, MarketTickerUpdatedEvent>;
   onActiveTabChange: (tab: MarketListTab) => void;
   onSearchKeywordChange: (value: string) => void;
@@ -38,6 +39,7 @@ export const MarketListPanel = ({
   selectedMarketCode,
   searchKeyword,
   isLoading,
+  showTabs = true,
   tickers,
   onActiveTabChange,
   onSearchKeywordChange,
@@ -169,27 +171,29 @@ export const MarketListPanel = ({
   return (
     <aside className='flex min-h-[520px] flex-col border-r border-border bg-background lg:h-full lg:min-h-0 lg:overflow-hidden'>
       <div className='border-b border-border p-4'>
-        <div className='mb-3 grid grid-cols-2 rounded-lg bg-surface-sunken p-1'>
-          {(
-            [
-              ["all", "전체"],
-              ["favorite", "관심"],
-            ] as const
-          ).map(([tab, label]) => (
-            <button
-              aria-pressed={activeTab === tab}
-              className={cn(
-                "h-8 rounded-md text-sm font-medium transition-colors",
-                activeTab === tab ? "bg-card text-foreground" : "text-subtle-foreground",
-              )}
-              key={tab}
-              onClick={() => onActiveTabChange(tab)}
-              type='button'
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        {showTabs ? (
+          <div className='mb-3 grid grid-cols-2 rounded-lg bg-surface-sunken p-1'>
+            {(
+              [
+                ["all", "전체"],
+                ["favorite", "관심"],
+              ] as const
+            ).map(([tab, label]) => (
+              <button
+                aria-pressed={activeTab === tab}
+                className={cn(
+                  "h-8 rounded-md text-sm font-medium transition-colors",
+                  activeTab === tab ? "bg-card text-foreground" : "text-subtle-foreground",
+                )}
+                key={tab}
+                onClick={() => onActiveTabChange(tab)}
+                type='button'
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        ) : null}
         <div className='relative'>
           <Input
             aria-label='마켓 검색'
