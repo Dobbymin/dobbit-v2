@@ -11,7 +11,7 @@ export const NewsListHeader = ({ newsDate, totalNews, investmentIndex, isLoading
   return (
     <header className='mb-6 flex items-center justify-between'>
       <div className='flex flex-col gap-1'>
-        <h2 className='text-xl font-bold text-white'>Coin Market Briefing</h2>
+        <h2 className='text-xl font-bold text-foreground'>Coin Market Briefing</h2>
         {isLoading ? (
           <Skeleton className='h-5 w-52' />
         ) : (

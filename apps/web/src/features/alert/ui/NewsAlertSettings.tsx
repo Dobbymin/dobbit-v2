@@ -86,7 +86,7 @@ export function NewsAlertSettings() {
   };
 
   return (
-    <section className='border-t border-white/10 pt-5'>
+    <section className='border-t border-border pt-5'>
       <div>
         <h2 className='text-base font-semibold text-foreground'>뉴스 감성 알림</h2>
         <p className='mt-1 text-sm text-muted-foreground'>뉴스 감성 점수가 기준을 넘으면 알림을 받습니다.</p>
@@ -99,12 +99,12 @@ export function NewsAlertSettings() {
             value={marketCode}
             onChange={(event) => setMarketCode(event.target.value)}
             placeholder='BTC 또는 KRW-BTC'
-            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none focus:border-primary'
+            className='min-w-0 rounded-md border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none focus:border-primary'
           />
           <select
             value={direction}
             onChange={(event) => setDirection(event.target.value as Direction)}
-            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-foreground bg-transparent outline-none focus:border-primary [&>option]:bg-card'
+            className='min-w-0 rounded-md border border-border px-3 py-2 text-sm text-foreground bg-transparent outline-none focus:border-primary [&>option]:bg-card'
           >
             <option value='UP'>상승</option>
             <option value='DOWN'>하락</option>
@@ -116,7 +116,7 @@ export function NewsAlertSettings() {
             step='0.01'
             value={threshold}
             onChange={(event) => setThreshold(event.target.value)}
-            className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none focus:border-primary'
+            className='min-w-0 rounded-md border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none focus:border-primary'
           />
         </div>
 
@@ -153,7 +153,7 @@ export function NewsAlertSettings() {
       <div className='mt-4 space-y-2'>
         {alertRulesQuery.isPending &&
           Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className='rounded-md border border-white/10 p-3'>
+            <div key={i} className='rounded-md border border-border p-3'>
               <div className='flex flex-wrap items-start justify-between gap-3'>
                 <div className='space-y-2'>
                   <Skeleton className='h-4 w-24' />
@@ -173,7 +173,7 @@ export function NewsAlertSettings() {
           const isDeleting = deleteMutation.isPending && deleteMutation.variables === rule.id;
 
           return (
-            <div key={rule.id} className='rounded-md border border-white/10 p-3'>
+            <div key={rule.id} className='rounded-md border border-border p-3'>
               <div className='flex flex-wrap items-start justify-between gap-3'>
                 <div>
                   <p className='text-sm font-medium text-foreground'>{rule.marketCode}</p>
@@ -189,7 +189,7 @@ export function NewsAlertSettings() {
                   type='button'
                   onClick={() => handleDelete(rule)}
                   disabled={isDeleting}
-                  className='rounded-md border border-white/20 px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:text-muted-foreground/50'
+                  className='rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:text-muted-foreground/50'
                 >
                   {isDeleting ? "삭제 중" : "삭제"}
                 </button>

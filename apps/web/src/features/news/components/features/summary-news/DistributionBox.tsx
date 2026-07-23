@@ -44,7 +44,7 @@ export const DistributionBox = ({ positive, neutral, negative, totalNews, isLoad
 
   return (
     <>
-      <div className='mb-6 flex h-4 w-full overflow-hidden bg-black/30'>
+      <div className='mb-6 flex h-4 w-full overflow-hidden bg-surface-sunken'>
         {segments.map((segment) => (
           <div
             key={segment.key}

@@ -13,7 +13,7 @@ type Props = {
 
 export const TabNavigationSection = ({ activeTab, setActiveTab }: Props) => {
   return (
-    <nav className='flex h-14 w-full border-b border-white/10 bg-card/20'>
+    <nav className='flex h-14 w-full border-b border-border bg-card/20'>
       {WALLET_TABS.map((tab) => (
         <button
           key={tab}
@@ -23,7 +23,7 @@ export const TabNavigationSection = ({ activeTab, setActiveTab }: Props) => {
             "h-full flex-1 text-sm transition-colors",
             activeTab === tab
               ? "border-b-2 border-primary font-semibold text-primary"
-              : "text-white hover:underline hover:underline-offset-2",
+              : "text-foreground hover:underline hover:underline-offset-2",
           )}
         >
           {tab}

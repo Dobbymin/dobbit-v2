@@ -2,9 +2,9 @@
 import type { ToastItem } from "../model";
 
 const SEVERITY_STYLES: Record<string, string> = {
-  INFO: "border-blue-400 bg-blue-50 text-blue-900",
-  WARNING: "border-yellow-400 bg-yellow-50 text-yellow-900",
-  CRITICAL: "border-red-500 bg-red-50 text-red-900",
+  INFO: "border-info bg-info/10 text-info",
+  WARNING: "border-warning bg-warning/10 text-warning",
+  CRITICAL: "border-destructive bg-destructive/10 text-destructive",
 };
 
 const SEVERITY_ICON: Record<string, string> = {

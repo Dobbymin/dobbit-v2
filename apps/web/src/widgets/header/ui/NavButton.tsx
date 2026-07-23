@@ -30,7 +30,7 @@ export const NavButton = ({ href, disabled = false, children }: NavButtonProps) 
   return (
     <Link
       className={cn(
-        "shrink-0 text-sm leading-normal font-semibold text-muted-foreground transition-colors hover:text-white hover:bg-white/5 rounded-lg px-3 py-2",
+        "shrink-0 text-sm leading-normal font-semibold text-muted-foreground transition-colors hover:text-foreground hover:bg-accent rounded-lg px-3 py-2",
         active && "text-foreground",
       )}
       href={href}

@@ -15,7 +15,7 @@ export const KeywordBox = ({ keywords, isLoading }: Props) => {
           : keywords.map((k) => (
               <span
                 key={k}
-                className='inline-flex w-fit items-center bg-white/5 px-2 py-0.5 text-xs font-medium text-gray-300 transition-colors hover:bg-white/10'
+                className='inline-flex w-fit items-center bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent'
               >
                 # {k}
               </span>

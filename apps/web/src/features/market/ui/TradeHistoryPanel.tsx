@@ -64,7 +64,7 @@ export const TradeHistoryPanel = () => {
     <div className='min-h-0 flex-1 overflow-y-auto'>
       <Table>
         <TableHeader>
-          <TableRow className='border-b border-white/10'>
+          <TableRow className='border-b border-border'>
             <TableHead>체결시각</TableHead>
             <TableHead>마켓</TableHead>
             <TableHead>구분</TableHead>
@@ -80,7 +80,7 @@ export const TradeHistoryPanel = () => {
             const symbol = marketInfo?.symbol || trade.marketCode.replace("KRW-", "");
 
             return (
-              <TableRow className='border-b border-white/10' key={trade.id}>
+              <TableRow className='border-b border-border' key={trade.id}>
                 <TableCell className='text-xs text-muted-foreground' suppressHydrationWarning>
                   {dayjs(trade.executedAt).format("MM.DD HH:mm")}
                 </TableCell>
