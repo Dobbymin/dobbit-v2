@@ -13,6 +13,6 @@ export const formatCoinPrice = (value: number): string => {
     return value.toLocaleString("ko-KR");
   }
 
-  const decimals = Math.min(8, -Math.floor(Math.log10(value)) + 3);
-  return value.toLocaleString("ko-KR", { maximumFractionDigits: decimals });
+  // Upbit KRW 최소 호가단위는 1e-8이므로 1 미만 단가는 소수 최대 8자리로 표시(후행 0 제거)
+  return value.toLocaleString("ko-KR", { maximumFractionDigits: 8 });
 };

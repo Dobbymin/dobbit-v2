@@ -24,4 +24,15 @@ describe("formatCoinPrice", () => {
     expect(formatCoinPrice(0.16)).toBe("0.16");
     expect(formatCoinPrice(0.845)).toBe("0.845");
   });
+
+  it("formats power-of-ten and integer boundaries", () => {
+    expect(formatCoinPrice(0.1)).toBe("0.1");
+    expect(formatCoinPrice(0.01)).toBe("0.01");
+    expect(formatCoinPrice(1)).toBe("1");
+  });
+
+  it("caps sub-unit precision at the Upbit KRW minimum tick", () => {
+    expect(formatCoinPrice(1e-8)).toBe("0.00000001");
+    expect(formatCoinPrice(0.123456789)).toBe("0.12345679");
+  });
 });
