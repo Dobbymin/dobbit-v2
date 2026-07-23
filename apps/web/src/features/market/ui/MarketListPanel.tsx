@@ -25,7 +25,6 @@ type MarketListPanelProps = {
   tickers: Record<string, MarketTickerUpdatedEvent>;
   onActiveTabChange: (tab: MarketListTab) => void;
   onSearchKeywordChange: (value: string) => void;
-  onSelectMarket: (marketCode: string) => void;
 };
 
 type SortKey = "market" | "price" | "changeRate";
@@ -42,7 +41,6 @@ export const MarketListPanel = ({
   tickers,
   onActiveTabChange,
   onSearchKeywordChange,
-  onSelectMarket,
 }: MarketListPanelProps) => {
   const { isAuthenticated } = useIsAuth();
   const favoritesQuery = useFavorites();
@@ -282,10 +280,9 @@ export const MarketListPanel = ({
                   key={row.code}
                 >
                   <FavoriteButton marketCode={row.code} />
-                  <button
+                  <Link
                     className='grid h-full min-w-0 grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 text-left transition-colors hover:bg-card focus-visible:bg-card focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none'
-                    onClick={() => onSelectMarket(row.code)}
-                    type='button'
+                    href={`/trade/${row.code}`}
                   >
                     <div className='flex min-w-0 items-center gap-2.5'>
                       <CoinIcon marketCode={row.code} size={26} />
@@ -314,7 +311,7 @@ export const MarketListPanel = ({
                     >
                       {row.changeRate}
                     </span>
-                  </button>
+                  </Link>
                 </div>
               );
             })}
