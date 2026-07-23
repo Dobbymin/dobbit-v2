@@ -169,7 +169,7 @@ export const MarketListPanel = ({
   return (
     <aside className='flex min-h-[520px] flex-col border-r border-border bg-background lg:h-full lg:min-h-0 lg:overflow-hidden'>
       <div className='border-b border-border p-4'>
-        <div className='mb-3 grid grid-cols-2 rounded-lg bg-surface-sunken p-1 lg:hidden'>
+        <div className='mb-3 grid grid-cols-2 rounded-lg bg-surface-sunken p-1'>
           {(
             [
               ["all", "전체"],
