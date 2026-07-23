@@ -82,13 +82,13 @@ export class HomeService {
     try {
       const [tickers, markets] = await Promise.all([
         this.upbitApiClient.getAllKrwTickers(),
-        this.prisma.market.findMany({ select: { id: true, code: true, koreanName: true } }),
+        this.prisma.market.findMany({ select: { code: true, koreanName: true } }),
       ]);
       const tickerByCode = new Map(tickers.map((ticker) => [ticker.market, ticker]));
       const marketByCode = new Map(markets.map((market) => [market.code, market]));
       const [highlights, rankings] = await Promise.all([
         this.getHighlights(tickerByCode, marketByCode),
-        this.getRankings(tickers, marketByCode, markets),
+        this.getRankings(tickers, marketByCode),
       ]);
 
       return {
@@ -106,7 +106,7 @@ export class HomeService {
 
   private async getHighlights(
     tickerByCode: Map<string, Ticker>,
-    marketByCode: Map<string, { id: string; code: string; koreanName: string }>,
+    marketByCode: Map<string, { code: string; koreanName: string }>,
   ): Promise<HighlightsResult> {
     const availableCodes = HIGHLIGHT_CODES.filter((code) => tickerByCode.has(code) && marketByCode.has(code));
     if (availableCodes.length === 0) {
@@ -140,8 +140,7 @@ export class HomeService {
 
   private async getRankings(
     tickers: Ticker[],
-    marketByCode: Map<string, { id: string; code: string; koreanName: string }>,
-    markets: Array<{ id: string; code: string; koreanName: string }>,
+    marketByCode: Map<string, { code: string; koreanName: string }>,
   ): Promise<RankingsResult> {
     const makeRanking = (items: Ticker[]): HomeRankingItem[] =>
       items
@@ -163,50 +162,7 @@ export class HomeService {
       surge: makeRanking([...tickers].sort((a, b) => b.signed_change_rate - a.signed_change_rate)),
       plunge: makeRanking([...tickers].sort((a, b) => a.signed_change_rate - b.signed_change_rate)),
       volume: makeRanking([...tickers].sort((a, b) => b.acc_trade_volume_24h - a.acc_trade_volume_24h)),
-      popular: [] as HomeRankingItem[],
     };
-
-    try {
-      const [favorites, trades] = await Promise.all([
-        this.prisma.favorite.groupBy({ by: ['marketCode'], _count: { _all: true } }),
-        this.prisma.trade.groupBy({ by: ['marketId'], _count: { _all: true } }),
-      ]);
-      const popularityByCode = new Map<string, number>();
-      for (const favorite of favorites) {
-        popularityByCode.set(favorite.marketCode, favorite._count._all);
-      }
-      const codeByMarketId = new Map(markets.map((market) => [market.id, market.code]));
-      for (const trade of trades) {
-        const code = codeByMarketId.get(trade.marketId);
-        if (code) {
-          popularityByCode.set(code, (popularityByCode.get(code) ?? 0) + trade._count._all);
-        }
-      }
-
-      const tickerByCode = new Map(tickers.map((ticker) => [ticker.market, ticker]));
-      rankings.popular = [...popularityByCode.entries()]
-        .sort(([, left], [, right]) => right - left)
-        .map(([code]) => tickerByCode.get(code))
-        .filter((ticker): ticker is Ticker => Boolean(ticker))
-        .slice(0, RANKING_LIMIT)
-        .map((ticker, index) => ({
-          rank: index + 1,
-          marketCode: ticker.market,
-          koreanName: marketByCode.get(ticker.market)?.koreanName ?? ticker.market,
-          tradePrice: ticker.trade_price,
-          signedChangeRate: ticker.signed_change_rate,
-          accTradePrice24h: ticker.acc_trade_price_24h,
-          accTradeVolume24h: ticker.acc_trade_volume_24h,
-        }));
-
-      if (rankings.popular.length === 0) {
-        rankings.popular = tradePrice;
-      }
-    } catch (error) {
-      this.logger.error('Failed to get popular rankings:', error);
-      rankings.popular = tradePrice;
-      return { data: rankings, success: false };
-    }
 
     return { data: rankings, success: true };
   }
@@ -249,7 +205,7 @@ export class HomeService {
   private emptyMarketData(): Pick<HomeSummaryResponse, 'highlights' | 'rankings'> {
     return {
       highlights: [],
-      rankings: { tradePrice: [], surge: [], plunge: [], volume: [], popular: [] },
+      rankings: { tradePrice: [], surge: [], plunge: [], volume: [] },
     };
   }
 }

@@ -32,7 +32,6 @@ export type HomeSummaryResponse = {
     surge: HomeRankingItem[];
     plunge: HomeRankingItem[];
     volume: HomeRankingItem[];
-    popular: HomeRankingItem[];
   };
   news: HomeNewsItem[];
 };

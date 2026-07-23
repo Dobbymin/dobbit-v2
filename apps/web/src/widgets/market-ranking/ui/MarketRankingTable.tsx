@@ -17,7 +17,6 @@ const RANKING_TABS: Array<{ key: RankingTab; label: string }> = [
   { key: "surge", label: "급상승" },
   { key: "plunge", label: "급락" },
   { key: "volume", label: "거래량" },
-  { key: "popular", label: "도빗 인기" },
 ];
 
 const formatTradeAmount = (value: number) => {
@@ -104,7 +103,7 @@ export const MarketRankingTable = () => {
         </colgroup>
         <thead className='h-10 border-b border-border text-subtle-foreground'>
           <tr>
-            <th className='px-3 text-left font-semibold'>순위</th>
+            <th className='whitespace-nowrap px-3 text-left font-semibold'>순위</th>
             <th className='text-center font-semibold'>관심</th>
             <th className='text-left font-semibold'>코인명</th>
             <th className='px-2 text-right font-semibold'>현재가</th>
@@ -126,7 +125,7 @@ export const MarketRankingTable = () => {
 
               return (
                 <tr className='h-10 border-b border-border text-foreground transition-colors hover:bg-surface-sunken' key={item.marketCode}>
-                  <td className='px-3 text-subtle-foreground'>
+                  <td className='whitespace-nowrap px-3 text-subtle-foreground'>
                     <Link className='block' href={`/trade/${item.marketCode}`}>
                       {item.rank}
                     </Link>
