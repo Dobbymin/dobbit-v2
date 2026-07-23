@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useHomeSummary, useMarketTickers } from "@/features";
 import { formatCoinPrice } from "@/shared";
 import type { HomeHighlight } from "@dobbit/shared";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const formatChangeRate = (value: number) => `${value >= 0 ? "+" : ""}${(value * 100).toFixed(2)}%`;
 
@@ -46,11 +47,30 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
           <p className='truncate text-sm font-semibold text-foreground'>{item.koreanName}</p>
           <p className='mt-1 text-xs text-subtle-foreground'>{item.marketCode}</p>
         </div>
-        <p className={`shrink-0 text-sm font-semibold tabular-nums ${changeClassName}`}>{formatChangeRate(signedChangeRate)}</p>
+        <p className={`shrink-0 text-sm font-semibold tabular-nums ${changeClassName}`}>
+          {formatChangeRate(signedChangeRate)}
+        </p>
       </div>
-      <p className='mt-4 text-xl font-bold tabular-nums text-foreground'>{formatCoinPrice(tradePrice)}</p>
-      <svg aria-hidden='true' className={`mt-5 h-12 w-full ${changeClassName}`} preserveAspectRatio='none' viewBox='0 0 100 100'>
-        {item.sparkline.length === 1 ? <circle cx='50' cy='50' fill='currentColor' r='2.5' /> : <polyline fill='none' points={getSparklinePoints(item.sparkline)} stroke='currentColor' strokeLinecap='round' strokeLinejoin='round' strokeWidth='5' vectorEffect='non-scaling-stroke' />}
+      <p className='mt-4 text-xl font-bold text-foreground tabular-nums'>{formatCoinPrice(tradePrice)}</p>
+      <svg
+        aria-hidden='true'
+        className={`mt-5 h-12 w-full ${changeClassName}`}
+        preserveAspectRatio='none'
+        viewBox='0 0 100 100'
+      >
+        {item.sparkline.length === 1 ? (
+          <circle cx='50' cy='50' fill='currentColor' r='2.5' />
+        ) : (
+          <polyline
+            fill='none'
+            points={getSparklinePoints(item.sparkline)}
+            stroke='currentColor'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            strokeWidth='5'
+            vectorEffect='non-scaling-stroke'
+          />
+        )}
       </svg>
     </button>
   );
@@ -87,22 +107,39 @@ export const MarketHighlightCarousel = () => {
     return () => window.removeEventListener("resize", updateScrollButtons);
   }, [highlights.length, updateScrollButtons]);
 
-  const scrollByCard = useCallback((direction: "left" | "right") => {
-    scrollRef.current?.scrollBy({ left: direction === "left" ? -305 : 305 });
-    updateScrollButtons();
-  }, [updateScrollButtons]);
+  const scrollByCard = useCallback(
+    (direction: "left" | "right") => {
+      scrollRef.current?.scrollBy({ left: direction === "left" ? -305 : 305 });
+      updateScrollButtons();
+    },
+    [updateScrollButtons],
+  );
 
-  const cards: Array<HomeHighlight | null> = homeSummaryQuery.isLoading ? Array.from({ length: 4 }, () => null) : highlights;
+  const cards: Array<HomeHighlight | null> = homeSummaryQuery.isLoading
+    ? Array.from({ length: 4 }, () => null)
+    : highlights;
 
   return (
     <section className='relative w-full overflow-hidden'>
       <div className='mb-3 flex items-center justify-between'>
         <h2 className='text-base font-bold text-foreground'>주요 시세</h2>
         <div className='flex gap-1'>
-          <button aria-label='이전 주요 시세' className='rounded-md border border-border p-1.5 text-foreground disabled:text-subtle-foreground' disabled={!canScrollLeft} onClick={() => scrollByCard("left")} type='button'>
+          <button
+            aria-label='이전 주요 시세'
+            className='rounded-md border border-border p-1.5 text-foreground disabled:text-subtle-foreground'
+            disabled={!canScrollLeft}
+            onClick={() => scrollByCard("left")}
+            type='button'
+          >
             <ChevronLeft className='size-4' />
           </button>
-          <button aria-label='다음 주요 시세' className='rounded-md border border-border p-1.5 text-foreground disabled:text-subtle-foreground' disabled={!canScrollRight} onClick={() => scrollByCard("right")} type='button'>
+          <button
+            aria-label='다음 주요 시세'
+            className='rounded-md border border-border p-1.5 text-foreground disabled:text-subtle-foreground'
+            disabled={!canScrollRight}
+            onClick={() => scrollByCard("right")}
+            type='button'
+          >
             <ChevronRight className='size-4' />
           </button>
         </div>
@@ -121,7 +158,9 @@ export const MarketHighlightCarousel = () => {
         tabIndex={0}
       >
         <div className='flex w-max gap-3'>
-          {cards.map((item, index) => item ? <HighlightCard item={item} key={item.marketCode} /> : <HighlightSkeleton key={index} />)}
+          {cards.map((item, index) =>
+            item ? <HighlightCard item={item} key={item.marketCode} /> : <HighlightSkeleton key={index} />,
+          )}
         </div>
       </div>
     </section>

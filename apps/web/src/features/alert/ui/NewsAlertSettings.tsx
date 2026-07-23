@@ -2,8 +2,8 @@
 
 import { FormEvent, useMemo, useState } from "react";
 
-import type { AlertRule } from "@dobbit/shared";
 import { Skeleton } from "@/shared";
+import type { AlertRule } from "@dobbit/shared";
 
 import { useAlertRules, useCreateAlertRule, useDeleteAlertRule } from "../model";
 
@@ -99,12 +99,12 @@ export function NewsAlertSettings() {
             value={marketCode}
             onChange={(event) => setMarketCode(event.target.value)}
             placeholder='BTC 또는 KRW-BTC'
-            className='min-w-0 rounded-md border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none focus:border-primary'
+            className='min-w-0 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary'
           />
           <select
             value={direction}
             onChange={(event) => setDirection(event.target.value as Direction)}
-            className='min-w-0 rounded-md border border-border px-3 py-2 text-sm text-foreground bg-transparent outline-none focus:border-primary [&>option]:bg-card'
+            className='min-w-0 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-primary [&>option]:bg-card'
           >
             <option value='UP'>상승</option>
             <option value='DOWN'>하락</option>
@@ -116,7 +116,7 @@ export function NewsAlertSettings() {
             step='0.01'
             value={threshold}
             onChange={(event) => setThreshold(event.target.value)}
-            className='min-w-0 rounded-md border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none focus:border-primary'
+            className='min-w-0 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary'
           />
         </div>
 
@@ -164,39 +164,42 @@ export function NewsAlertSettings() {
               </div>
             </div>
           ))}
-        {alertRulesQuery.isError && <p className='text-sm text-destructive'>뉴스 감성 알림 규칙을 불러오지 못했습니다.</p>}
+        {alertRulesQuery.isError && (
+          <p className='text-sm text-destructive'>뉴스 감성 알림 규칙을 불러오지 못했습니다.</p>
+        )}
         {!alertRulesQuery.isPending && !alertRulesQuery.isError && newsSentimentRules.length === 0 && (
           <p className='text-sm text-muted-foreground'>등록된 뉴스 감성 알림 규칙이 없습니다.</p>
         )}
-        {!alertRulesQuery.isPending && newsSentimentRules.map((rule) => {
-          const ruleDirection = getRuleDirection(rule);
-          const isDeleting = deleteMutation.isPending && deleteMutation.variables === rule.id;
+        {!alertRulesQuery.isPending &&
+          newsSentimentRules.map((rule) => {
+            const ruleDirection = getRuleDirection(rule);
+            const isDeleting = deleteMutation.isPending && deleteMutation.variables === rule.id;
 
-          return (
-            <div key={rule.id} className='rounded-md border border-border p-3'>
-              <div className='flex flex-wrap items-start justify-between gap-3'>
-                <div>
-                  <p className='text-sm font-medium text-foreground'>{rule.marketCode}</p>
-                  <p className='mt-1 text-xs text-muted-foreground'>
-                    {ruleDirection === "UP" ? "상승" : "하락"} · {rule.comparison} {rule.threshold.toFixed(2)} ·{" "}
-                    {rule.enabled ? "활성" : "비활성"}
-                  </p>
-                  <p className='mt-1 text-xs text-muted-foreground'>
-                    앱 {rule.sendInApp ? "ON" : "OFF"} · Slack {rule.sendSlack ? "ON" : "OFF"}
-                  </p>
+            return (
+              <div key={rule.id} className='rounded-md border border-border p-3'>
+                <div className='flex flex-wrap items-start justify-between gap-3'>
+                  <div>
+                    <p className='text-sm font-medium text-foreground'>{rule.marketCode}</p>
+                    <p className='mt-1 text-xs text-muted-foreground'>
+                      {ruleDirection === "UP" ? "상승" : "하락"} · {rule.comparison} {rule.threshold.toFixed(2)} ·{" "}
+                      {rule.enabled ? "활성" : "비활성"}
+                    </p>
+                    <p className='mt-1 text-xs text-muted-foreground'>
+                      앱 {rule.sendInApp ? "ON" : "OFF"} · Slack {rule.sendSlack ? "ON" : "OFF"}
+                    </p>
+                  </div>
+                  <button
+                    type='button'
+                    onClick={() => handleDelete(rule)}
+                    disabled={isDeleting}
+                    className='rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:text-muted-foreground/50'
+                  >
+                    {isDeleting ? "삭제 중" : "삭제"}
+                  </button>
                 </div>
-                <button
-                  type='button'
-                  onClick={() => handleDelete(rule)}
-                  disabled={isDeleting}
-                  className='rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:text-muted-foreground/50'
-                >
-                  {isDeleting ? "삭제 중" : "삭제"}
-                </button>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
 
       {statusMessage && <p className='mt-3 text-xs text-muted-foreground'>{statusMessage}</p>}

@@ -89,10 +89,12 @@ export const MarketListPanel = ({
     if (!hasNoFavorites) return favoriteMarkets;
 
     const marketsByCode = new Map(markets.map((market) => [market.code, market]));
-    return topMarketCodes?.flatMap((code) => {
-      const market = marketsByCode.get(code);
-      return market ? [market] : [];
-    }) ?? [];
+    return (
+      topMarketCodes?.flatMap((code) => {
+        const market = marketsByCode.get(code);
+        return market ? [market] : [];
+      }) ?? []
+    );
   }, [activeTab, favoriteMarkets, hasNoFavorites, isAuthenticated, markets, topMarketCodes]);
   const rows = useMemo(
     () => sourceMarkets.map((market) => toMarketRow(market, tickers[market.code])),
@@ -281,7 +283,7 @@ export const MarketListPanel = ({
                 >
                   <FavoriteButton marketCode={row.code} />
                   <button
-                    className='grid h-full min-w-0 grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 text-left transition-colors hover:bg-card focus-visible:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40'
+                    className='grid h-full min-w-0 grid-cols-[minmax(0,1fr)_80px_64px] items-center gap-3 text-left transition-colors hover:bg-card focus-visible:bg-card focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none'
                     onClick={() => onSelectMarket(row.code)}
                     type='button'
                   >

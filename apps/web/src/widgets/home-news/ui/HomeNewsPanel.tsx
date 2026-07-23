@@ -44,7 +44,12 @@ export const HomeNewsPanel = () => {
     <section className='rounded-lg border border-border bg-card p-5'>
       <div className='flex items-center justify-between gap-3'>
         <h2 className='text-base font-bold text-foreground'>뉴스</h2>
-        <Link className='text-sm font-semibold text-subtle-foreground transition-colors hover:text-foreground' href='/news'>전체 보기</Link>
+        <Link
+          className='text-sm font-semibold text-subtle-foreground transition-colors hover:text-foreground'
+          href='/news'
+        >
+          전체 보기
+        </Link>
       </div>
       <div className='mt-2'>
         {homeSummaryQuery.isLoading ? (
@@ -55,12 +60,21 @@ export const HomeNewsPanel = () => {
           news.map((item) => (
             <article className='flex items-center gap-4 border-b border-border py-4 last:border-b-0' key={item.id}>
               <div className='min-w-0 flex-1'>
-                <a className='block truncate text-sm font-semibold text-foreground transition-colors hover:text-subtle-foreground' href={item.url} rel='noopener noreferrer' target='_blank'>
+                <a
+                  className='block truncate text-sm font-semibold text-foreground transition-colors hover:text-subtle-foreground'
+                  href={item.url}
+                  rel='noopener noreferrer'
+                  target='_blank'
+                >
                   {item.title}
                 </a>
-                <p className='mt-1 truncate text-xs text-subtle-foreground'>{item.publisher ?? "출처 미상"} · {formatRelativeTime(item.publishedAt)}</p>
+                <p className='mt-1 truncate text-xs text-subtle-foreground'>
+                  {item.publisher ?? "출처 미상"} · {formatRelativeTime(item.publishedAt)}
+                </p>
               </div>
-              <span className={`shrink-0 rounded-md bg-surface-sunken px-2 py-1 text-xs font-semibold ${getSentimentClassName(item.sentiment)}`}>
+              <span
+                className={`shrink-0 rounded-md bg-surface-sunken px-2 py-1 text-xs font-semibold ${getSentimentClassName(item.sentiment)}`}
+              >
                 {getSentimentLabel(item.sentiment)}
               </span>
             </article>

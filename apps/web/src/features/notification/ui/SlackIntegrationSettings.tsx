@@ -66,14 +66,14 @@ export const SlackIntegrationSettings = () => {
           value={webhookUrl}
           onChange={(event) => setWebhookUrl(event.target.value)}
           placeholder='Slack Incoming Webhook URL'
-          className='min-w-0 rounded-md border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary bg-transparent'
+          className='min-w-0 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary'
         />
         <input
           type='text'
           value={channelName}
           onChange={(event) => setChannelName(event.target.value)}
           placeholder='채널명'
-          className='min-w-0 rounded-md border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary bg-transparent'
+          className='min-w-0 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary'
         />
       </div>
 

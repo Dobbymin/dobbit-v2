@@ -369,11 +369,11 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
   }, [series, indicators.ma, maSeries, candlesQuery.data, chartType]);
 
   return (
-    <section className='bg-background flex min-h-[560px] shrink-0 flex-col'>
-      <header className='border-border flex flex-nowrap items-start justify-between gap-3 border-b px-5 py-4'>
+    <section className='flex min-h-[560px] shrink-0 flex-col bg-background'>
+      <header className='flex flex-nowrap items-start justify-between gap-3 border-b border-border px-5 py-4'>
         <div className='min-w-0'>
-          <h1 className='text-foreground truncate text-xl font-bold'>{displayName}</h1>
-          <p className='text-muted-foreground mt-1 text-sm'>{displayCode}</p>
+          <h1 className='truncate text-xl font-bold text-foreground'>{displayName}</h1>
+          <p className='mt-1 text-sm text-muted-foreground'>{displayCode}</p>
         </div>
         <div className='shrink-0 text-right'>
           {displayPrice == null && (isLoading || candlesQuery.isLoading) ? (
@@ -403,7 +403,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
         </div>
       </header>
 
-      <div className='border-border flex h-11 flex-nowrap items-center gap-2 overflow-x-auto border-b px-5'>
+      <div className='flex h-11 flex-nowrap items-center gap-2 overflow-x-auto border-b border-border px-5'>
         {CANDLE_INTERVALS.map((interval) => (
           <Fragment key={`${interval.type}-${interval.unit ?? "none"}`}>
             <button
@@ -411,7 +411,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
               data-active={
                 selectedInterval.type === interval.type && (selectedInterval.unit ?? 0) === (interval.unit ?? 0)
               }
-              className='text-muted-foreground hover:bg-muted hover:text-foreground data-[active=true]:bg-muted data-[active=true]:text-foreground h-7 shrink-0 whitespace-nowrap rounded px-2 text-xs font-medium transition-colors'
+              className='h-7 shrink-0 rounded px-2 text-xs font-medium whitespace-nowrap text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[active=true]:bg-muted data-[active=true]:text-foreground'
               type='button'
             >
               {interval.label}
@@ -427,7 +427,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-7 shrink-0 items-center gap-1 whitespace-nowrap rounded px-2 text-xs font-medium transition-colors'
+              className='flex h-7 shrink-0 items-center gap-1 rounded px-2 text-xs font-medium whitespace-nowrap text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
               type='button'
             >
               차트설정
@@ -463,7 +463,7 @@ export const MarketChartPanel = ({ market, selectedMarketCode, ticker, isLoading
         <Popover>
           <PopoverTrigger asChild>
             <button
-              className='text-muted-foreground hover:bg-muted hover:text-foreground flex h-7 shrink-0 items-center gap-1 whitespace-nowrap rounded px-2 text-xs font-medium transition-colors'
+              className='flex h-7 shrink-0 items-center gap-1 rounded px-2 text-xs font-medium whitespace-nowrap text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
               type='button'
             >
               지표

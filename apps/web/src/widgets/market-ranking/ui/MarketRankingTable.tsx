@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { FavoriteButton } from "@/features/favorite";
+import { useMemo, useState } from "react";
+
 import { useHomeSummary, useMarketTickers } from "@/features";
 import { formatCoinPrice } from "@/shared";
 import type { HomeRankingItem, HomeSummaryResponse } from "@dobbit/shared";
+
+import { FavoriteButton } from "@/features/favorite";
 
 type RankingTab = keyof HomeSummaryResponse["rankings"];
 
@@ -29,12 +31,24 @@ const RankingRowsSkeleton = () => (
   <>
     {Array.from({ length: 20 }, (_, index) => (
       <tr className='h-10 border-b border-border' key={index}>
-        <td className='px-3'><div className='h-3 w-4 rounded bg-surface-sunken' /></td>
-        <td><div className='mx-auto size-5 rounded bg-surface-sunken' /></td>
-        <td><div className='h-3 w-24 rounded bg-surface-sunken' /></td>
-        <td><div className='ml-auto h-3 w-16 rounded bg-surface-sunken' /></td>
-        <td><div className='ml-auto h-3 w-12 rounded bg-surface-sunken' /></td>
-        <td className='hidden lg:table-cell'><div className='ml-auto h-3 w-14 rounded bg-surface-sunken' /></td>
+        <td className='px-3'>
+          <div className='h-3 w-4 rounded bg-surface-sunken' />
+        </td>
+        <td>
+          <div className='mx-auto size-5 rounded bg-surface-sunken' />
+        </td>
+        <td>
+          <div className='h-3 w-24 rounded bg-surface-sunken' />
+        </td>
+        <td>
+          <div className='ml-auto h-3 w-16 rounded bg-surface-sunken' />
+        </td>
+        <td>
+          <div className='ml-auto h-3 w-12 rounded bg-surface-sunken' />
+        </td>
+        <td className='hidden lg:table-cell'>
+          <div className='ml-auto h-3 w-14 rounded bg-surface-sunken' />
+        </td>
       </tr>
     ))}
   </>
@@ -44,10 +58,7 @@ export const MarketRankingTable = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<RankingTab>("tradePrice");
   const homeSummaryQuery = useHomeSummary();
-  const rankings = useMemo(
-    () => homeSummaryQuery.data?.rankings[activeTab] ?? [],
-    [activeTab, homeSummaryQuery.data],
-  );
+  const rankings = useMemo(() => homeSummaryQuery.data?.rankings[activeTab] ?? [], [activeTab, homeSummaryQuery.data]);
   const marketCodes = useMemo(() => rankings.map((item) => item.marketCode), [rankings]);
   const tickers = useMarketTickers(marketCodes);
 
@@ -56,9 +67,7 @@ export const MarketRankingTable = () => {
       rankings.map((item) => {
         const ticker = tickers[item.marketCode];
 
-        return ticker
-          ? { ...item, tradePrice: ticker.tradePrice, signedChangeRate: ticker.signedChangeRate }
-          : item;
+        return ticker ? { ...item, tradePrice: ticker.tradePrice, signedChangeRate: ticker.signedChangeRate } : item;
       }),
     [rankings, tickers],
   );
@@ -72,7 +81,9 @@ export const MarketRankingTable = () => {
           return (
             <button
               className={`h-8 shrink-0 rounded-md px-3 text-[13px] font-semibold transition-colors ${
-                isActive ? "bg-surface-sunken text-foreground" : "text-subtle-foreground hover:bg-surface-sunken hover:text-foreground"
+                isActive
+                  ? "bg-surface-sunken text-foreground"
+                  : "text-subtle-foreground hover:bg-surface-sunken hover:text-foreground"
               }`}
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
@@ -121,14 +132,22 @@ export const MarketRankingTable = () => {
                   onClick={() => router.push(`/trade/${item.marketCode}`)}
                 >
                   <td className='px-3 text-subtle-foreground'>{item.rank}</td>
-                  <td className='text-center'><FavoriteButton marketCode={item.marketCode} /></td>
+                  <td className='text-center'>
+                    <FavoriteButton marketCode={item.marketCode} />
+                  </td>
                   <td className='min-w-0'>
                     <span className='block truncate'>{item.koreanName}</span>
-                    <span className='block truncate text-[11px] font-medium text-subtle-foreground'>{item.marketCode}</span>
+                    <span className='block truncate text-[11px] font-medium text-subtle-foreground'>
+                      {item.marketCode}
+                    </span>
                   </td>
                   <td className='truncate px-2 text-right tabular-nums'>{formatCoinPrice(item.tradePrice)}</td>
-                  <td className={`truncate px-2 text-right tabular-nums ${changeClassName}`}>{formatChangeRate(item.signedChangeRate)}</td>
-                  <td className='hidden truncate px-3 text-right tabular-nums lg:table-cell'>{formatTradeAmount(item.accTradePrice24h)}</td>
+                  <td className={`truncate px-2 text-right tabular-nums ${changeClassName}`}>
+                    {formatChangeRate(item.signedChangeRate)}
+                  </td>
+                  <td className='hidden truncate px-3 text-right tabular-nums lg:table-cell'>
+                    {formatTradeAmount(item.accTradePrice24h)}
+                  </td>
                 </tr>
               );
             })

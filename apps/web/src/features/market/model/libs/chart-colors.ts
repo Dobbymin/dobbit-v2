@@ -41,7 +41,7 @@ const getCandleColor = (token: "--increase" | "--decrease", fallback: string): s
 
   try {
     const value = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
-    return value ? toRgb(value) ?? fallback : fallback;
+    return value ? (toRgb(value) ?? fallback) : fallback;
   } catch {
     return fallback;
   }

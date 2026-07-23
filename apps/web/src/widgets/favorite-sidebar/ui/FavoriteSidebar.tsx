@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 
 import { useMemo } from "react";
 
+import { formatCoinPrice } from "@/shared";
+
 import { useFavorites } from "@/features/favorite";
 import { useMarketTickers, useMarkets } from "@/features/market";
-import { formatCoinPrice } from "@/shared";
+
 import { useIsAuth } from "@/shared/store";
 
 export const FavoriteSidebar = () => {
@@ -55,7 +57,11 @@ export const FavoriteSidebar = () => {
             const ticker = tickers[code];
             const signedChangeRate = ticker?.signedChangeRate ?? 0;
             const changeClassName =
-              signedChangeRate > 0 ? "text-increase" : signedChangeRate < 0 ? "text-decrease" : "text-subtle-foreground";
+              signedChangeRate > 0
+                ? "text-increase"
+                : signedChangeRate < 0
+                  ? "text-decrease"
+                  : "text-subtle-foreground";
 
             return (
               <button

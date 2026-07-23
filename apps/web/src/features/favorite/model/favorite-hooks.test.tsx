@@ -1,9 +1,13 @@
 // @vitest-environment jsdom
+import type { ReactNode } from "react";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { favoriteKeys } from "./favorite-query-keys";
+import { useFavorites } from "./useFavorites";
+import { TOGGLE_FAVORITE_ERROR_MESSAGE, useToggleFavorite } from "./useToggleFavorite";
 
 const mocks = vi.hoisted(() => ({
   addFavoriteApi: vi.fn(),
@@ -26,10 +30,6 @@ vi.mock("@/shared/store", () => ({
 vi.mock("sonner", () => ({
   toast: { error: mocks.toastError },
 }));
-
-import { favoriteKeys } from "./favorite-query-keys";
-import { useFavorites } from "./useFavorites";
-import { TOGGLE_FAVORITE_ERROR_MESSAGE, useToggleFavorite } from "./useToggleFavorite";
 
 const createWrapper = (queryClient: QueryClient) => {
   return ({ children }: { children: ReactNode }) => (
