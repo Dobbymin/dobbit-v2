@@ -16,7 +16,7 @@ export const MobileNavMenu = () => {
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label='메뉴 열기'
-        className='rounded-lg p-2 text-muted-foreground transition-colors outline-none hover:bg-white/5 hover:text-white focus-visible:ring-2 focus-visible:ring-ring md:hidden'
+        className='rounded-lg p-2 text-muted-foreground transition-colors outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring md:hidden'
       >
         <Menu className='size-5' />
       </DropdownMenuTrigger>

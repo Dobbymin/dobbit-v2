@@ -50,14 +50,14 @@ export const TitleBox = ({ title, url, confidence, config, isLoading }: Props) =
             </span>
           )}
         </div>
-        <h3 className='text-xl leading-tight font-bold text-white transition-colors group-hover:text-blue-400'>
+        <h3 className='text-xl leading-tight font-bold text-foreground transition-colors group-hover:text-info'>
           {title}
         </h3>
       </div>
       <Button
         variant='ghost'
         size='icon'
-        className='shrink-0 text-muted-foreground hover:bg-white/10 hover:text-white'
+        className='shrink-0 text-muted-foreground hover:bg-accent hover:text-foreground'
         onClick={handleOpenLink}
         aria-label='뉴스 원문 새 창으로 열기'
       >

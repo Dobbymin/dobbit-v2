@@ -40,7 +40,7 @@ export const SlackIntegrationSettings = () => {
   };
 
   return (
-    <section className='border-t border-white/10 pt-5'>
+    <section className='border-t border-border pt-5'>
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <div>
           <h2 className='text-base font-semibold text-foreground'>Slack 알림</h2>
@@ -66,14 +66,14 @@ export const SlackIntegrationSettings = () => {
           value={webhookUrl}
           onChange={(event) => setWebhookUrl(event.target.value)}
           placeholder='Slack Incoming Webhook URL'
-          className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary bg-transparent'
+          className='min-w-0 rounded-md border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary bg-transparent'
         />
         <input
           type='text'
           value={channelName}
           onChange={(event) => setChannelName(event.target.value)}
           placeholder='채널명'
-          className='min-w-0 rounded-md border border-white/10 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary bg-transparent'
+          className='min-w-0 rounded-md border border-border px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary bg-transparent'
         />
       </div>
 
@@ -90,7 +90,7 @@ export const SlackIntegrationSettings = () => {
           type='button'
           onClick={handleTest}
           disabled={testMutation.isPending || !integration?.enabled}
-          className='rounded-md border border-white/20 px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:text-muted-foreground/50'
+          className='rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:text-muted-foreground/50'
         >
           {testMutation.isPending ? "발송 중" : "테스트 발송"}
         </button>

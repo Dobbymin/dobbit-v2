@@ -48,6 +48,8 @@
   --color-change-neutral: var(--change-neutral);
   --color-positive: var(--positive);
   --color-negative: var(--negative);
+  --color-info: var(--info);
+  --color-warning: var(--warning);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -158,6 +160,8 @@
   --change-neutral: var(--neutral-400);
   --positive: var(--pos-500);
   --negative: var(--neg-500);
+  --info: oklch(0.62 0.19 257);
+  --warning: oklch(0.75 0.15 75);
   /* charts (현행 유지) */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
@@ -202,4 +206,6 @@
   --change-neutral: var(--neutral-500);
   --positive: var(--pos-600);
   --negative: var(--neg-600);
+  --info: oklch(0.55 0.19 257);
+  --warning: oklch(0.68 0.15 75);
 }
