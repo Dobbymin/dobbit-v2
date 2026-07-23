@@ -10,12 +10,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   ROUTES_PATH,
 } from "@/shared";
-import { UserRound, Wallet } from "lucide-react";
+import { ChevronRight, UserRound, Wallet } from "lucide-react";
 
 import { useLogout } from "@/features/auth";
+import { useProfile } from "@/features/setting";
 
 import { useIsAuth } from "@/shared/store";
 
@@ -23,6 +26,8 @@ export const UserMenuButton = () => {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useIsAuth();
   const logout = useLogout();
+  const profile = useProfile();
+  const displayName = profile.data?.nickname ?? profile.data?.username ?? "사용자";
 
   // 로그인하지 않은 경우 로그인 버튼 표시
   if (!isLoading && !isAuthenticated) {
@@ -59,8 +64,27 @@ export const UserMenuButton = () => {
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align='end'>
-          <DropdownMenuItem onSelect={() => router.push(ROUTES_PATH.SETTING)}>설정</DropdownMenuItem>
+        <DropdownMenuContent align='end' className='w-56'>
+          <DropdownMenuLabel>
+            <div className='flex items-center gap-3'>
+              <Avatar className='size-8'>
+                <AvatarFallback>
+                  <UserRound className='size-4' fill='#e0e0e0' />
+                </AvatarFallback>
+              </Avatar>
+              <div className='flex flex-col'>
+                <span className='text-sm font-semibold'>{displayName}</span>
+              </div>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={() => router.push(ROUTES_PATH.SETTING)}
+            className='flex items-center justify-between'
+          >
+            내 정보
+            <ChevronRight size={16} className='text-muted-foreground' />
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => logout.mutate()}>로그아웃</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
