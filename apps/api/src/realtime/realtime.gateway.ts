@@ -39,13 +39,16 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   server: Server;
 
   private readonly logger = new Logger(RealtimeGateway.name);
-  private readonly activeMarkets = new Map<string, number>();
+  private readonly activeMarkets = new Map<string, Set<string>>();
 
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
+    for (const marketCode of Array.from(this.activeMarkets.keys())) {
+      this.removeMarketSubscriber(marketCode, client.id);
+    }
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
@@ -55,10 +58,10 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     void client.join(channel);
     this.logger.debug(`Client ${client.id} joined channel: ${channel}`);
 
-    // Increment reference count for this market
-    const currentCount = this.activeMarkets.get(data.marketCode) || 0;
-    this.activeMarkets.set(data.marketCode, currentCount + 1);
-    this.logger.debug(`Market ${data.marketCode} subscription count: ${currentCount + 1}`);
+    const subscribers = this.activeMarkets.get(data.marketCode) ?? new Set<string>();
+    subscribers.add(client.id);
+    this.activeMarkets.set(data.marketCode, subscribers);
+    this.logger.debug(`Market ${data.marketCode} subscription count: ${subscribers.size}`);
   }
 
   @SubscribeMessage('market:leave')
@@ -67,18 +70,25 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     void client.leave(channel);
     this.logger.debug(`Client ${client.id} left channel: ${channel}`);
 
-    // Decrement reference count for this market
-    const currentCount = this.activeMarkets.get(data.marketCode) || 0;
-    if (currentCount > 1) {
-      this.activeMarkets.set(data.marketCode, currentCount - 1);
-    } else {
-      this.activeMarkets.delete(data.marketCode);
-    }
-    this.logger.debug(`Market ${data.marketCode} subscription count: ${Math.max(0, currentCount - 1)}`);
+    this.removeMarketSubscriber(data.marketCode, client.id);
+    const subscribers = this.activeMarkets.get(data.marketCode);
+    this.logger.debug(`Market ${data.marketCode} subscription count: ${subscribers?.size ?? 0}`);
   }
 
   getActiveMarkets(): string[] {
     return Array.from(this.activeMarkets.keys());
+  }
+
+  private removeMarketSubscriber(marketCode: string, socketId: string): void {
+    const subscribers = this.activeMarkets.get(marketCode);
+    if (!subscribers) {
+      return;
+    }
+
+    subscribers.delete(socketId);
+    if (subscribers.size === 0) {
+      this.activeMarkets.delete(marketCode);
+    }
   }
 
   @UseGuards(WsJwtGuard)
