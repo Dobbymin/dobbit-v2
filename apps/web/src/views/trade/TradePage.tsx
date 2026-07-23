@@ -11,6 +11,7 @@ import {
   MarketOrderPanel,
   useMarketTickers,
   useMarkets,
+  useRecentlyViewed,
   useTicker,
 } from "@/features/market";
 
@@ -23,6 +24,7 @@ export default function TradePage({ marketCode }: TradePageProps) {
   const marketsQuery = useMarkets({ quote: "KRW", onlyActive: true });
   const markets = useMemo(() => marketsQuery.data ?? [], [marketsQuery.data]);
   const selectedMarket = markets.find((market) => market.code === marketCode);
+  const { record } = useRecentlyViewed();
   const tickerQuery = useTicker(marketCode);
 
   const marketCodes = useMemo(() => markets.map((market) => market.code), [markets]);
@@ -34,6 +36,10 @@ export default function TradePage({ marketCode }: TradePageProps) {
       router.replace("/trade/KRW-BTC");
     }
   }, [marketCode, marketsQuery.isLoading, markets, router]);
+
+  useEffect(() => {
+    if (selectedMarket) record(marketCode);
+  }, [marketCode, selectedMarket, record]);
 
   return (
     <AppLayout noMainPadding>
