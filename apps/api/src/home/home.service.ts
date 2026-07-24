@@ -3,7 +3,7 @@ import { HomeHighlight, HomeNewsItem, HomeRankingItem, HomeSummaryResponse } fro
 import { PrismaService } from '../common/prisma/prisma.service';
 import { UpbitApiClient } from '../market/external/upbit-api.client';
 
-const HIGHLIGHT_CODES = ['KRW-BTC', 'KRW-ETH', 'KRW-XRP', 'KRW-SOL'];
+const HIGHLIGHT_CODES = ['KRW-BTC', 'KRW-ETH'];
 const RANKING_LIMIT = 20;
 const CACHE_TTL_MS = 60_000;
 

@@ -2,12 +2,9 @@
 
 import Link from "next/link";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-
 import { useHomeSummary, useMarketTickers } from "@/features";
 import { formatCoinPrice } from "@/shared";
 import type { HomeHighlight } from "@dobbit/shared";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const formatChangeRate = (value: number) => `${value >= 0 ? "+" : ""}${(value * 100).toFixed(2)}%`;
 
@@ -37,22 +34,12 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
 
   return (
     <Link
-      className='h-[180px] w-[281px] shrink-0 rounded-lg border border-border bg-card p-5 text-left transition-colors hover:bg-surface-sunken'
+      className='flex items-center gap-4 rounded-lg border border-border bg-card p-4 text-left transition-colors hover:bg-surface-sunken'
       href={`/trade/${item.marketCode}`}
     >
-      <div className='flex items-start justify-between gap-3'>
-        <div className='min-w-0'>
-          <p className='truncate text-sm font-semibold text-foreground'>{item.koreanName}</p>
-          <p className='mt-1 text-xs text-subtle-foreground'>{item.marketCode}</p>
-        </div>
-        <p className={`shrink-0 text-sm font-semibold tabular-nums ${changeClassName}`}>
-          {formatChangeRate(signedChangeRate)}
-        </p>
-      </div>
-      <p className='mt-4 text-xl font-bold text-foreground tabular-nums'>{formatCoinPrice(tradePrice)}</p>
       <svg
         aria-hidden='true'
-        className={`mt-5 h-12 w-full ${changeClassName}`}
+        className={`h-12 w-24 shrink-0 ${changeClassName}`}
         preserveAspectRatio='none'
         viewBox='0 0 100 100'
       >
@@ -70,96 +57,45 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
           />
         )}
       </svg>
+      <div className='min-w-0 flex-1'>
+        <p className='truncate text-sm font-semibold text-foreground'>{item.koreanName}</p>
+        <div className='mt-1 flex items-baseline justify-between gap-3'>
+          <p className='truncate text-base font-bold text-foreground tabular-nums'>{formatCoinPrice(tradePrice)}</p>
+          <p className={`shrink-0 text-sm font-semibold tabular-nums ${changeClassName}`}>
+            {formatChangeRate(signedChangeRate)}
+          </p>
+        </div>
+      </div>
     </Link>
   );
 };
 
 const HighlightSkeleton = () => (
-  <div className='h-[180px] w-[281px] shrink-0 rounded-lg border border-border bg-card p-5'>
-    <div className='h-4 w-20 rounded bg-surface-sunken' />
-    <div className='mt-2 h-3 w-14 rounded bg-surface-sunken' />
-    <div className='mt-6 h-6 w-32 rounded bg-surface-sunken' />
-    <div className='mt-6 h-12 rounded bg-surface-sunken' />
+  <div className='flex items-center gap-4 rounded-lg border border-border bg-card p-4'>
+    <div className='h-12 w-24 shrink-0 rounded bg-surface-sunken' />
+    <div className='min-w-0 flex-1'>
+      <div className='h-4 w-20 rounded bg-surface-sunken' />
+      <div className='mt-2 h-5 w-32 rounded bg-surface-sunken' />
+    </div>
+    <div className='h-4 w-12 shrink-0 rounded bg-surface-sunken' />
   </div>
 );
 
 export const MarketHighlightCarousel = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
   const homeSummaryQuery = useHomeSummary();
   const highlights = homeSummaryQuery.data?.highlights ?? [];
 
-  const updateScrollButtons = useCallback(() => {
-    const element = scrollRef.current;
-    if (!element) return;
-
-    setCanScrollLeft(element.scrollLeft > 0);
-    setCanScrollRight(element.scrollLeft + element.clientWidth < element.scrollWidth - 1);
-  }, []);
-
-  useEffect(() => {
-    updateScrollButtons();
-    window.addEventListener("resize", updateScrollButtons);
-
-    return () => window.removeEventListener("resize", updateScrollButtons);
-  }, [highlights.length, updateScrollButtons]);
-
-  const scrollByCard = useCallback(
-    (direction: "left" | "right") => {
-      scrollRef.current?.scrollBy({ left: direction === "left" ? -305 : 305 });
-      updateScrollButtons();
-    },
-    [updateScrollButtons],
-  );
-
   const cards: Array<HomeHighlight | null> = homeSummaryQuery.isLoading
-    ? Array.from({ length: 4 }, () => null)
+    ? Array.from({ length: 2 }, () => null)
     : highlights;
 
   return (
-    <section className='relative w-full overflow-hidden'>
-      <div className='mb-3 flex items-center justify-between'>
-        <h2 className='text-base font-bold text-foreground'>주요 시세</h2>
-        <div className='flex gap-1'>
-          <button
-            aria-label='이전 주요 시세'
-            className='rounded-md border border-border p-1.5 text-foreground disabled:text-subtle-foreground'
-            disabled={!canScrollLeft}
-            onClick={() => scrollByCard("left")}
-            type='button'
-          >
-            <ChevronLeft className='size-4' />
-          </button>
-          <button
-            aria-label='다음 주요 시세'
-            className='rounded-md border border-border p-1.5 text-foreground disabled:text-subtle-foreground'
-            disabled={!canScrollRight}
-            onClick={() => scrollByCard("right")}
-            type='button'
-          >
-            <ChevronRight className='size-4' />
-          </button>
-        </div>
-      </div>
-      <div
-        aria-label='주요 시세 목록'
-        className='-mx-1 overflow-x-auto px-1 pb-1'
-        onKeyDown={(event) => {
-          if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-
-          event.preventDefault();
-          scrollByCard(event.key === "ArrowLeft" ? "left" : "right");
-        }}
-        onScroll={updateScrollButtons}
-        ref={scrollRef}
-        tabIndex={0}
-      >
-        <div className='flex w-max gap-3'>
-          {cards.map((item, index) =>
-            item ? <HighlightCard item={item} key={item.marketCode} /> : <HighlightSkeleton key={index} />,
-          )}
-        </div>
+    <section className='w-full'>
+      <h2 className='mb-3 text-base font-bold text-foreground'>주요 시세</h2>
+      <div aria-label='주요 시세 목록' className='flex flex-col gap-3'>
+        {cards.map((item, index) =>
+          item ? <HighlightCard item={item} key={item.marketCode} /> : <HighlightSkeleton key={index} />,
+        )}
       </div>
     </section>
   );
