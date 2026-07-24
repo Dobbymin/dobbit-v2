@@ -134,10 +134,10 @@ export const MarketRankingTable = () => {
                     <FavoriteButton marketCode={item.marketCode} />
                   </td>
                   <td className='min-w-0'>
-                    <Link className='block min-w-0' href={`/trade/${item.marketCode}`}>
-                      <span className='block truncate'>{item.koreanName}</span>
-                      <span className='block truncate text-[11px] font-medium text-subtle-foreground'>
-                        {item.marketCode}
+                    <Link className='flex min-w-0 items-center gap-1' href={`/trade/${item.marketCode}`}>
+                      <span className='min-w-0 truncate'>{item.koreanName}</span>
+                      <span className='shrink-0 text-[11px] font-medium text-subtle-foreground'>
+                        {item.marketCode.replace("KRW-", "")}
                       </span>
                     </Link>
                   </td>
