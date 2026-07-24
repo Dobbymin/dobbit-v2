@@ -13,6 +13,8 @@ export type HomeHighlight = {
   koreanName: string;
   tradePrice: number;
   signedChangeRate: number;
+  high24h: number;
+  low24h: number;
   sparkline: number[];
 };
 
