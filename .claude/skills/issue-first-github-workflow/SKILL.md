@@ -160,7 +160,7 @@ branch convention 검증:
 ```bash
 pnpm check-types
 npx turbo run test --force
-npx turbo run lint --filter=<변경한 package> --force
+npx turbo run lint --filter=<pkg1> --filter=<pkg2> --force
 ```
 
 **루트에서 `pnpm test`와 `pnpm lint`를 쓰지 않는다** (2026-07-24 실측).
@@ -170,7 +170,9 @@ npx turbo run lint --filter=<변경한 package> --force
 - `pnpm lint` — `api#lint`가 선행 상태로 깨져 있다
   (`apps/api/src/home/home.service.ts:141`,
   `@typescript-eslint/require-await`). 또한 `pnpm lint`는 rtk 훅이 가로채 실제
-  원인과 무관한 메시지를 낸다. 변경한 package만 `--filter`로 지정해 돌린다.
+  원인과 무관한 메시지를 낸다. 변경한 package만 `--filter`로 지정해 돌리되,
+  여러 package를 건드렸으면 `--filter`를 **빠짐없이 나열**한다. 하나만 지정하면
+  나머지 package의 lint 회귀를 놓친다.
 - `--force`는 검증 게이트에서 항상 붙인다. turbo가 cache hit로 과거 통과 결과를
   replay하면 실제로는 아무것도 실행하지 않고 "통과"로 보인다.
 

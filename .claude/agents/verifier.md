@@ -22,7 +22,9 @@ implementer의 구현 결과를 검증하고 Obsidian 작업 로그를 남긴다
 1. **완료 기준 파일 체크** — `ls`, `cat` 으로 파일 존재 확인
 2. **타입 체크** — `pnpm check-types`
 3. **테스트** — `npx turbo run test --force`
-4. **린트** — `npx turbo run lint --filter=<변경한 package> --force`
+4. **린트** — `npx turbo run lint --filter=<pkg1> --filter=<pkg2> --force`
+   (변경한 lint 대상 package를 **빠짐없이** 나열한다. 하나만 지정하면 나머지
+   package의 lint 회귀를 놓친다)
 5. **빌드** — `pnpm build` (선택, 시간이 오래 걸리면 건너뜀)
 6. **Obsidian 기록** — 성공/실패 여부와 무관하게 항상 기록
 

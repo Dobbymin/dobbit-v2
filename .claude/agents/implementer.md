@@ -71,10 +71,12 @@ PROMPT
 ```
 ./node_modules/.bin/turbo run check-types --force
 ./node_modules/.bin/turbo run test --force
-./node_modules/.bin/turbo run lint --filter=<변경한 package> --force
+./node_modules/.bin/turbo run lint --filter=<pkg1> --filter=<pkg2> --force
 ```
 
-**lint는 `--filter`로 변경한 package만 돌린다** (2026-07-24 실측). unfiltered
+**lint는 `--filter`로 변경한 package만 돌리되, 건드린 package를 빠짐없이
+나열한다** (2026-07-24 실측). 하나만 지정하면 나머지 package의 lint 회귀를
+놓친다. unfiltered
 `turbo run lint`는 아래 선행 실패 때문에 깨진다 — 내 변경과 무관하다.
 
 - `api#lint` — `apps/api/src/home/home.service.ts:141`에서
