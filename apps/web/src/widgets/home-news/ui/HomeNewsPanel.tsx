@@ -41,7 +41,7 @@ export const HomeNewsPanel = () => {
   const news = homeSummaryQuery.data?.news.slice(0, 7) ?? [];
 
   return (
-    <section>
+    <section className='lg:flex lg:h-full lg:min-h-0 lg:flex-col'>
       <div className='mb-3 flex items-center justify-between gap-3'>
         <h2 className='text-base font-bold text-foreground'>뉴스</h2>
         <Link
@@ -51,7 +51,7 @@ export const HomeNewsPanel = () => {
           전체 보기
         </Link>
       </div>
-      <div className='rounded-lg border border-border bg-card p-5'>
+      <div className='rounded-lg border border-border bg-card p-5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
         {homeSummaryQuery.isLoading ? (
           Array.from({ length: 7 }, (_, index) => <NewsSkeleton key={index} />)
         ) : news.length === 0 ? (

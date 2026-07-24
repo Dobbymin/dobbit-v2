@@ -115,7 +115,7 @@ export class HomeService {
 
     try {
       const candlesByMarket = await Promise.all(
-        availableCodes.map((code) => this.upbitApiClient.getCandles(code, { type: 'minutes', unit: 60 }, 24)),
+        availableCodes.map((code) => this.upbitApiClient.getCandles(code, { type: 'minutes', unit: 10 }, 144)),
       );
 
       return {
