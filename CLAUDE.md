@@ -274,7 +274,9 @@ API Key·Secret Key는 응답·코드·로그·커밋에 그대로 출력하거�
 3. 구현 및 검증
 4. commit/push
 5. PR 작성, PR body에 `Closes #<issue_number>` 포함
-6. Gemini/Copilot 등 AI code review 진행
+6. `codex exec review --base main`으로 코드 리뷰 진행 — GitHub 리뷰
+   봇(Gemini/Copilot)은 사용하지 않고 기다리지도 않는다 (2026-07-24 기준 둘 다
+   응답 불가). 필요하면 `antigravity-review` skill로 2차 의견을 받는다
 7. 리뷰 타당성 검토 후 필요한 것만 반영
 8. review/check 완료 후 사용자 승인에 따라 `main` merge
 
