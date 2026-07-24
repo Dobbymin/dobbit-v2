@@ -74,21 +74,22 @@ PROMPT
 ./node_modules/.bin/turbo run lint --filter=<변경한 package> --force
 ```
 
-**lint는 반드시 `--filter`로 변경한 package만 돌린다** (2026-07-24 실측).
-unfiltered `turbo run lint`는 아래 두 선행 실패 때문에 무조건 깨진다 — 내
-변경과 무관하다.
+**lint는 `--filter`로 변경한 package만 돌린다** (2026-07-24 실측). unfiltered
+`turbo run lint`는 아래 선행 실패 때문에 깨진다 — 내 변경과 무관하다.
 
-- `api#lint` — `apps/api/__tests__/**`가 tsconfig project service에 포함되지
-  않아 parsing error로 실패
-- `apps/storybook` — eslint가 설치되어 있지 않음
+- `api#lint` — `apps/api/src/home/home.service.ts:141`에서
+  `@typescript-eslint/require-await` 에러 1건 (`getRankings`에 `await`가 없다).
+  api의 lint script는 `eslint src`라 `__tests__`는 대상이 아니다
+- `apps/storybook`은 lint script 자체가 없어 turbo가 건너뛴다 — 실패 원인이
+  아니다
 
 `pnpm test`도 쓰지 않는다. 루트 `package.json`에 `test` script가 없어 workspace
 test를 돌리기 전에 exit 1이다.
 
-이전 판에는 `pnpm lint`의 `Command "eslint" not found`가 rtk 훅이 낸 **가짜
-에러**이고 레포는 정상이라고 적혀 있었으나, 실측 결과 `api#lint`는 실제로
-실패한다. 실패를 봤다면 위 두 선행 원인에 해당하는지 먼저 확인하고, 해당하면
-"선행 실패"로 구분해 보고한다.
+`pnpm lint`를 직접 돌리면 rtk 훅이 가로채 lint 범위가 달라지고
+`__tests__/**` parsing error나 `Command "eslint" not found` 같은 **실제 원인과
+무관한 메시지**가 나온다. 위 turbo 명령만 쓰고, 실패를 봤다면 선행 실패에
+해당하는지 확인한 뒤 "선행 실패"로 구분해 보고한다.
 
 ## 핵심 역할
 

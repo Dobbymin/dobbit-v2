@@ -168,9 +168,10 @@ npx turbo run lint --filter=<변경한 package>
 - `pnpm test` — 루트 `package.json`에 `test` script가 없어 workspace test를
   돌리기도 전에 exit 1. turbo에는 `test` task가 있으므로
   `npx turbo run test`를 쓴다.
-- `pnpm lint` — `api#lint`가 선행 상태로 깨져 있고(`apps/api/__tests__`가
-  tsconfig project service에 포함되지 않아 parsing error), `apps/storybook`에는
-  eslint가 설치되어 있지 않다. 변경한 package만 `--filter`로 지정해 돌린다.
+- `pnpm lint` — `api#lint`가 선행 상태로 깨져 있다
+  (`apps/api/src/home/home.service.ts:141`,
+  `@typescript-eslint/require-await`). 또한 `pnpm lint`는 rtk 훅이 가로채 실제
+  원인과 무관한 메시지를 낸다. 변경한 package만 `--filter`로 지정해 돌리고,
   cache hit로 과거 결과가 replay될 수 있으니 확실히 하려면 `--force`를 붙인다.
 
 실행한 명령과 실제 결과를 PR body 또는 작업 로그에 남긴다. 통과하지 못한
