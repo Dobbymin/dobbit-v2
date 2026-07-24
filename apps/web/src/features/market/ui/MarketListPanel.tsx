@@ -304,16 +304,16 @@ export const MarketListPanel = ({
                   >
                     <div className='flex min-w-0 items-center gap-2.5'>
                       <CoinIcon marketCode={row.code} size={26} />
-                      <span className='min-w-0 flex-1'>
+                      <span className='flex min-w-0 flex-1 items-center gap-1'>
                         <span
                           className={cn(
-                            "block truncate text-sm font-semibold",
+                            "min-w-0 flex-1 truncate text-sm font-semibold",
                             active ? "text-primary" : "text-foreground",
                           )}
                         >
                           {row.koreanName}
                         </span>
-                        <span className='block truncate text-[10px] text-muted-foreground'>{row.symbolPair}</span>
+                        <span className='shrink-0 text-[10px] text-muted-foreground'>{row.code.replace("KRW-", "")}</span>
                       </span>
                     </div>
                     <span className='flex min-w-0 flex-col items-end gap-0.5'>
