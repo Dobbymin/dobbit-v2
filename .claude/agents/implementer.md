@@ -66,13 +66,29 @@ PROMPT
 
 ### 6. 검증 명령은 turbo를 직접 호출한다
 
-`pnpm lint`는 rtk 훅이 가로채 `Command "eslint" not found`라는 **가짜 에러**를
-낸다. 레포는 정상이다. 반드시 아래를 쓴다.
+`pnpm lint`는 쓰지 않는다. 반드시 아래를 쓴다.
 
 ```
-./node_modules/.bin/turbo run lint --force
 ./node_modules/.bin/turbo run check-types --force
+./node_modules/.bin/turbo run test
+./node_modules/.bin/turbo run lint --filter=<변경한 package> --force
 ```
+
+**lint는 반드시 `--filter`로 변경한 package만 돌린다** (2026-07-24 실측).
+unfiltered `turbo run lint`는 아래 두 선행 실패 때문에 무조건 깨진다 — 내
+변경과 무관하다.
+
+- `api#lint` — `apps/api/__tests__/**`가 tsconfig project service에 포함되지
+  않아 parsing error로 실패
+- `apps/storybook` — eslint가 설치되어 있지 않음
+
+`pnpm test`도 쓰지 않는다. 루트 `package.json`에 `test` script가 없어 workspace
+test를 돌리기 전에 exit 1이다.
+
+이전 판에는 `pnpm lint`의 `Command "eslint" not found`가 rtk 훅이 낸 **가짜
+에러**이고 레포는 정상이라고 적혀 있었으나, 실측 결과 `api#lint`는 실제로
+실패한다. 실패를 봤다면 위 두 선행 원인에 해당하는지 먼저 확인하고, 해당하면
+"선행 실패"로 구분해 보고한다.
 
 ## 핵심 역할
 
