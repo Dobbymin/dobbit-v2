@@ -54,7 +54,7 @@ export const MarketSidebar = () => {
 
   return (
     <aside
-      className={`mt-[52px] hidden h-[calc(100vh-52px)] min-w-0 shrink-0 flex-row bg-background transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex ${
+      className={`sticky top-[52px] mt-[52px] hidden h-[calc(100vh-52px)] min-w-0 shrink-0 flex-row self-start bg-background transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex ${
         isOpen ? "w-[368px]" : "w-12"
       }`}
     >
