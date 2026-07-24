@@ -60,7 +60,7 @@ branch/PR/review/merge 흐름을 일관되게 관리한다.
      문서는 Claude Code가 직접 수정할 수 있다.
 
 4. **AI review는 제안일 뿐이다**
-   - Gemini, Copilot 등 AI review 결과를 그대로 적용하지 않는다.
+   - Codex·Antigravity 리뷰 결과를 그대로 적용하지 않는다. 오탐이 있다.
    - 각 리뷰를 타당성 검토 후 반영/보류/미반영으로 분류한다.
 
 ## Required Workflow
@@ -159,11 +159,25 @@ branch convention 검증:
 
 ```bash
 pnpm check-types
-pnpm lint
-pnpm test
+npx turbo run test --force
+npx turbo run lint --filter=<pkg1> --filter=<pkg2> --force
 ```
 
-실행한 명령과 실제 결과를 PR body 또는 작업 로그에 남긴다.
+**루트에서 `pnpm test`와 `pnpm lint`를 쓰지 않는다** (2026-07-24 실측).
+
+- `pnpm test` — 루트 `package.json`에 `test` script가 없어 workspace test를
+  돌리기도 전에 exit 1. turbo에는 `test` task가 있으므로 turbo로 돌린다.
+- `pnpm lint` — `api#lint`가 선행 상태로 깨져 있다
+  (`apps/api/src/home/home.service.ts:141`,
+  `@typescript-eslint/require-await`). 또한 `pnpm lint`는 rtk 훅이 가로채 실제
+  원인과 무관한 메시지를 낸다. 변경한 package만 `--filter`로 지정해 돌리되,
+  여러 package를 건드렸으면 `--filter`를 **빠짐없이 나열**한다. 하나만 지정하면
+  나머지 package의 lint 회귀를 놓친다.
+- `--force`는 검증 게이트에서 항상 붙인다. turbo가 cache hit로 과거 통과 결과를
+  replay하면 실제로는 아무것도 실행하지 않고 "통과"로 보인다.
+
+실행한 명령과 실제 결과를 PR body 또는 작업 로그에 남긴다. 통과하지 못한
+명령이 있으면 원인(내 변경 때문인지, 선행 상태인지)을 구분해 적는다.
 
 ### 6. Commit / Push
 
@@ -196,7 +210,43 @@ PR body에는 다음을 포함한다.
 
 ### 8. AI Code Review
 
-가능하면 Gemini, Copilot 등 AI code review를 실행한다.
+**Codex 리뷰를 기본으로 사용한다. GitHub 리뷰 봇을 기다리지 않는다.**
+
+PR을 올린 직후 로컬에서 바로 실행한다.
+
+```bash
+codex exec review --base main --title "<PR 제목>"
+```
+
+`--base main`은 현재 branch와 `main`의 차이를 리뷰한다. 특정 커밋만 볼 때는
+`--commit <SHA>`, 아직 커밋하지 않은 변경은 `--uncommitted`를 쓴다.
+
+GitHub 리뷰 봇(Gemini Code Assist, Copilot)은 **사용하지 않는다.** 2026-07-24
+기준 두 봇 모두 응답하지 않는 것을 확인했다.
+
+- Gemini Code Assist — 컨슈머 버전 서비스 종료(sunset). `/gemini review`
+  코멘트를 남겨도 종료 안내만 돌아온다.
+- GitHub Copilot — 리뷰 쿼터 소진으로 "unable to review" 응답. API로 리뷰어
+  요청 시 collaborator가 아니라는 오류가 난다.
+
+봇 리뷰를 기다리며 sleep하지 않는다. 상태가 바뀌어 봇이 다시 동작하면 그때
+이 문서를 갱신한다.
+
+#### 2차 리뷰 — Antigravity(선택)
+
+더 강한 크로스체크가 필요하면 `antigravity-review` skill로 다른 모델의 2차
+의견을 받는다. Codex 리뷰를 대체하지 않고 보완한다.
+
+- 규모가 크거나 되돌리기 어려운 변경, 인증·결제·자산 관련 로직에 권장
+- diff를 프롬프트에 인라인으로 붙여 호출한다(파일 경로만 주면 권한 대기로
+  타임아웃). 상세 절차는 `antigravity-review` skill 참조
+- agy는 read-only다. 실행 전후 `git status --porcelain`을 비교해 파일을 건드리지
+  않았는지 확인한다
+
+#### 리뷰 결과 기록
+
+실행한 리뷰와 결과를 PR 코멘트로 남긴다. 리뷰어별 실행 여부·결과를 표로
+정리하고, 실행하지 못했다면 그 이유를 적는다.
 
 리뷰 항목별 처리 기준:
 
@@ -211,8 +261,9 @@ PR body에는 다음을 포함한다.
 다음을 모두 만족한 뒤 `main`에 merge한다.
 
 - PR이 issue와 연결되어 있다.
-- CI/checks가 통과했다.
-- AI/human review 의견이 해결되었거나 이유와 함께 정리되었다.
+- Codex 리뷰를 실행했고, 의견이 해결되었거나 이유와 함께 정리되었다.
+- 5단계의 로컬 검증 명령이 통과했다. 이 repository에는 PR workflow가 없어
+  GitHub checks는 등록되지 않는다 — 검증 근거는 로컬 실행 결과다.
 - 사용자가 merge를 요청/승인했다.
 
 기본은 squash merge를 선호한다.
@@ -250,6 +301,6 @@ PR body 파일 검증:
 - [ ] 필요한 검증 명령을 실행했다.
 - [ ] commit/push를 완료했다.
 - [ ] PR body에 `Closes #<issue_number>` 또는 equivalent keyword가 있다.
-- [ ] AI review를 실행했거나 실행 불가 이유를 기록했다.
+- [ ] `codex exec review --base main`을 실행했다(봇 리뷰 대기 금지).
 - [ ] review 의견을 타당성 검토 후 반영/보류/미반영으로 정리했다.
 - [ ] merge는 review/check 완료 후 사용자의 요청/승인을 받고 진행했다.

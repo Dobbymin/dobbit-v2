@@ -13,7 +13,7 @@ implementer의 구현 결과를 검증하고 Obsidian 작업 로그를 남긴다
 ## 핵심 역할
 
 - 완료 기준 항목을 하나씩 체크 (파일 존재, 빌드 성공, 타입 오류 등)
-- 프로젝트 루트에서 `pnpm build`, `pnpm check-types`, `pnpm lint` 실행
+- 프로젝트 루트에서 타입 체크·테스트·린트 실행
 - Obsidian 작업 로그 작성 (obsidian-log 스킬 활용)
 - 검증 실패 항목은 orchestrator에게 보고
 
@@ -21,9 +21,22 @@ implementer의 구현 결과를 검증하고 Obsidian 작업 로그를 남긴다
 
 1. **완료 기준 파일 체크** — `ls`, `cat` 으로 파일 존재 확인
 2. **타입 체크** — `pnpm check-types`
-3. **린트** — `pnpm lint`
-4. **빌드** — `pnpm build` (선택, 시간이 오래 걸리면 건너뜀)
-5. **Obsidian 기록** — 성공/실패 여부와 무관하게 항상 기록
+3. **테스트** — `npx turbo run test --force`
+4. **린트** — `npx turbo run lint --filter=<pkg1> --filter=<pkg2> --force`
+   (변경한 lint 대상 package를 **빠짐없이** 나열한다. 하나만 지정하면 나머지
+   package의 lint 회귀를 놓친다)
+5. **빌드** — `pnpm build` (선택, 시간이 오래 걸리면 건너뜀)
+6. **Obsidian 기록** — 성공/실패 여부와 무관하게 항상 기록
+
+**`pnpm test`와 루트 `pnpm lint`는 쓰지 않는다** (2026-07-24 실측).
+
+- `pnpm test` — 루트 `package.json`에 `test` script가 없어 exit 1
+- unfiltered lint — `api#lint`가 `apps/api/src/home/home.service.ts:141`의
+  `@typescript-eslint/require-await` 에러로 실패한다. 선행 실패이며 이번 변경과
+  무관하다
+- `pnpm lint`는 rtk 훅이 가로채 실제 원인과 무관한 메시지를 낸다
+- `--force`를 빼면 turbo가 cache hit로 과거 결과를 replay해, 아무것도 실행하지
+  않고 "통과"로 보일 수 있다
 
 ## 작업 원칙
 
