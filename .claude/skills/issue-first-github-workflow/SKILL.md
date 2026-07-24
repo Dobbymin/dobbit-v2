@@ -159,11 +159,22 @@ branch convention 검증:
 
 ```bash
 pnpm check-types
-pnpm lint
-pnpm test
+npx turbo run test
+npx turbo run lint --filter=<변경한 package>
 ```
 
-실행한 명령과 실제 결과를 PR body 또는 작업 로그에 남긴다.
+**루트에서 `pnpm test`와 `pnpm lint`를 쓰지 않는다** (2026-07-24 실측).
+
+- `pnpm test` — 루트 `package.json`에 `test` script가 없어 workspace test를
+  돌리기도 전에 exit 1. turbo에는 `test` task가 있으므로
+  `npx turbo run test`를 쓴다.
+- `pnpm lint` — `api#lint`가 선행 상태로 깨져 있고(`apps/api/__tests__`가
+  tsconfig project service에 포함되지 않아 parsing error), `apps/storybook`에는
+  eslint가 설치되어 있지 않다. 변경한 package만 `--filter`로 지정해 돌린다.
+  cache hit로 과거 결과가 replay될 수 있으니 확실히 하려면 `--force`를 붙인다.
+
+실행한 명령과 실제 결과를 PR body 또는 작업 로그에 남긴다. 통과하지 못한
+명령이 있으면 원인(내 변경 때문인지, 선행 상태인지)을 구분해 적는다.
 
 ### 6. Commit / Push
 
@@ -248,9 +259,8 @@ GitHub 리뷰 봇(Gemini Code Assist, Copilot)은 **사용하지 않는다.** 20
 
 - PR이 issue와 연결되어 있다.
 - Codex 리뷰를 실행했고, 의견이 해결되었거나 이유와 함께 정리되었다.
-- 로컬 검증(`pnpm check-types`, lint, test)이 통과했다. 이 repository에는 PR
-  workflow가 없어 GitHub checks는 등록되지 않는다 — 검증 근거는 로컬 실행
-  결과다.
+- 5단계의 로컬 검증 명령이 통과했다. 이 repository에는 PR workflow가 없어
+  GitHub checks는 등록되지 않는다 — 검증 근거는 로컬 실행 결과다.
 - 사용자가 merge를 요청/승인했다.
 
 기본은 squash merge를 선호한다.
