@@ -102,7 +102,7 @@ const HighlightSkeleton = () => (
       <div className='h-4 w-20 rounded bg-surface-sunken' />
       <div className='mt-2 h-5 w-32 rounded bg-surface-sunken' />
     </div>
-    <div className='h-20 w-full rounded bg-surface-sunken' />
+    <div className='h-12 w-full rounded bg-surface-sunken' />
     <div className='grid grid-cols-2 gap-3 border-t border-border pt-4'>
       <div>
         <div className='h-3 w-16 rounded bg-surface-sunken' />
