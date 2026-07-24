@@ -19,7 +19,7 @@ export const useLogout = () => {
     onSettled: () => {
       clearAccessToken();
       queryClient.removeQueries({ queryKey: authKeys.all });
-      router.push(ROUTES_PATH.LOGIN);
+      router.push(ROUTES_PATH.HOME);
     },
   });
 };
