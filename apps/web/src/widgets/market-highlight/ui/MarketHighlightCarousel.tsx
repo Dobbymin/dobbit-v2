@@ -34,12 +34,19 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
 
   return (
     <Link
-      className='flex items-center gap-4 rounded-lg border border-border bg-card p-4 text-left transition-colors hover:bg-surface-sunken'
+      className='flex flex-col gap-4 rounded-lg border border-border bg-card p-5 transition-colors hover:bg-surface-sunken'
       href={`/trade/${item.marketCode}`}
     >
+      <div>
+        <p className='text-sm font-semibold text-foreground'>{item.koreanName}</p>
+        <div className='flex items-baseline gap-2'>
+          <p className='text-xl font-bold text-foreground tabular-nums'>{formatCoinPrice(tradePrice)}</p>
+          <p className={`text-sm font-semibold tabular-nums ${changeClassName}`}>{formatChangeRate(signedChangeRate)}</p>
+        </div>
+      </div>
       <svg
         aria-hidden='true'
-        className={`h-12 w-24 shrink-0 ${changeClassName}`}
+        className={`h-20 w-full ${changeClassName}`}
         preserveAspectRatio='none'
         viewBox='0 0 100 100'
       >
@@ -57,13 +64,16 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
           />
         )}
       </svg>
-      <div className='min-w-0 flex-1'>
-        <p className='truncate text-sm font-semibold text-foreground'>{item.koreanName}</p>
-        <div className='mt-1 flex items-baseline justify-between gap-3'>
-          <p className='truncate text-base font-bold text-foreground tabular-nums'>{formatCoinPrice(tradePrice)}</p>
-          <p className={`shrink-0 text-sm font-semibold tabular-nums ${changeClassName}`}>
-            {formatChangeRate(signedChangeRate)}
-          </p>
+      <div className='border-t border-border pt-4'>
+        <div className='grid grid-cols-2 gap-3'>
+          <div>
+            <p className='text-xs text-subtle-foreground'>24시간 고가</p>
+            <p className='text-sm font-medium text-foreground tabular-nums'>{formatCoinPrice(item.high24h)}</p>
+          </div>
+          <div>
+            <p className='text-xs text-subtle-foreground'>24시간 저가</p>
+            <p className='text-sm font-medium text-foreground tabular-nums'>{formatCoinPrice(item.low24h)}</p>
+          </div>
         </div>
       </div>
     </Link>
@@ -71,13 +81,22 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
 };
 
 const HighlightSkeleton = () => (
-  <div className='flex items-center gap-4 rounded-lg border border-border bg-card p-4'>
-    <div className='h-12 w-24 shrink-0 rounded bg-surface-sunken' />
-    <div className='min-w-0 flex-1'>
+  <div className='flex flex-col gap-4 rounded-lg border border-border bg-card p-5'>
+    <div>
       <div className='h-4 w-20 rounded bg-surface-sunken' />
       <div className='mt-2 h-5 w-32 rounded bg-surface-sunken' />
     </div>
-    <div className='h-4 w-12 shrink-0 rounded bg-surface-sunken' />
+    <div className='h-20 w-full rounded bg-surface-sunken' />
+    <div className='grid grid-cols-2 gap-3 border-t border-border pt-4'>
+      <div>
+        <div className='h-3 w-16 rounded bg-surface-sunken' />
+        <div className='mt-2 h-4 w-20 rounded bg-surface-sunken' />
+      </div>
+      <div>
+        <div className='h-3 w-16 rounded bg-surface-sunken' />
+        <div className='mt-2 h-4 w-20 rounded bg-surface-sunken' />
+      </div>
+    </div>
   </div>
 );
 

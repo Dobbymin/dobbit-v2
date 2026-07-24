@@ -122,12 +122,18 @@ export class HomeService {
         data: availableCodes.map((marketCode, index) => {
           const ticker = tickerByCode.get(marketCode);
           const market = marketByCode.get(marketCode);
+          const candles = candlesByMarket[index];
+          const high24h = Math.max(...candles.map((candle) => candle.high_price));
+          const low24h = Math.min(...candles.map((candle) => candle.low_price));
+
           return {
             marketCode,
             koreanName: market.koreanName,
             tradePrice: ticker.trade_price,
             signedChangeRate: ticker.signed_change_rate,
-            sparkline: candlesByMarket[index].reverse().map((candle) => candle.trade_price),
+            high24h,
+            low24h,
+            sparkline: [...candles].reverse().map((candle) => candle.trade_price),
           };
         }),
         success: true,
