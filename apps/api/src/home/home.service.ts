@@ -182,7 +182,7 @@ export class HomeService {
   private async getNews(): Promise<NewsResult> {
     try {
       const articles = await this.prisma.newsArticle.findMany({
-        take: 5,
+        take: 7,
         orderBy: { publishedAt: 'desc' },
         select: {
           id: true,
