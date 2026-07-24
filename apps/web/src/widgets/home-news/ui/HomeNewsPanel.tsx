@@ -68,9 +68,7 @@ export const HomeNewsPanel = () => {
                 >
                   {item.title}
                 </a>
-                <p className='mt-1 truncate text-xs text-subtle-foreground'>
-                  {item.publisher ?? "출처 미상"} · {formatRelativeTime(item.publishedAt)}
-                </p>
+                <p className='mt-1 text-xs text-subtle-foreground'>{formatRelativeTime(item.publishedAt)}</p>
               </div>
               <span
                 className={`shrink-0 rounded-md bg-surface-sunken px-2 py-1 text-xs font-semibold ${getSentimentClassName(item.sentiment)}`}
