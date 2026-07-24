@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 
 import { useMemo, useState } from "react";
 
-import { Input } from "@/shared";
+import { Input, useSidebarStore } from "@/shared";
 import { toMarketRow, useMarketTickers, useMarkets } from "@/features/market";
 import { Briefcase, Clock, Flame, Heart, PanelLeftClose, Search } from "lucide-react";
 
@@ -26,7 +26,9 @@ const TABS = [
 export const MarketSidebar = () => {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<SidebarTab>("realtime");
-  const [isOpen, setIsOpen] = useState(true);
+  const isOpen = useSidebarStore((state) => state.isOpen);
+  const setSidebarOpen = useSidebarStore((state) => state.setOpen);
+  const toggleSidebar = useSidebarStore((state) => state.toggle);
   const [searchKeyword, setSearchKeyword] = useState("");
   const marketsQuery = useMarkets({ quote: "KRW", onlyActive: true });
   const markets = useMemo(() => marketsQuery.data ?? [], [marketsQuery.data]);
@@ -53,17 +55,17 @@ export const MarketSidebar = () => {
   return (
     <aside
       className={`mt-[52px] hidden h-[calc(100vh-52px)] min-w-0 shrink-0 flex-row bg-background transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex ${
-        isOpen ? "w-[360px]" : "w-12"
+        isOpen ? "w-[368px]" : "w-12"
       }`}
     >
       <div
         aria-hidden={!isOpen}
         className={`h-full min-w-0 overflow-hidden transition-[width] duration-300 ease-out motion-reduce:transition-none ${
-          isOpen ? "w-[312px]" : "hidden"
+          isOpen ? "w-[320px]" : "hidden"
         }`}
         inert={!isOpen}
       >
-        <div className='flex h-full w-[312px] shrink-0 flex-col border-r border-border'>
+        <div className='flex h-full w-[320px] shrink-0 flex-col border-r border-border'>
           <div className='border-b border-border p-3'>
             <div className='relative'>
               <Input
@@ -114,7 +116,7 @@ export const MarketSidebar = () => {
           aria-expanded={isOpen}
           aria-label='사이드바 접기/펼치기'
           className='flex h-12 flex-col items-center justify-center gap-1 border-b border-border text-subtle-foreground transition-colors hover:bg-card hover:text-foreground active:scale-95'
-          onClick={() => setIsOpen((previous) => !previous)}
+          onClick={toggleSidebar}
           type='button'
         >
           <PanelLeftClose
@@ -138,11 +140,11 @@ export const MarketSidebar = () => {
               key={tab}
               onClick={() => {
                 if (active && isOpen) {
-                  setIsOpen(false);
+                  setSidebarOpen(false);
                   return;
                 }
                 setActiveTab(tab);
-                setIsOpen(true);
+                setSidebarOpen(true);
               }}
               type='button'
             >

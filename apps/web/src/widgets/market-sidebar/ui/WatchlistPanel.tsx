@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button, ROUTES_PATH, cn, useIsAuth } from "@/shared";
 import { filterFavoriteMarkets, getTopMarketsByTradeVolume, toMarketRow } from "@/features/market";
@@ -24,7 +24,7 @@ type WatchlistPanelProps = {
 export const WatchlistPanel = ({ markets, tickers, selectedMarketCode }: WatchlistPanelProps) => {
   const { isAuthenticated } = useIsAuth();
   const favoritesQuery = useFavorites();
-  const news = useNews({ limit: 1 });
+  const news = useNews({ limit: 10 });
   const [groupOpen, setGroupOpen] = useState(true);
 
   const favoriteMarkets = useMemo(
@@ -38,7 +38,22 @@ export const WatchlistPanel = ({ markets, tickers, selectedMarketCode }: Watchli
     return source.map((market) => toMarketRow(market, tickers[market.code]));
   }, [favoriteMarkets, hasNoFavorites, markets, tickers]);
 
-  const headline = news.data?.[0]?.title;
+  const headlines = useMemo(() => (news.data ?? []).map((item) => item.title).filter(Boolean), [news.data]);
+  const [headlineIndex, setHeadlineIndex] = useState(0);
+
+  useEffect(() => {
+    setHeadlineIndex(0);
+  }, [headlines.length]);
+
+  useEffect(() => {
+    if (headlines.length <= 1) return;
+    const timer = setInterval(() => {
+      setHeadlineIndex((previous) => (previous + 1) % headlines.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [headlines.length]);
+
+  const headline = headlines[headlineIndex];
 
   return (
     <section className='flex min-h-0 flex-1 flex-col'>
@@ -52,8 +67,13 @@ export const WatchlistPanel = ({ markets, tickers, selectedMarketCode }: Watchli
         >
           <Sparkles aria-hidden='true' className='shrink-0 text-primary' size={16} />
           <span className='min-w-0'>
-            <span className='block text-[11px] font-semibold text-primary'>도빗 AI</span>
-            <span className='line-clamp-1 text-xs text-muted-foreground'>{headline ?? "코인 뉴스 요약을 확인해보세요."}</span>
+            <span className='block text-[11px] font-semibold text-primary'>dobbit AI</span>
+            <span
+              className='line-clamp-1 text-xs text-muted-foreground duration-500 animate-in fade-in'
+              key={headlineIndex}
+            >
+              {headline ?? "코인 뉴스 요약을 확인해보세요."}
+            </span>
           </span>
         </Link>
 
