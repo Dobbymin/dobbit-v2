@@ -9,3 +9,4 @@ export * from "./useSellOrder";
 export * from "./useOrderableCash";
 export * from "./useTradeHistory";
 export * from "./libs";
+export * from "./useRecentlyViewed";
