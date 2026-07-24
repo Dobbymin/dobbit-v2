@@ -21,8 +21,8 @@ implementer의 구현 결과를 검증하고 Obsidian 작업 로그를 남긴다
 
 1. **완료 기준 파일 체크** — `ls`, `cat` 으로 파일 존재 확인
 2. **타입 체크** — `pnpm check-types`
-3. **테스트** — `npx turbo run test`
-4. **린트** — `npx turbo run lint --filter=<변경한 package>`
+3. **테스트** — `npx turbo run test --force`
+4. **린트** — `npx turbo run lint --filter=<변경한 package> --force`
 5. **빌드** — `pnpm build` (선택, 시간이 오래 걸리면 건너뜀)
 6. **Obsidian 기록** — 성공/실패 여부와 무관하게 항상 기록
 
@@ -33,6 +33,8 @@ implementer의 구현 결과를 검증하고 Obsidian 작업 로그를 남긴다
   `@typescript-eslint/require-await` 에러로 실패한다. 선행 실패이며 이번 변경과
   무관하다
 - `pnpm lint`는 rtk 훅이 가로채 실제 원인과 무관한 메시지를 낸다
+- `--force`를 빼면 turbo가 cache hit로 과거 결과를 replay해, 아무것도 실행하지
+  않고 "통과"로 보일 수 있다
 
 ## 작업 원칙
 

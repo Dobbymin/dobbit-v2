@@ -70,7 +70,7 @@ PROMPT
 
 ```
 ./node_modules/.bin/turbo run check-types --force
-./node_modules/.bin/turbo run test
+./node_modules/.bin/turbo run test --force
 ./node_modules/.bin/turbo run lint --filter=<변경한 package> --force
 ```
 

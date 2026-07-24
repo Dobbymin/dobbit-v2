@@ -159,20 +159,20 @@ branch convention 검증:
 
 ```bash
 pnpm check-types
-npx turbo run test
-npx turbo run lint --filter=<변경한 package>
+npx turbo run test --force
+npx turbo run lint --filter=<변경한 package> --force
 ```
 
 **루트에서 `pnpm test`와 `pnpm lint`를 쓰지 않는다** (2026-07-24 실측).
 
 - `pnpm test` — 루트 `package.json`에 `test` script가 없어 workspace test를
-  돌리기도 전에 exit 1. turbo에는 `test` task가 있으므로
-  `npx turbo run test`를 쓴다.
+  돌리기도 전에 exit 1. turbo에는 `test` task가 있으므로 turbo로 돌린다.
 - `pnpm lint` — `api#lint`가 선행 상태로 깨져 있다
   (`apps/api/src/home/home.service.ts:141`,
   `@typescript-eslint/require-await`). 또한 `pnpm lint`는 rtk 훅이 가로채 실제
-  원인과 무관한 메시지를 낸다. 변경한 package만 `--filter`로 지정해 돌리고,
-  cache hit로 과거 결과가 replay될 수 있으니 확실히 하려면 `--force`를 붙인다.
+  원인과 무관한 메시지를 낸다. 변경한 package만 `--filter`로 지정해 돌린다.
+- `--force`는 검증 게이트에서 항상 붙인다. turbo가 cache hit로 과거 통과 결과를
+  replay하면 실제로는 아무것도 실행하지 않고 "통과"로 보인다.
 
 실행한 명령과 실제 결과를 PR body 또는 작업 로그에 남긴다. 통과하지 못한
 명령이 있으면 원인(내 변경 때문인지, 선행 상태인지)을 구분해 적는다.
