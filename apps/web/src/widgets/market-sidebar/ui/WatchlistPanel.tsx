@@ -67,7 +67,7 @@ export const WatchlistPanel = ({ markets, tickers, selectedMarketCode }: Watchli
         >
           <Sparkles aria-hidden='true' className='shrink-0 text-primary' size={16} />
           <span className='min-w-0'>
-            <span className='block text-[11px] font-semibold text-primary'>dobbit AI</span>
+            <span className='block text-[11px] font-semibold text-primary'>Dobbit AI</span>
             <span
               className='line-clamp-1 text-xs text-muted-foreground duration-500 animate-in fade-in'
               key={headlineIndex}
