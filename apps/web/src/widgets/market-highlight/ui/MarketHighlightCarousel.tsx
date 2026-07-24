@@ -8,21 +8,37 @@ import type { HomeHighlight } from "@dobbit/shared";
 
 const formatChangeRate = (value: number) => `${value >= 0 ? "+" : ""}${(value * 100).toFixed(2)}%`;
 
-const getSparklinePoints = (values: number[]) => {
+const getSparklinePath = (values: number[]) => {
   if (values.length === 0) return "";
 
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min;
+  const points = values.map((value, index) => ({
+    x: values.length === 1 ? 50 : (index / (values.length - 1)) * 100,
+    y: range === 0 ? 50 : 95 - ((value - min) / range) * 90,
+  }));
 
-  return values
-    .map((value, index) => {
-      const x = values.length === 1 ? 50 : (index / (values.length - 1)) * 100;
-      const y = range === 0 ? 50 : 95 - ((value - min) / range) * 90;
+  const firstPoint = points[0];
+  if (!firstPoint) return "";
 
-      return `${x},${y}`;
-    })
-    .join(" ");
+  if (points.length === 1) return `M ${firstPoint.x} ${firstPoint.y}`;
+
+  return points.slice(1).reduce((path, point, index) => {
+    const previousPoint = points[index] ?? point;
+    const pointBeforePrevious = points[index - 1] ?? previousPoint;
+    const pointAfterCurrent = points[index + 2] ?? point;
+    const controlPoint1 = {
+      x: previousPoint.x + (point.x - pointBeforePrevious.x) / 6,
+      y: previousPoint.y + (point.y - pointBeforePrevious.y) / 6,
+    };
+    const controlPoint2 = {
+      x: point.x - (pointAfterCurrent.x - previousPoint.x) / 6,
+      y: point.y - (pointAfterCurrent.y - previousPoint.y) / 6,
+    };
+
+    return `${path} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${point.x} ${point.y}`;
+  }, `M ${firstPoint.x} ${firstPoint.y}`);
 };
 
 const HighlightCard = ({ item }: { item: HomeHighlight }) => {
@@ -46,20 +62,20 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
       </div>
       <svg
         aria-hidden='true'
-        className={`h-20 w-full ${changeClassName}`}
+        className={`h-12 w-full ${changeClassName}`}
         preserveAspectRatio='none'
         viewBox='0 0 100 100'
       >
         {item.sparkline.length === 1 ? (
           <circle cx='50' cy='50' fill='currentColor' r='2.5' />
         ) : (
-          <polyline
+          <path
+            d={getSparklinePath(item.sparkline)}
             fill='none'
-            points={getSparklinePoints(item.sparkline)}
             stroke='currentColor'
             strokeLinecap='round'
             strokeLinejoin='round'
-            strokeWidth='5'
+            strokeWidth='1.5'
             vectorEffect='non-scaling-stroke'
           />
         )}
@@ -86,7 +102,7 @@ const HighlightSkeleton = () => (
       <div className='h-4 w-20 rounded bg-surface-sunken' />
       <div className='mt-2 h-5 w-32 rounded bg-surface-sunken' />
     </div>
-    <div className='h-20 w-full rounded bg-surface-sunken' />
+    <div className='h-12 w-full rounded bg-surface-sunken' />
     <div className='grid grid-cols-2 gap-3 border-t border-border pt-4'>
       <div>
         <div className='h-3 w-16 rounded bg-surface-sunken' />
