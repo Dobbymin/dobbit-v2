@@ -11,14 +11,10 @@ import {
   cn,
   formatPrice,
   formatThousands,
-  parseNumericInput,
-  parseNumericInputWithDecimal,
-  useAuthStore,
 } from "@/shared";
 import { RotateCw } from "lucide-react";
-import { toast } from "sonner";
 
-import { useBuyOrder, useOrderableCash, useSellOrder } from "../model";
+import { useMarketOrderForm } from "../model";
 
 import { OrderbookPanel } from "./OrderbookPanel";
 import { TradeHistoryPanel } from "./TradeHistoryPanel";
@@ -33,120 +29,40 @@ type MarketOrderPanelProps = {
 
 export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
   const [selectedTab, setSelectedTab] = useState<OrderTab>("매수");
-  const [price, setPrice] = useState<string>("");
-  const [amount, setAmount] = useState<string>("");
-  const [total, setTotal] = useState<string>("");
-
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const {
+    price,
+    amount,
+    total,
+    isValid,
+    accessToken,
+    orderableCash,
+    isLoading,
+    changePrice,
+    changeAmount,
+    changeTotal,
+    reset,
+    buy,
+    sell,
+  } = useMarketOrderForm(marketCode);
   const coinSymbol = marketCode.replace("KRW-", "");
-
-  const buyOrder = useBuyOrder();
-  const sellOrder = useSellOrder();
-  const { data: orderableCash = 0 } = useOrderableCash();
-
-  const handlePriceChange = (value: string) => {
-    const cleaned = parseNumericInputWithDecimal(value);
-    setPrice(cleaned);
-
-    if (cleaned === "" || amount === "" || isNaN(Number(cleaned)) || isNaN(Number(amount))) {
-      setTotal("");
-    } else {
-      setTotal(String(Math.round(Number(cleaned) * Number(amount))));
-    }
-  };
-
-  const handleAmountChange = (value: string) => {
-    const cleaned = parseNumericInputWithDecimal(value);
-    setAmount(cleaned);
-    if (cleaned === "" || price === "" || isNaN(Number(price)) || isNaN(Number(cleaned))) {
-      setTotal("");
-    } else {
-      setTotal(String(Math.round(Number(price) * Number(cleaned))));
-    }
-  };
-
-  const handleTotalChange = (value: string) => {
-    const cleaned = parseNumericInput(value);
-    const numValue = cleaned === "" ? "" : String(Number(cleaned));
-    setTotal(numValue);
-    if (numValue === "" || price === "" || Number(price) <= 0) {
-      setAmount("");
-    } else {
-      setAmount(String(Number(numValue) / Number(price)));
-    }
-  };
 
   const handleSelectOrderbookPrice = (selectedPrice: number) => {
     // 거래내역 탭에서는 주문 폼이 보이지 않으므로 매수 탭으로 전환한다.
     if (selectedTab === "거래내역") {
       setSelectedTab("매수");
     }
-    handlePriceChange(String(selectedPrice));
+    changePrice(String(selectedPrice));
   };
 
-  const handleReset = () => {
-    setPrice("");
-    setAmount("");
-    setTotal("");
-  };
-
-  const isValidOrder = () => {
-    return Number.isFinite(Number(price)) && Number(price) > 0 && Number.isFinite(Number(amount)) && Number(amount) > 0;
-  };
-
-  const handleBuyOrder = async (e: React.FormEvent) => {
+  const handleBuyOrder = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isValidOrder()) {
-      toast.error("가격과 수량을 올바르게 입력해주세요.");
-      return;
-    }
-
-    buyOrder.mutate(
-      {
-        marketCode,
-        price: Number(price),
-        quantity: Number(amount),
-      },
-      {
-        onSuccess: () => {
-          toast.success("주문이 체결되었습니다.");
-          handleReset();
-        },
-        onError: (error: Error) => {
-          toast.error(error.message || "주문에 실패했습니다.");
-        },
-      },
-    );
+    buy();
   };
 
-  const handleSellOrder = async (e: React.FormEvent) => {
+  const handleSellOrder = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isValidOrder()) {
-      toast.error("가격과 수량을 올바르게 입력해주세요.");
-      return;
-    }
-
-    sellOrder.mutate(
-      {
-        marketCode,
-        price: Number(price),
-        quantity: Number(amount),
-      },
-      {
-        onSuccess: () => {
-          toast.success("주문이 체결되었습니다.");
-          handleReset();
-        },
-        onError: (error: Error) => {
-          toast.error(error.message || "주문에 실패했습니다.");
-        },
-      },
-    );
+    sell();
   };
-
-  const isLoading = buyOrder.isPending || sellOrder.isPending;
 
   return (
     <section className='relative flex min-h-[300px] w-full shrink-0 border-t border-border bg-background'>
@@ -202,7 +118,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
                   disabled={isLoading}
                   id='order-price'
                   inputMode='numeric'
-                  onChange={(event) => handlePriceChange(event.target.value)}
+                  onChange={(event) => changePrice(event.target.value)}
                   placeholder='0'
                   type='text'
                   value={price === "" ? "" : formatThousands(String(price))}
@@ -218,7 +134,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
                   disabled={isLoading}
                   id='order-amount'
                   inputMode='decimal'
-                  onChange={(event) => handleAmountChange(event.target.value)}
+                  onChange={(event) => changeAmount(event.target.value)}
                   placeholder='0.0000'
                   type='text'
                   value={amount}
@@ -234,7 +150,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
                   disabled={isLoading}
                   id='order-total'
                   inputMode='numeric'
-                  onChange={(event) => handleTotalChange(event.target.value)}
+                  onChange={(event) => changeTotal(event.target.value)}
                   placeholder='0'
                   type='text'
                   value={total === "" ? "" : formatThousands(String(total))}
@@ -245,7 +161,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
               <Button
                 className='h-10 w-[25%]'
                 disabled={isLoading}
-                onClick={handleReset}
+                onClick={reset}
                 type='button'
                 variant='outline'
               >
@@ -255,7 +171,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
               {accessToken ? (
                 <Button
                   className='h-10 flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90 disabled:opacity-50'
-                  disabled={isLoading || !isValidOrder()}
+                  disabled={isLoading || !isValid}
                   type='submit'
                 >
                   {isLoading ? "처리 중..." : "주문하기"}
