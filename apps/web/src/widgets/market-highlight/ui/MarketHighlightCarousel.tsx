@@ -47,6 +47,8 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
   const tradePrice = ticker?.tradePrice ?? item.tradePrice;
   const signedChangeRate = ticker?.signedChangeRate ?? item.signedChangeRate;
   const changeClassName = signedChangeRate >= 0 ? "text-increase" : "text-decrease";
+  const sparklinePath = getSparklinePath(item.sparkline);
+  const gradientId = `market-highlight-${item.marketCode}`;
 
   return (
     <Link
@@ -66,11 +68,29 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
         preserveAspectRatio='none'
         viewBox='0 0 100 100'
       >
+        <defs>
+          <linearGradient id={gradientId} x1='0' x2='0' y1='0' y2='1'>
+            <stop offset='0%' stopColor='currentColor' stopOpacity='0.2' />
+            <stop offset='100%' stopColor='currentColor' stopOpacity='0' />
+          </linearGradient>
+        </defs>
+        <path
+          d='M 0 50 H 100'
+          fill='none'
+          opacity='0.2'
+          stroke='currentColor'
+          strokeDasharray='2 3'
+          strokeWidth='1'
+          vectorEffect='non-scaling-stroke'
+        />
+        {item.sparkline.length > 1 ? (
+          <path d={`${sparklinePath} L 100 100 L 0 100 Z`} fill={`url(#${gradientId})`} />
+        ) : null}
         {item.sparkline.length === 1 ? (
           <circle cx='50' cy='50' fill='currentColor' r='2.5' />
         ) : (
           <path
-            d={getSparklinePath(item.sparkline)}
+            d={sparklinePath}
             fill='none'
             stroke='currentColor'
             strokeLinecap='round'
@@ -125,9 +145,9 @@ export const MarketHighlightCarousel = () => {
     : highlights;
 
   return (
-    <section className='w-full'>
+    <section className='w-full lg:flex lg:h-full lg:min-h-0 lg:flex-col'>
       <h2 className='mb-3 text-base font-bold text-foreground'>주요 시세</h2>
-      <div aria-label='주요 시세 목록' className='flex flex-col gap-3'>
+      <div aria-label='주요 시세 목록' className='flex min-h-0 flex-col gap-3 lg:flex-1'>
         {cards.map((item, index) =>
           item ? <HighlightCard item={item} key={item.marketCode} /> : <HighlightSkeleton key={index} />,
         )}
