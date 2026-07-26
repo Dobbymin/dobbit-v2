@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 
 import { Input, useSidebarStore } from "@/shared";
 import { toMarketRow, useMarketTickers, useMarkets } from "@/features/market";
-import { Briefcase, Clock, Flame, Heart, PanelLeftClose, Search } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Flame, Heart, History, Search, Wallet } from "lucide-react";
 
 import { MyInvestmentPanel } from "./MyInvestmentPanel";
 import { RealtimeRankingPanel } from "./RealtimeRankingPanel";
@@ -17,9 +17,9 @@ import { WatchlistPanel } from "./WatchlistPanel";
 type SidebarTab = "invest" | "watchlist" | "recent" | "realtime";
 
 const TABS = [
-  ["invest", "내 투자", Briefcase],
+  ["invest", "내 투자", Wallet],
   ["watchlist", "관심", Heart],
-  ["recent", "최근 본", Clock],
+  ["recent", "최근 본", History],
   ["realtime", "실시간", Flame],
 ] as const;
 
@@ -54,18 +54,18 @@ export const MarketSidebar = () => {
 
   return (
     <aside
-      className={`sticky top-[52px] mt-[52px] hidden h-[calc(100vh-52px)] min-w-0 shrink-0 flex-row self-start bg-background transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex ${
-        isOpen ? "w-[368px]" : "w-12"
+      className={`sticky top-[52px] mt-[52px] hidden h-[calc(100vh-52px)] min-w-0 shrink-0 flex-row self-start border-l border-border/70 bg-background transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex ${
+        isOpen ? "w-[400px]" : "w-16"
       }`}
     >
       <div
         aria-hidden={!isOpen}
         className={`h-full min-w-0 overflow-hidden transition-[width] duration-300 ease-out motion-reduce:transition-none ${
-          isOpen ? "w-[320px]" : "hidden"
+          isOpen ? "w-[336px]" : "w-0"
         }`}
         inert={!isOpen}
       >
-        <div className='flex h-full w-[320px] shrink-0 flex-col border-r border-border'>
+        <div className='flex h-full w-[336px] shrink-0 flex-col border-r border-border/70'>
           <div className='border-b border-border p-3'>
             <div className='relative'>
               <Input
@@ -111,19 +111,15 @@ export const MarketSidebar = () => {
           </div>
         </div>
       </div>
-      <nav aria-label='사이드바 메뉴' className='flex w-12 shrink-0 flex-col border-l border-border bg-background'>
+      <nav aria-label='사이드바 메뉴' className='flex w-16 shrink-0 flex-col bg-background'>
         <button
           aria-expanded={isOpen}
           aria-label='사이드바 접기/펼치기'
-          className='flex h-12 flex-col items-center justify-center gap-1 border-b border-border text-subtle-foreground transition-colors hover:bg-card hover:text-foreground active:scale-95'
+          className='flex h-14 flex-col items-center justify-center gap-1 border-b border-border/70 text-subtle-foreground transition-colors hover:bg-card hover:text-foreground active:scale-95'
           onClick={toggleSidebar}
           type='button'
         >
-          <PanelLeftClose
-            aria-hidden='true'
-            className={`transition-transform duration-300 ease-out motion-reduce:transition-none ${isOpen ? "" : "rotate-180"}`}
-            size={18}
-          />
+          {isOpen ? <ChevronsLeft aria-hidden='true' size={20} /> : <ChevronsRight aria-hidden='true' size={20} />}
         </button>
         {TABS.map(([tab, label, Icon]) => {
           const active = activeTab === tab;
@@ -132,9 +128,11 @@ export const MarketSidebar = () => {
             <button
               aria-label={label}
               aria-pressed={active && isOpen}
-              className={`flex h-16 flex-col items-center justify-center gap-1 text-[11px] transition-colors ${
-                active && isOpen
-                  ? "bg-surface-sunken text-foreground"
+              className={`relative flex h-[72px] flex-col items-center justify-center gap-1.5 text-[11px] font-medium transition-colors ${
+                active
+                  ? isOpen
+                    ? "bg-primary/8 text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-r-full before:bg-primary"
+                    : "text-primary"
                   : "text-subtle-foreground hover:bg-card hover:text-foreground"
               }`}
               key={tab}
@@ -148,7 +146,7 @@ export const MarketSidebar = () => {
               }}
               type='button'
             >
-              <Icon aria-hidden='true' className={active && isOpen && Icon === Heart ? "fill-current" : undefined} size={18} />
+              <Icon aria-hidden='true' className={Icon === Heart || (active && Icon === Wallet) ? "fill-current" : undefined} size={20} />
               {label}
             </button>
           );
