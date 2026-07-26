@@ -225,7 +225,7 @@ PR은 repository PR template을 사용하며, body에 브랜치의 issue 번호�
 
 1. GitHub issue를 확인하거나 생성하고, 최신 `main`에서 issue 번호 기반 브랜치를 만든다.
 2. 관련 타입·린트·동작 검증을 실행한다.
-3. Antigravity CLI(`agy`)를 2차 리뷰어로 우선 사용한다. `--mode plan`으로 실행하고 검토 diff를 프롬프트에 인라인으로 전달한다. 파일 경로·쓰기 권한은 주지 않으며 실행 전후 `git status --porcelain`이 같은지 확인한다.
+3. Antigravity CLI(`agy`)를 2차 리뷰어로 우선 사용한다. RTK 환경에서는 인자를 보존하는 `rtk proxy agy --mode plan --sandbox --print --print-timeout=2m --prompt "<인라인 diff 검토 프롬프트>"`로 실행한다. 검토 diff를 프롬프트에 인라인으로 전달하고 파일 경로·쓰기 권한은 주지 않으며 실행 전후 `git status --porcelain`이 같은지 확인한다.
 4. Antigravity를 사용할 수 없고 Gemini CLI 인증이 지원되는 경우 Gemini을 read-only fallback으로 사용한다. 둘 다 사용할 수 없으면 Codex가 변경 diff를 코드리뷰한다.
 5. 발견 사항을 수정하고 다시 검증·리뷰한다.
 6. 작업 범위가 명확하고 사용자 미커밋 변경과 섞이지 않았으면 변경 파일만 stage, commit, push하고, issue closing keyword를 포함한 draft PR을 생성한다.
