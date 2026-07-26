@@ -38,7 +38,7 @@ const NewsSkeleton = () => (
 
 export const HomeNewsPanel = () => {
   const homeSummaryQuery = useHomeSummary();
-  const news = homeSummaryQuery.data?.news.slice(0, 7) ?? [];
+  const news = homeSummaryQuery.data?.news.slice(0, 6) ?? [];
 
   return (
     <section className='lg:flex lg:h-full lg:min-h-0 lg:flex-col'>
@@ -51,9 +51,9 @@ export const HomeNewsPanel = () => {
           전체 보기
         </Link>
       </div>
-      <div className='rounded-lg border border-border bg-card p-5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto'>
+      <div className='min-h-0 rounded-lg border border-border bg-card px-5 py-3 lg:flex-1 lg:overflow-y-auto'>
         {homeSummaryQuery.isLoading ? (
-          Array.from({ length: 7 }, (_, index) => <NewsSkeleton key={index} />)
+          Array.from({ length: 6 }, (_, index) => <NewsSkeleton key={index} />)
         ) : news.length === 0 ? (
           <p className='py-12 text-center text-sm text-subtle-foreground'>아직 수집된 뉴스가 없어요</p>
         ) : (

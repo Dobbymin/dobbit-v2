@@ -204,6 +204,18 @@ shared/
 - Codex 구현 결과는 Codex가 검토 후 작업 로그에 요약한다.
 - 기록 위치: `workspace/project/portfolio-renewal/Dobbit/docs/` (Obsidian vault)
 
+## 완료·리뷰·배포 기본 흐름
+
+소스 변경 작업이 검증되면 별도 요청 없이 아래 순서를 기본으로 진행한다.
+
+1. 관련 타입·린트·동작 검증을 실행한다.
+2. Antigravity CLI(`agy`)를 2차 리뷰어로 우선 사용한다. `--mode plan`으로 실행하고 검토 diff를 프롬프트에 인라인으로 전달한다. 파일 경로·쓰기 권한은 주지 않으며 실행 전후 `git status --porcelain`이 같은지 확인한다.
+3. Antigravity를 사용할 수 없고 Gemini CLI 인증이 지원되는 경우 Gemini을 read-only fallback으로 사용한다. 둘 다 사용할 수 없으면 Codex가 변경 diff를 코드리뷰한다.
+4. 발견 사항을 수정하고 다시 검증·리뷰한다.
+5. 작업 범위가 명확하고 사용자 미커밋 변경과 섞이지 않았으면 변경 파일만 stage, commit, push하고 draft PR을 생성한다.
+
+혼합 작업트리이거나 리뷰에서 수정 범위가 불명확하면 stage·push 전 사용자에게 범위를 확인한다.
+
 ## 커밋 컨벤션
 
 ```
