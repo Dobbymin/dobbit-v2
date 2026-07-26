@@ -150,6 +150,7 @@ export class HomeService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await -- Preserves existing synchronous evaluation timing and rejected-Promise contract required by Promise.all caller.
   private async getRankings(
     tickers: Ticker[],
     marketByCode: Map<string, { code: string; koreanName: string }>,

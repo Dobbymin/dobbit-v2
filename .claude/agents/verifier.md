@@ -31,9 +31,6 @@ implementer의 구현 결과를 검증하고 Obsidian 작업 로그를 남긴다
 **`pnpm test`와 루트 `pnpm lint`는 쓰지 않는다** (2026-07-24 실측).
 
 - `pnpm test` — 루트 `package.json`에 `test` script가 없어 exit 1
-- unfiltered lint — `api#lint`가 `apps/api/src/home/home.service.ts:141`의
-  `@typescript-eslint/require-await` 에러로 실패한다. 선행 실패이며 이번 변경과
-  무관하다
 - `pnpm lint`는 rtk 훅이 가로채 실제 원인과 무관한 메시지를 낸다
 - `--force`를 빼면 turbo가 cache hit로 과거 결과를 replay해, 아무것도 실행하지
   않고 "통과"로 보일 수 있다
