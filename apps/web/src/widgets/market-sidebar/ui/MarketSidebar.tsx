@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 
 import { Input, useSidebarStore } from "@/shared";
 import { toMarketRow, useMarketTickers, useMarkets } from "@/features/market";
-import { Briefcase, Clock, Flame, Heart, PanelLeftClose, Search } from "lucide-react";
+import { Heart, History, PanelLeftClose, Radio, Search, Wallet } from "lucide-react";
 
 import { MyInvestmentPanel } from "./MyInvestmentPanel";
 import { RealtimeRankingPanel } from "./RealtimeRankingPanel";
@@ -17,10 +17,10 @@ import { WatchlistPanel } from "./WatchlistPanel";
 type SidebarTab = "invest" | "watchlist" | "recent" | "realtime";
 
 const TABS = [
-  ["invest", "내 투자", Briefcase],
+  ["invest", "내 투자", Wallet],
   ["watchlist", "관심", Heart],
-  ["recent", "최근 본", Clock],
-  ["realtime", "실시간", Flame],
+  ["recent", "최근 본", History],
+  ["realtime", "실시간", Radio],
 ] as const;
 
 export const MarketSidebar = () => {
@@ -55,17 +55,17 @@ export const MarketSidebar = () => {
   return (
     <aside
       className={`sticky top-[52px] mt-[52px] hidden h-[calc(100vh-52px)] min-w-0 shrink-0 flex-row self-start border-l border-border/70 bg-background transition-[width] duration-300 ease-out motion-reduce:transition-none lg:flex ${
-        isOpen ? "w-[368px]" : "w-12"
+        isOpen ? "w-[400px]" : "w-16"
       }`}
     >
       <div
         aria-hidden={!isOpen}
         className={`h-full min-w-0 overflow-hidden transition-[width] duration-300 ease-out motion-reduce:transition-none ${
-          isOpen ? "w-[320px]" : "w-0"
+          isOpen ? "w-[336px]" : "w-0"
         }`}
         inert={!isOpen}
       >
-        <div className='flex h-full w-[320px] shrink-0 flex-col border-r border-border/70'>
+        <div className='flex h-full w-[336px] shrink-0 flex-col border-r border-border/70'>
           <div className='border-b border-border p-3'>
             <div className='relative'>
               <Input
@@ -111,18 +111,18 @@ export const MarketSidebar = () => {
           </div>
         </div>
       </div>
-      <nav aria-label='사이드바 메뉴' className='flex w-12 shrink-0 flex-col bg-background'>
+      <nav aria-label='사이드바 메뉴' className='flex w-16 shrink-0 flex-col bg-background'>
         <button
           aria-expanded={isOpen}
           aria-label='사이드바 접기/펼치기'
-          className='flex h-12 flex-col items-center justify-center gap-1 border-b border-border/70 text-subtle-foreground transition-colors hover:bg-card hover:text-foreground active:scale-95'
+          className='flex h-14 flex-col items-center justify-center gap-1 border-b border-border/70 text-subtle-foreground transition-colors hover:bg-card hover:text-foreground active:scale-95'
           onClick={toggleSidebar}
           type='button'
         >
           <PanelLeftClose
             aria-hidden='true'
             className={`transition-transform duration-300 ease-out motion-reduce:transition-none ${isOpen ? "" : "rotate-180"}`}
-            size={18}
+            size={20}
           />
         </button>
         {TABS.map(([tab, label, Icon]) => {
@@ -132,7 +132,7 @@ export const MarketSidebar = () => {
             <button
               aria-label={label}
               aria-pressed={active && isOpen}
-              className={`relative flex h-16 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
+              className={`relative flex h-[72px] flex-col items-center justify-center gap-1.5 text-[11px] font-medium transition-colors ${
                 active
                   ? isOpen
                     ? "bg-primary/8 text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-r-full before:bg-primary"
@@ -150,7 +150,7 @@ export const MarketSidebar = () => {
               }}
               type='button'
             >
-              <Icon aria-hidden='true' className={active && Icon === Heart ? "fill-current" : undefined} size={18} />
+              <Icon aria-hidden='true' className={active && Icon === Heart ? "fill-current" : undefined} size={20} />
               {label}
             </button>
           );

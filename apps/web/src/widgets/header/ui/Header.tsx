@@ -17,7 +17,7 @@ export const Header = () => {
       <div
         className={cn(
           "flex h-full w-full items-center justify-between px-4 transition-[padding] duration-300 ease-out motion-reduce:transition-none",
-          isSidebarOpen ? "lg:pr-[368px]" : "lg:pr-12",
+          isSidebarOpen ? "lg:pr-[400px]" : "lg:pr-16",
         )}
       >
         <div className='flex items-center gap-4'>
