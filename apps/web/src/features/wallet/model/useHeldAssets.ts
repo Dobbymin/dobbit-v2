@@ -11,6 +11,7 @@ import { useWalletAssets } from "./useWalletAssets";
 export type HeldAsset = WalletHolding & {
   koreanName: string;
   symbolPair: string;
+  isPriceAvailable: boolean;
   livePrice: number;
   liveEvaluatedAmount: number;
   liveProfitAmount: number;
@@ -50,16 +51,18 @@ export const useHeldAssets = () => {
       const koreanName = marketInfo?.koreanName || asset.symbol;
       const symbolPair = `${asset.symbol}/KRW`;
 
-      const ticker = tickers?.[asset.marketCode];
-      const livePrice = ticker ? Number(ticker.tradePrice) : asset.currentPrice;
-      const liveEvaluatedAmount = livePrice * asset.quantity;
-      const liveProfitAmount = liveEvaluatedAmount - asset.totalCost;
-      const liveProfitRate = asset.totalCost > 0 ? liveProfitAmount / asset.totalCost : 0;
+      const tickerPrice = Number(tickers?.[asset.marketCode]?.tradePrice);
+      const livePrice = tickerPrice > 0 ? tickerPrice : asset.currentPrice;
+      const isPriceAvailable = livePrice > 0;
+      const liveEvaluatedAmount = isPriceAvailable ? livePrice * asset.quantity : 0;
+      const liveProfitAmount = isPriceAvailable ? liveEvaluatedAmount - asset.totalCost : 0;
+      const liveProfitRate = isPriceAvailable && asset.totalCost > 0 ? liveProfitAmount / asset.totalCost : 0;
 
       return {
         ...asset,
         koreanName,
         symbolPair,
+        isPriceAvailable,
         livePrice,
         liveEvaluatedAmount,
         liveProfitAmount,

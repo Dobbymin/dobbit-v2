@@ -84,11 +84,22 @@ export const MyInvestmentPanel = ({ selectedMarketCode }: MyInvestmentPanelProps
                   <span className='block text-[11px] text-muted-foreground'>{asset.symbol}</span>
                 </span>
                 <span className='flex flex-col items-end'>
-                  <span className='text-xs font-medium text-foreground tabular-nums'>{formatPrice(asset.liveEvaluatedAmount)}원</span>
-                  <span className={cn("text-xs tabular-nums", toneOf(asset.liveProfitAmount))}>
-                    {withSign(asset.liveProfitRate)}
-                    {(asset.liveProfitRate * 100).toFixed(2)}%
-                  </span>
+                  {asset.isPriceAvailable ? (
+                    <>
+                      <span className='text-xs font-medium text-foreground tabular-nums'>
+                        {formatPrice(asset.liveEvaluatedAmount)}원
+                      </span>
+                      <span className={cn("text-xs tabular-nums", toneOf(asset.liveProfitAmount))}>
+                        {withSign(asset.liveProfitRate)}
+                        {(asset.liveProfitRate * 100).toFixed(2)}%
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className='text-xs font-medium text-foreground tabular-nums'>-</span>
+                      <span className='text-xs tabular-nums text-muted-foreground'>-</span>
+                    </>
+                  )}
                 </span>
               </Link>
             );
