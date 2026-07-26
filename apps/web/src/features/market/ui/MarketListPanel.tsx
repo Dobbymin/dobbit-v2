@@ -2,17 +2,15 @@
 
 import Link from "next/link";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-
-import { Button, Input, ROUTES_PATH, Skeleton, cn, useIntersectionObserver, useIsAuth } from "@/shared";
+import { Button, Input, ROUTES_PATH, Skeleton, cn } from "@/shared";
 import type { Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
 import { ArrowDown, ArrowUp, ArrowUpDown, Heart, Search } from "lucide-react";
 
-import { FavoriteButton, useFavorites } from "@/features/favorite";
+import { FavoriteButton } from "@/features/favorite";
 
 import { CoinIcon } from "@/entities/market";
 
-import { filterFavoriteMarkets, getTopMarketsByTradeVolume, toMarketRow } from "../model";
+import { type MarketListSortKey, useMarketList } from "../model";
 
 type MarketListTab = "all" | "favorite";
 
@@ -28,11 +26,6 @@ type MarketListPanelProps = {
   onSearchKeywordChange: (value: string) => void;
 };
 
-type SortKey = "market" | "price" | "changeRate";
-type SortDirection = "asc" | "desc";
-
-const ITEMS_PER_PAGE = 20;
-
 export const MarketListPanel = ({
   activeTab,
   markets,
@@ -44,112 +37,28 @@ export const MarketListPanel = ({
   onActiveTabChange,
   onSearchKeywordChange,
 }: MarketListPanelProps) => {
-  const { isAuthenticated } = useIsAuth();
-  const favoritesQuery = useFavorites();
-  const [localSearchKeyword, setLocalSearchKeyword] = useState(searchKeyword);
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-  const [topMarketCodes, setTopMarketCodes] = useState<string[] | null>(null);
+  const {
+    hasNoFavorites,
+    isAuthenticated,
+    isFavoritesLoading,
+    localSearchKeyword,
+    observerRef,
+    selectSort,
+    setSearchKeyword,
+    sortDirection,
+    sortKey,
+    sortedRows,
+    visibleCount,
+    visibleRows,
+  } = useMarketList({ activeTab, markets, searchKeyword, tickers, onSearchKeywordChange });
 
-  useEffect(() => {
-    const timer = setTimeout(() => onSearchKeywordChange(localSearchKeyword), 300);
-    return () => clearTimeout(timer);
-  }, [localSearchKeyword, onSearchKeywordChange]);
-
-  useEffect(() => setLocalSearchKeyword(searchKeyword), [searchKeyword]);
-
-  const favoriteMarkets = useMemo(
-    () => filterFavoriteMarkets(markets, favoritesQuery.data ?? new Set()),
-    [favoritesQuery.data, markets],
-  );
-  const hasNoFavorites = isAuthenticated && favoritesQuery.data !== undefined && favoriteMarkets.length === 0;
-
-  useEffect(() => {
-    if (activeTab !== "favorite") {
-      setTopMarketCodes(null);
-      return;
-    }
-
-    if (!hasNoFavorites || topMarketCodes !== null) return;
-
-    const topMarkets = getTopMarketsByTradeVolume(markets, tickers);
-    if (topMarkets.length > 0) setTopMarketCodes(topMarkets.map((market) => market.code));
-  }, [activeTab, hasNoFavorites, markets, tickers, topMarketCodes]);
-
-  const sourceMarkets = useMemo(() => {
-    if (activeTab === "all") {
-      return markets;
-    }
-
-    if (!isAuthenticated) {
-      return [];
-    }
-
-    if (!hasNoFavorites) return favoriteMarkets;
-
-    const marketsByCode = new Map(markets.map((market) => [market.code, market]));
-    return (
-      topMarketCodes?.flatMap((code) => {
-        const market = marketsByCode.get(code);
-        return market ? [market] : [];
-      }) ?? []
-    );
-  }, [activeTab, favoriteMarkets, hasNoFavorites, isAuthenticated, markets, topMarketCodes]);
-  const rows = useMemo(
-    () => sourceMarkets.map((market) => toMarketRow(market, tickers[market.code])),
-    [sourceMarkets, tickers],
-  );
-
-  const filteredRows = useMemo(() => {
-    const keyword = localSearchKeyword.trim().toLowerCase();
-    if (!keyword) return rows;
-
-    return rows.filter(
-      (row) =>
-        row.code.toLowerCase().includes(keyword) ||
-        row.koreanName.toLowerCase().includes(keyword) ||
-        row.symbolPair.toLowerCase().includes(keyword),
-    );
-  }, [localSearchKeyword, rows]);
-
-  const sortedRows = useMemo(() => {
-    if (sortKey === null) return filteredRows;
-
-    return [...filteredRows].sort((a, b) => {
-      if (sortKey === "market") {
-        const comparison = a.koreanName.localeCompare(b.koreanName, "ko");
-        return sortDirection === "desc" ? -comparison : comparison;
-      }
-
-      const aValue = sortKey === "price" ? tickers[a.code]?.tradePrice : tickers[a.code]?.signedChangeRate;
-      const bValue = sortKey === "price" ? tickers[b.code]?.tradePrice : tickers[b.code]?.signedChangeRate;
-      if (typeof aValue !== "number" || !Number.isFinite(aValue)) {
-        return typeof bValue === "number" && Number.isFinite(bValue) ? 1 : 0;
-      }
-      if (typeof bValue !== "number" || !Number.isFinite(bValue)) return -1;
-      return sortDirection === "desc" ? bValue - aValue : aValue - bValue;
-    });
-  }, [filteredRows, sortDirection, sortKey, tickers]);
-
-  const handleSort = (key: SortKey) => {
-    if (sortKey !== key) {
-      setSortKey(key);
-      setSortDirection("desc");
-    } else if (sortDirection === "desc") {
-      setSortDirection("asc");
-    } else {
-      setSortKey(null);
-    }
-  };
-
-  const getAriaLabelForSort = (key: SortKey, headerName: string) => {
+  const getAriaLabelForSort = (key: MarketListSortKey, headerName: string) => {
     if (sortKey !== key) return `${headerName} 기준 내림차순 정렬`;
     if (sortDirection === "desc") return `${headerName} 기준 내림차순 정렬됨. 오름차순으로 변경`;
     return `${headerName} 기준 오름차순 정렬됨. 정렬 해제`;
   };
 
-  const renderSortIcon = (key: SortKey) => {
+  const renderSortIcon = (key: MarketListSortKey) => {
     if (sortKey !== key) return <ArrowUpDown aria-hidden='true' size={12} />;
     return sortDirection === "asc" ? (
       <ArrowUp aria-hidden='true' size={12} />
@@ -158,15 +67,10 @@ export const MarketListPanel = ({
     );
   };
 
-  useEffect(() => setVisibleCount(ITEMS_PER_PAGE), [activeTab, localSearchKeyword, sortDirection, sortKey]);
-
-  const observerRef = useIntersectionObserver(
-    useCallback(() => {
-      if (visibleCount < sortedRows.length) setVisibleCount((previous) => previous + ITEMS_PER_PAGE);
-    }, [sortedRows.length, visibleCount]),
-  );
-  const visibleRows = sortedRows.slice(0, visibleCount);
   const showLoginPrompt = activeTab === "favorite" && !isAuthenticated;
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => setSearchKeyword(event.target.value);
+  const createSortClickHandler = (key: MarketListSortKey) => () => selectSort(key);
 
   return (
     <aside className='flex min-h-[520px] flex-col border-r border-border bg-background lg:h-full lg:min-h-0 lg:overflow-hidden'>
@@ -198,7 +102,7 @@ export const MarketListPanel = ({
           <Input
             aria-label='마켓 검색'
             className='h-10 rounded-lg border-none bg-card pl-9 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/40'
-            onChange={(event) => setLocalSearchKeyword(event.target.value)}
+            onChange={handleSearchChange}
             placeholder='코인명 / 심볼 검색'
             value={localSearchKeyword}
           />
@@ -215,7 +119,7 @@ export const MarketListPanel = ({
           <button
             aria-label={getAriaLabelForSort("market", "마켓")}
             className='flex items-center gap-1 text-left'
-            onClick={() => handleSort("market")}
+            onClick={createSortClickHandler("market")}
             type='button'
           >
             마켓
@@ -232,7 +136,7 @@ export const MarketListPanel = ({
                 aria-label={getAriaLabelForSort(key, label)}
                 className='flex items-center justify-end gap-1 text-right'
                 key={key}
-                onClick={() => handleSort(key)}
+                onClick={createSortClickHandler(key)}
                 type='button'
               >
                 {label}
@@ -249,7 +153,7 @@ export const MarketListPanel = ({
               <Link href={ROUTES_PATH.LOGIN}>로그인</Link>
             </Button>
           </div>
-        ) : favoritesQuery.isLoading && activeTab === "favorite" ? (
+        ) : isFavoritesLoading && activeTab === "favorite" ? (
           <div className='space-y-1'>
             {Array.from({ length: 7 }).map((_, index) => (
               <div className='grid h-[52px] grid-cols-[minmax(0,1fr)_76px] items-center gap-3 px-4' key={index}>
@@ -313,7 +217,9 @@ export const MarketListPanel = ({
                         >
                           {row.koreanName}
                         </span>
-                        <span className='shrink-0 text-[10px] text-muted-foreground'>{row.code.replace("KRW-", "")}</span>
+                        <span className='shrink-0 text-[10px] text-muted-foreground'>
+                          {row.code.replace("KRW-", "")}
+                        </span>
                       </span>
                     </div>
                     <span className='flex min-w-0 flex-col items-end gap-0.5'>
