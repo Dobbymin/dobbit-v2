@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 
 import { Input, useSidebarStore } from "@/shared";
 import { toMarketRow, useMarketTickers, useMarkets } from "@/features/market";
-import { Heart, History, PanelLeftClose, Radio, Search, Wallet } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Flame, Heart, History, Search, Wallet } from "lucide-react";
 
 import { MyInvestmentPanel } from "./MyInvestmentPanel";
 import { RealtimeRankingPanel } from "./RealtimeRankingPanel";
@@ -20,7 +20,7 @@ const TABS = [
   ["invest", "내 투자", Wallet],
   ["watchlist", "관심", Heart],
   ["recent", "최근 본", History],
-  ["realtime", "실시간", Radio],
+  ["realtime", "실시간", Flame],
 ] as const;
 
 export const MarketSidebar = () => {
@@ -119,11 +119,7 @@ export const MarketSidebar = () => {
           onClick={toggleSidebar}
           type='button'
         >
-          <PanelLeftClose
-            aria-hidden='true'
-            className={`transition-transform duration-300 ease-out motion-reduce:transition-none ${isOpen ? "" : "rotate-180"}`}
-            size={20}
-          />
+          {isOpen ? <ChevronsLeft aria-hidden='true' size={20} /> : <ChevronsRight aria-hidden='true' size={20} />}
         </button>
         {TABS.map(([tab, label, Icon]) => {
           const active = activeTab === tab;
@@ -150,7 +146,7 @@ export const MarketSidebar = () => {
               }}
               type='button'
             >
-              <Icon aria-hidden='true' className={active && Icon === Heart ? "fill-current" : undefined} size={20} />
+              <Icon aria-hidden='true' className={Icon === Heart || (active && Icon === Wallet) ? "fill-current" : undefined} size={20} />
               {label}
             </button>
           );
