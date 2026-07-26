@@ -2,6 +2,8 @@ import type { Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
 import { describe, expect, it } from "vitest";
 
 import { filterFavoriteMarkets, getTopMarketsByTradeVolume } from "./market-list-filter";
+import { filterMarketRows, getVisibleMarketRows, sortMarketRows } from "./market-list-view-model";
+import type { MarketRowData } from "./market-row";
 
 const market = (code: string): Market => ({
   id: code,
@@ -42,5 +44,67 @@ describe("market list filter", () => {
         .reverse()
         .map((item) => item.code),
     );
+  });
+
+  it("검색어로 코드, 한글명, 심볼 쌍을 필터한다", () => {
+    const rows: MarketRowData[] = [
+      {
+        code: "KRW-BTC",
+        koreanName: "비트코인",
+        symbolPair: "BTC/KRW",
+        tradePrice: "-",
+        changeRate: "-",
+        changeTone: "neutral",
+        isActive: true,
+      },
+      {
+        code: "KRW-ETH",
+        koreanName: "이더리움",
+        symbolPair: "ETH/KRW",
+        tradePrice: "-",
+        changeRate: "-",
+        changeTone: "neutral",
+        isActive: true,
+      },
+    ] as const;
+
+    expect(filterMarketRows([...rows], " btc ")).toEqual([rows[0]]);
+    expect(filterMarketRows([...rows], "이더")).toEqual([rows[1]]);
+  });
+
+  it("문자와 숫자 값을 선택한 방향으로 정렬한다", () => {
+    const rows: MarketRowData[] = [
+      {
+        code: "KRW-BTC",
+        koreanName: "비트코인",
+        symbolPair: "BTC/KRW",
+        tradePrice: "-",
+        changeRate: "-",
+        changeTone: "neutral",
+        isActive: true,
+      },
+      {
+        code: "KRW-ETH",
+        koreanName: "이더리움",
+        symbolPair: "ETH/KRW",
+        tradePrice: "-",
+        changeRate: "-",
+        changeTone: "neutral",
+        isActive: true,
+      },
+    ];
+    const tickers = {
+      "KRW-BTC": ticker("KRW-BTC", 1, 100),
+      "KRW-ETH": ticker("KRW-ETH", 1, 200),
+    };
+
+    expect(sortMarketRows(rows, tickers, "price", "desc").map((row) => row.code)).toEqual(["KRW-ETH", "KRW-BTC"]);
+    expect(sortMarketRows(rows, tickers, "market", "asc").map((row) => row.code)).toEqual(["KRW-BTC", "KRW-ETH"]);
+  });
+
+  it("visible count만큼 목록을 자른다", () => {
+    const rows = Array.from({ length: 3 }, (_, index) => ({ code: `KRW-${index}` })) as MarketRowData[];
+
+    expect(getVisibleMarketRows(rows, 2)).toEqual(rows.slice(0, 2));
   });
 });
