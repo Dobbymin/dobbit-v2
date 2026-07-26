@@ -206,13 +206,29 @@ shared/
 
 ## 완료·리뷰·배포 기본 흐름
 
+기능 구현, 버그 수정, 리팩터링, chore 등 소스 변경 작업은 구현·브랜치 생성 전에 반드시 GitHub issue를 확인하거나 생성한다. 기존 issue가 있으면 그 scope를 따르고, 없으면 repository issue template에 맞춰 생성한다.
+
+브랜치는 최신 `main`을 base로 아래 형식만 사용한다.
+
+```
+{type}/{issue_number}-{summary-slug}
+```
+
+- 허용 type: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `ci`, `perf`
+- issue 번호는 실제 GitHub issue 번호를 사용한다.
+- summary slug는 소문자·숫자·hyphen만 사용한다. 공백, 한글, 특수문자, `#`는 사용하지 않는다.
+- `main`, `master`, `develop`, `dev`에서 직접 작업하지 않는다.
+
+PR은 repository PR template을 사용하며, body에 브랜치의 issue 번호를 닫는 keyword(`Closes #<issue>`, `Fixes #<issue>`, 또는 `Resolves #<issue>`)를 반드시 포함한다.
+
 소스 변경 작업이 검증되면 별도 요청 없이 아래 순서를 기본으로 진행한다.
 
-1. 관련 타입·린트·동작 검증을 실행한다.
-2. Antigravity CLI(`agy`)를 2차 리뷰어로 우선 사용한다. `--mode plan`으로 실행하고 검토 diff를 프롬프트에 인라인으로 전달한다. 파일 경로·쓰기 권한은 주지 않으며 실행 전후 `git status --porcelain`이 같은지 확인한다.
-3. Antigravity를 사용할 수 없고 Gemini CLI 인증이 지원되는 경우 Gemini을 read-only fallback으로 사용한다. 둘 다 사용할 수 없으면 Codex가 변경 diff를 코드리뷰한다.
-4. 발견 사항을 수정하고 다시 검증·리뷰한다.
-5. 작업 범위가 명확하고 사용자 미커밋 변경과 섞이지 않았으면 변경 파일만 stage, commit, push하고 draft PR을 생성한다.
+1. GitHub issue를 확인하거나 생성하고, 최신 `main`에서 issue 번호 기반 브랜치를 만든다.
+2. 관련 타입·린트·동작 검증을 실행한다.
+3. Antigravity CLI(`agy`)를 2차 리뷰어로 우선 사용한다. `--mode plan`으로 실행하고 검토 diff를 프롬프트에 인라인으로 전달한다. 파일 경로·쓰기 권한은 주지 않으며 실행 전후 `git status --porcelain`이 같은지 확인한다.
+4. Antigravity를 사용할 수 없고 Gemini CLI 인증이 지원되는 경우 Gemini을 read-only fallback으로 사용한다. 둘 다 사용할 수 없으면 Codex가 변경 diff를 코드리뷰한다.
+5. 발견 사항을 수정하고 다시 검증·리뷰한다.
+6. 작업 범위가 명확하고 사용자 미커밋 변경과 섞이지 않았으면 변경 파일만 stage, commit, push하고, issue closing keyword를 포함한 draft PR을 생성한다.
 
 혼합 작업트리이거나 리뷰에서 수정 범위가 불명확하면 stage·push 전 사용자에게 범위를 확인한다.
 

@@ -23,11 +23,7 @@ import { useProfile } from "@/features/setting";
 import { useIsAuth } from "@/shared/store";
 
 export const UserMenuButton = () => {
-  const router = useRouter();
   const { isAuthenticated, isLoading } = useIsAuth();
-  const logout = useLogout();
-  const profile = useProfile();
-  const displayName = profile.data?.nickname ?? profile.data?.username ?? "사용자";
 
   // 로그인하지 않은 경우 로그인 버튼 표시
   if (!isLoading && !isAuthenticated) {
@@ -39,6 +35,15 @@ export const UserMenuButton = () => {
       </div>
     );
   }
+
+  return <AuthenticatedUserMenuButton />;
+};
+
+const AuthenticatedUserMenuButton = () => {
+  const router = useRouter();
+  const logout = useLogout();
+  const profile = useProfile();
+  const displayName = profile.data?.nickname ?? profile.data?.username ?? "사용자";
 
   // 로딩 중이거나 인증된 경우 지갑 버튼과 Avatar 표시
   return (
