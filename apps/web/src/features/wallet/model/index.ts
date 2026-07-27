@@ -3,6 +3,7 @@ export * from "./useWalletAssets";
 export * from "./useWalletSummary";
 export * from "./useDeposit";
 export * from "./useWithdraw";
+export * from "./useCashForm";
 export * from "./useWalletRealtime";
 export * from "./useHeldAssets";
 export * from "./wallet-investment-summary";
