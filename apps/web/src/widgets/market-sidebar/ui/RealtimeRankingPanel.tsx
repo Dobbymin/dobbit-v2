@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
-
-import { getTopMarketsByTradeVolume, toMarketRow } from "@/features/market";
 import { Skeleton } from "@/shared";
 import type { Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
+
+import { useRealtimeRankingPanel } from "../model";
 
 import { SidebarCoinRow } from "./SidebarCoinRow";
 
@@ -21,10 +20,7 @@ export const RealtimeRankingPanel = ({
   isLoading,
   selectedMarketCode,
 }: RealtimeRankingPanelProps) => {
-  const rankedRows = useMemo(
-    () => getTopMarketsByTradeVolume(markets, tickers, 30).map((market) => toMarketRow(market, tickers[market.code])),
-    [markets, tickers],
-  );
+  const rankedRows = useRealtimeRankingPanel(markets, tickers);
 
   return (
     <section className='flex min-h-0 flex-1 flex-col'>
