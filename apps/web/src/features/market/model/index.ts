@@ -4,6 +4,7 @@ export * from "./useMarkets";
 export * from "./useCandles";
 export * from "./useMarketTickers";
 export * from "./useOrderbook";
+export * from "./useOrderbookPanel";
 export * from "./useBuyOrder";
 export * from "./useSellOrder";
 export * from "./useOrderableCash";

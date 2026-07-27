@@ -2,27 +2,19 @@
 
 import { Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, cn, formatCoinPrice } from "@/shared";
 
-import { useOrderbook } from "../model";
+import { useOrderbookPanel } from "../model";
 
 type OrderbookPanelProps = {
   marketCode: string;
   onSelectPrice?: (price: number) => void;
 };
 
-const ROW_COUNT = 15;
-
 export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProps) => {
-  const { data, isLoading } = useOrderbook(marketCode);
+  const { asks, bids, isEmpty, isLoading } = useOrderbookPanel(marketCode);
 
   const isSelectable = Boolean(onSelectPrice);
 
-  const units = data?.units ?? [];
-  const top = units.slice(0, ROW_COUNT);
-  const asks = [...top].reverse();
-  const bids = top;
-  const maxSize = Math.max(...top.flatMap((unit) => [unit.askSize, unit.bidSize]), 0);
-
-  if (isLoading && units.length === 0) {
+  if (isLoading && isEmpty) {
     return (
       <Table>
         <TableHeader>
@@ -51,7 +43,7 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
     );
   }
 
-  if (units.length === 0) {
+  if (isEmpty) {
     return (
       <div className='flex h-full w-full items-center justify-center p-4 text-sm text-muted-foreground'>
         호가 정보가 없습니다.
@@ -69,28 +61,29 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
         </TableRow>
       </TableHeader>
       <TableBody>
-        {asks.map((unit, index) => {
-          const volumePercent = maxSize > 0 ? (unit.askSize / maxSize) * 100 : 0;
-
+        {asks.map((row, index) => {
           return (
             <TableRow
               className={cn(
                 "border-b border-border/40 transition-colors hover:bg-muted/40",
                 isSelectable && "cursor-pointer",
               )}
-              key={`ask-${unit.askPrice}-${index}`}
-              onClick={isSelectable ? () => onSelectPrice?.(unit.askPrice) : undefined}
+              key={`ask-${row.price}-${index}`}
+              onClick={isSelectable ? () => onSelectPrice?.(row.price) : undefined}
             >
               <TableCell className='relative w-1/3 p-0'>
                 {/* 매도 잔량 막대: 하락(파랑) 계열을 저채도 알파로 */}
-                <div className='absolute top-0 right-0 h-full bg-decrease/15' style={{ width: `${volumePercent}%` }} />
+                <div
+                  className='absolute top-0 right-0 h-full bg-decrease/15'
+                  style={{ width: `${row.volumePercent}%` }}
+                />
                 <div className='relative z-10 px-4 py-2 text-end font-mono text-xs text-muted-foreground tabular-nums'>
-                  {unit.askSize.toLocaleString("ko-KR", { maximumFractionDigits: 4 })}
+                  {row.size.toLocaleString("ko-KR", { maximumFractionDigits: 4 })}
                 </div>
               </TableCell>
               <TableCell className='w-1/3 p-0'>
                 <div className='px-4 py-2 text-center font-mono text-sm font-semibold text-decrease tabular-nums'>
-                  {formatCoinPrice(unit.askPrice)}
+                  {formatCoinPrice(row.price)}
                 </div>
               </TableCell>
               <TableCell className='w-1/3' />
@@ -98,29 +91,30 @@ export const OrderbookPanel = ({ marketCode, onSelectPrice }: OrderbookPanelProp
           );
         })}
 
-        {bids.map((unit, index) => {
-          const volumePercent = maxSize > 0 ? (unit.bidSize / maxSize) * 100 : 0;
-
+        {bids.map((row, index) => {
           return (
             <TableRow
               className={cn(
                 "border-b border-border/40 transition-colors hover:bg-muted/40",
                 isSelectable && "cursor-pointer",
               )}
-              key={`bid-${unit.bidPrice}-${index}`}
-              onClick={isSelectable ? () => onSelectPrice?.(unit.bidPrice) : undefined}
+              key={`bid-${row.price}-${index}`}
+              onClick={isSelectable ? () => onSelectPrice?.(row.price) : undefined}
             >
               <TableCell className='w-1/3' />
               <TableCell className='w-1/3 p-0'>
                 <div className='px-4 py-2 text-center font-mono text-sm font-semibold text-increase tabular-nums'>
-                  {formatCoinPrice(unit.bidPrice)}
+                  {formatCoinPrice(row.price)}
                 </div>
               </TableCell>
               <TableCell className='relative w-1/3 p-0'>
                 {/* 매수 잔량 막대: 상승(빨강) 계열을 저채도 알파로 */}
-                <div className='absolute top-0 left-0 h-full bg-increase/15' style={{ width: `${volumePercent}%` }} />
+                <div
+                  className='absolute top-0 left-0 h-full bg-increase/15'
+                  style={{ width: `${row.volumePercent}%` }}
+                />
                 <div className='relative z-10 px-4 py-2 text-start font-mono text-xs text-muted-foreground tabular-nums'>
-                  {unit.bidSize.toLocaleString("ko-KR", { maximumFractionDigits: 4 })}
+                  {row.size.toLocaleString("ko-KR", { maximumFractionDigits: 4 })}
                 </div>
               </TableCell>
             </TableRow>
