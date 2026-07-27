@@ -3,35 +3,15 @@
 import Link from "next/link";
 
 import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, ROUTES_PATH } from "@/shared";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
-import { useLogin } from "../model";
-
-const loginSchema = z.object({
-  username: z.string().regex(/^[a-z0-9_]{4,20}$/, "아이디는 영문 소문자, 숫자, 밑줄 4~20자로 입력하세요."),
-  password: z.string().min(8, "비밀번호는 8자 이상이어야 합니다."),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
+import { useLoginForm } from "../model";
 
 export const LoginForm = () => {
-  const login = useLogin();
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
+  const { form, isLoginPending, loginError, submitLogin } = useLoginForm();
 
   return (
     <Form {...form}>
-      <form
-        className='flex w-full flex-col items-center justify-center gap-6'
-        onSubmit={form.handleSubmit((values) => login.mutate(values))}
-      >
+      <form className='flex w-full flex-col items-center justify-center gap-6' onSubmit={submitLogin}>
         <div className='flex w-80 flex-col gap-4'>
           <FormField
             control={form.control}
@@ -60,10 +40,10 @@ export const LoginForm = () => {
             )}
           />
         </div>
-        {login.isError ? <p className='text-sm text-destructive'>{login.error.message}</p> : null}
+        {loginError ? <p className='text-sm text-destructive'>{loginError.message}</p> : null}
         <div className='flex w-80 justify-center gap-4'>
-          <Button className='w-full py-5' disabled={login.isPending} type='submit' variant='secondary'>
-            {login.isPending ? "로그인 중" : "로그인"}
+          <Button className='w-full py-5' disabled={isLoginPending} type='submit' variant='secondary'>
+            {isLoginPending ? "로그인 중" : "로그인"}
           </Button>
         </div>
         <div className='flex items-center gap-2'>
