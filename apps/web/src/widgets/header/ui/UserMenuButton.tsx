@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import {
   Avatar,
@@ -17,16 +16,13 @@ import {
 } from "@/shared";
 import { ChevronRight, UserRound, Wallet } from "lucide-react";
 
-import { useLogout } from "@/features/auth";
-import { useProfile } from "@/features/setting";
-
-import { useIsAuth } from "@/shared/store";
+import { useUserMenuActions } from "../model";
 
 export const UserMenuButton = () => {
-  const { isAuthenticated, isLoading } = useIsAuth();
+  const userMenu = useUserMenuActions();
 
   // 로그인하지 않은 경우 로그인 버튼 표시
-  if (!isLoading && !isAuthenticated) {
+  if (!userMenu.isLoading && !userMenu.isAuthenticated) {
     return (
       <div className='flex items-center justify-end'>
         <Button asChild variant='secondary'>
@@ -36,15 +32,20 @@ export const UserMenuButton = () => {
     );
   }
 
-  return <AuthenticatedUserMenuButton />;
+  return <AuthenticatedUserMenuButton {...userMenu} />;
 };
 
-const AuthenticatedUserMenuButton = () => {
-  const router = useRouter();
-  const logout = useLogout();
-  const profile = useProfile();
-  const displayName = profile.data?.nickname ?? profile.data?.username ?? "사용자";
+type AuthenticatedUserMenuButtonProps = Pick<
+  ReturnType<typeof useUserMenuActions>,
+  "displayName" | "isLogoutPending" | "logout" | "navigateToSettings"
+>;
 
+const AuthenticatedUserMenuButton = ({
+  displayName,
+  logout,
+  navigateToSettings,
+  isLogoutPending,
+}: AuthenticatedUserMenuButtonProps) => {
   // 로딩 중이거나 인증된 경우 지갑 버튼과 Avatar 표시
   return (
     <div className='flex items-center justify-end gap-2'>
@@ -61,7 +62,7 @@ const AuthenticatedUserMenuButton = () => {
         <DropdownMenuTrigger
           aria-label='사용자 메뉴'
           className='rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50'
-          disabled={logout.isPending}
+          disabled={isLogoutPending}
         >
           <Avatar className='size-8'>
             <AvatarFallback>
@@ -83,14 +84,11 @@ const AuthenticatedUserMenuButton = () => {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onSelect={() => router.push(ROUTES_PATH.SETTING)}
-            className='flex items-center justify-between'
-          >
+          <DropdownMenuItem onSelect={navigateToSettings} className='flex items-center justify-between'>
             내 정보
             <ChevronRight size={16} className='text-muted-foreground' />
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => logout.mutate()}>로그아웃</DropdownMenuItem>
+          <DropdownMenuItem onSelect={logout}>로그아웃</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

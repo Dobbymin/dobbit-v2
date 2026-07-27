@@ -5,13 +5,13 @@ import Link from "next/link";
 import { Button, Popover, PopoverContent, PopoverTrigger, ROUTES_PATH } from "@/shared";
 import { Heart } from "lucide-react";
 
-import { useIsAuth } from "@/shared/store";
-
-import { useFavorites, useToggleFavorite } from "../model";
+import { useFavoriteButton } from "../model";
 
 type FavoriteButtonProps = {
   marketCode: string;
 };
+
+type AuthenticatedFavoriteButtonProps = Pick<ReturnType<typeof useFavoriteButton>, "isFavorited" | "toggleFavorite">;
 
 const LoginPopoverButton = () => (
   <Popover>
@@ -39,20 +39,13 @@ const LoginPopoverButton = () => (
   </Popover>
 );
 
-const AuthenticatedFavoriteButton = ({ marketCode }: FavoriteButtonProps) => {
-  const { data: favorites } = useFavorites();
-  const toggleFavorite = useToggleFavorite();
-  const isFavorited = favorites?.has(marketCode) ?? false;
-
+const AuthenticatedFavoriteButton = ({ isFavorited, toggleFavorite }: AuthenticatedFavoriteButtonProps) => {
   return (
     <button
       aria-label={isFavorited ? "관심 해제" : "관심 등록"}
       className='inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground'
       type='button'
-      onClick={(event) => {
-        event.stopPropagation();
-        toggleFavorite.mutate({ marketCode, isFavorited });
-      }}
+      onClick={toggleFavorite}
     >
       <Heart className={isFavorited ? "fill-current" : undefined} size={24} />
     </button>
@@ -60,11 +53,11 @@ const AuthenticatedFavoriteButton = ({ marketCode }: FavoriteButtonProps) => {
 };
 
 export const FavoriteButton = ({ marketCode }: FavoriteButtonProps) => {
-  const { isAuthenticated } = useIsAuth();
+  const favoriteButton = useFavoriteButton(marketCode);
 
-  if (!isAuthenticated) {
+  if (!favoriteButton.isAuthenticated) {
     return <LoginPopoverButton />;
   }
 
-  return <AuthenticatedFavoriteButton marketCode={marketCode} />;
+  return <AuthenticatedFavoriteButton {...favoriteButton} />;
 };
