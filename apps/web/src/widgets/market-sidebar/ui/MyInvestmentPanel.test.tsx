@@ -5,9 +5,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MyInvestmentPanel } from "./MyInvestmentPanel";
 
 const mocks = vi.hoisted(() => ({
-  useHeldAssets: vi.fn(),
   useIsAuth: vi.fn(),
-  useWalletSummary: vi.fn(),
+  useWalletInvestmentSummary: vi.fn(),
 }));
 
 vi.mock("next/link", () => ({
@@ -23,8 +22,7 @@ vi.mock("@/shared", () => ({
 }));
 
 vi.mock("@/features/wallet", () => ({
-  useHeldAssets: mocks.useHeldAssets,
-  useWalletSummary: mocks.useWalletSummary,
+  useWalletInvestmentSummary: mocks.useWalletInvestmentSummary,
 }));
 
 vi.mock("@/entities/market", () => ({
@@ -53,8 +51,19 @@ const asset = {
 describe("MyInvestmentPanel", () => {
   beforeEach(() => {
     mocks.useIsAuth.mockReturnValue({ isAuthenticated: true });
-    mocks.useWalletSummary.mockReturnValue({ data: undefined });
-    mocks.useHeldAssets.mockReturnValue({ data: [asset] });
+    mocks.useWalletInvestmentSummary.mockReturnValue({
+      data: {
+        assets: [asset],
+        cashAmount: 0,
+        totalAssetAmount: 0,
+        totalPurchaseAmount: 20_000,
+        totalEvaluatedAmount: 0,
+        totalProfitAmount: 0,
+        totalProfitRate: 0,
+        allocation: [{ asset, percentage: 0 }],
+      },
+      isSummaryAvailable: false,
+    });
   });
 
   it("shows unavailable values instead of a temporary -100% return", () => {
