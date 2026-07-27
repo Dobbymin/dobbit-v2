@@ -2,52 +2,10 @@
 
 import Link from "next/link";
 
-import { useHomeSummary, useMarketTickers } from "@/features";
-import { formatCoinPrice } from "@/shared";
-import type { HomeHighlight } from "@dobbit/shared";
+import type { HighlightDisplayCard } from "../model";
+import { useMarketHighlights } from "../model";
 
-const formatChangeRate = (value: number) => `${value >= 0 ? "+" : ""}${(value * 100).toFixed(2)}%`;
-
-const getSparklinePath = (values: number[]) => {
-  if (values.length === 0) return "";
-
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min;
-  const points = values.map((value, index) => ({
-    x: values.length === 1 ? 50 : (index / (values.length - 1)) * 100,
-    y: range === 0 ? 50 : 95 - ((value - min) / range) * 90,
-  }));
-
-  const firstPoint = points[0];
-  if (!firstPoint) return "";
-
-  if (points.length === 1) return `M ${firstPoint.x} ${firstPoint.y}`;
-
-  return points.slice(1).reduce((path, point, index) => {
-    const previousPoint = points[index] ?? point;
-    const pointBeforePrevious = points[index - 1] ?? previousPoint;
-    const pointAfterCurrent = points[index + 2] ?? point;
-    const controlPoint1 = {
-      x: previousPoint.x + (point.x - pointBeforePrevious.x) / 6,
-      y: previousPoint.y + (point.y - pointBeforePrevious.y) / 6,
-    };
-    const controlPoint2 = {
-      x: point.x - (pointAfterCurrent.x - previousPoint.x) / 6,
-      y: point.y - (pointAfterCurrent.y - previousPoint.y) / 6,
-    };
-
-    return `${path} C ${controlPoint1.x} ${controlPoint1.y} ${controlPoint2.x} ${controlPoint2.y} ${point.x} ${point.y}`;
-  }, `M ${firstPoint.x} ${firstPoint.y}`);
-};
-
-const HighlightCard = ({ item }: { item: HomeHighlight }) => {
-  const tickers = useMarketTickers([item.marketCode]);
-  const ticker = tickers[item.marketCode];
-  const tradePrice = ticker?.tradePrice ?? item.tradePrice;
-  const signedChangeRate = ticker?.signedChangeRate ?? item.signedChangeRate;
-  const changeClassName = signedChangeRate >= 0 ? "text-increase" : "text-decrease";
-  const sparklinePath = getSparklinePath(item.sparkline);
+const HighlightCard = ({ item }: { item: HighlightDisplayCard }) => {
   const gradientId = `market-highlight-${item.marketCode}`;
 
   return (
@@ -58,13 +16,13 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
       <div>
         <p className='text-sm font-semibold text-foreground'>{item.koreanName}</p>
         <div className='flex items-baseline gap-2'>
-          <p className='text-xl font-bold text-foreground tabular-nums'>{formatCoinPrice(tradePrice)}</p>
-          <p className={`text-sm font-semibold tabular-nums ${changeClassName}`}>{formatChangeRate(signedChangeRate)}</p>
+          <p className='text-xl font-bold text-foreground tabular-nums'>{item.formattedTradePrice}</p>
+          <p className={`text-sm font-semibold tabular-nums ${item.changeClassName}`}>{item.formattedChangeRate}</p>
         </div>
       </div>
       <svg
         aria-hidden='true'
-        className={`h-12 w-full ${changeClassName}`}
+        className={`h-12 w-full ${item.changeClassName}`}
         preserveAspectRatio='none'
         viewBox='0 0 100 100'
       >
@@ -84,13 +42,13 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
           vectorEffect='non-scaling-stroke'
         />
         {item.sparkline.length > 1 ? (
-          <path d={`${sparklinePath} L 100 100 L 0 100 Z`} fill={`url(#${gradientId})`} />
+          <path d={`${item.sparklinePath} L 100 100 L 0 100 Z`} fill={`url(#${gradientId})`} />
         ) : null}
         {item.sparkline.length === 1 ? (
           <circle cx='50' cy='50' fill='currentColor' r='2.5' />
         ) : (
           <path
-            d={sparklinePath}
+            d={item.sparklinePath}
             fill='none'
             stroke='currentColor'
             strokeLinecap='round'
@@ -104,11 +62,11 @@ const HighlightCard = ({ item }: { item: HomeHighlight }) => {
         <div className='grid grid-cols-2 gap-3'>
           <div>
             <p className='text-xs text-subtle-foreground'>24시간 고가</p>
-            <p className='text-sm font-medium text-foreground tabular-nums'>{formatCoinPrice(item.high24h)}</p>
+            <p className='text-sm font-medium text-foreground tabular-nums'>{item.formattedHigh24h}</p>
           </div>
           <div>
             <p className='text-xs text-subtle-foreground'>24시간 저가</p>
-            <p className='text-sm font-medium text-foreground tabular-nums'>{formatCoinPrice(item.low24h)}</p>
+            <p className='text-sm font-medium text-foreground tabular-nums'>{item.formattedLow24h}</p>
           </div>
         </div>
       </div>
@@ -137,12 +95,8 @@ const HighlightSkeleton = () => (
 );
 
 export const MarketHighlightCarousel = () => {
-  const homeSummaryQuery = useHomeSummary();
-  const highlights = homeSummaryQuery.data?.highlights ?? [];
-
-  const cards: Array<HomeHighlight | null> = homeSummaryQuery.isLoading
-    ? Array.from({ length: 2 }, () => null)
-    : highlights;
+  const { cards: highlights, isLoading } = useMarketHighlights();
+  const cards = isLoading ? Array.from({ length: 2 }, () => null) : highlights;
 
   return (
     <section className='w-full lg:flex lg:h-full lg:min-h-0 lg:flex-col'>

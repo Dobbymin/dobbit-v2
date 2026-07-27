@@ -2,29 +2,9 @@
 
 import Link from "next/link";
 
-import { useMemo, useState } from "react";
-
-import { useHomeSummary, useMarketTickers } from "@/features";
-import { formatCoinPrice } from "@/shared";
-import type { HomeRankingItem, HomeSummaryResponse } from "@dobbit/shared";
-
 import { FavoriteButton } from "@/features/favorite";
 
-type RankingTab = keyof HomeSummaryResponse["rankings"];
-
-const RANKING_TABS: Array<{ key: RankingTab; label: string }> = [
-  { key: "tradePrice", label: "거래대금" },
-  { key: "surge", label: "급상승" },
-  { key: "plunge", label: "급락" },
-  { key: "volume", label: "거래량" },
-];
-
-const formatTradeAmount = (value: number) => {
-  if (value >= 1_000_000_000_000) return `${(value / 1_000_000_000_000).toFixed(1)}조`;
-  return `${Math.round(value / 100_000_000).toLocaleString("ko-KR")}억`;
-};
-
-const formatChangeRate = (value: number) => `${value >= 0 ? "+" : ""}${(value * 100).toFixed(2)}%`;
+import { RANKING_TABS, useMarketRanking } from "../model";
 
 const RankingRowsSkeleton = () => (
   <>
@@ -54,21 +34,7 @@ const RankingRowsSkeleton = () => (
 );
 
 export const MarketRankingTable = () => {
-  const [activeTab, setActiveTab] = useState<RankingTab>("tradePrice");
-  const homeSummaryQuery = useHomeSummary();
-  const rankings = useMemo(() => homeSummaryQuery.data?.rankings[activeTab] ?? [], [activeTab, homeSummaryQuery.data]);
-  const marketCodes = useMemo(() => rankings.map((item) => item.marketCode), [rankings]);
-  const tickers = useMarketTickers(marketCodes);
-
-  const rows = useMemo<HomeRankingItem[]>(
-    () =>
-      rankings.map((item) => {
-        const ticker = tickers[item.marketCode];
-
-        return ticker ? { ...item, tradePrice: ticker.tradePrice, signedChangeRate: ticker.signedChangeRate } : item;
-      }),
-    [rankings, tickers],
-  );
+  const { activeTab, isLoading, rows, setActiveTab } = useMarketRanking();
 
   return (
     <section className='w-full overflow-hidden rounded-lg border border-border bg-card'>
@@ -103,7 +69,7 @@ export const MarketRankingTable = () => {
         </colgroup>
         <thead className='h-10 border-b border-border text-subtle-foreground'>
           <tr>
-            <th className='whitespace-nowrap px-3 text-left font-semibold'>순위</th>
+            <th className='px-3 text-left font-semibold whitespace-nowrap'>순위</th>
             <th className='text-center font-semibold'>관심</th>
             <th className='text-left font-semibold'>코인명</th>
             <th className='px-2 text-right font-semibold'>현재가</th>
@@ -112,19 +78,15 @@ export const MarketRankingTable = () => {
           </tr>
         </thead>
         <tbody>
-          {homeSummaryQuery.isLoading ? (
+          {isLoading ? (
             <RankingRowsSkeleton />
           ) : (
             rows.map((item) => {
-              const changeClassName =
-                item.signedChangeRate > 0
-                  ? "text-increase"
-                  : item.signedChangeRate < 0
-                    ? "text-decrease"
-                    : "text-subtle-foreground";
-
               return (
-                <tr className='h-10 border-b border-border text-foreground transition-colors hover:bg-surface-sunken' key={item.marketCode}>
+                <tr
+                  className='h-10 border-b border-border text-foreground transition-colors hover:bg-surface-sunken'
+                  key={item.marketCode}
+                >
                   <td className='px-3 text-subtle-foreground'>
                     <Link className='block' href={`/trade/${item.marketCode}`}>
                       {item.rank}
@@ -143,17 +105,17 @@ export const MarketRankingTable = () => {
                   </td>
                   <td className='truncate px-2 text-right tabular-nums'>
                     <Link className='block truncate' href={`/trade/${item.marketCode}`}>
-                      {formatCoinPrice(item.tradePrice)}
+                      {item.formattedTradePrice}
                     </Link>
                   </td>
-                  <td className={`truncate px-2 text-right tabular-nums ${changeClassName}`}>
+                  <td className={`truncate px-2 text-right tabular-nums ${item.changeClassName}`}>
                     <Link className='block truncate' href={`/trade/${item.marketCode}`}>
-                      {formatChangeRate(item.signedChangeRate)}
+                      {item.formattedChangeRate}
                     </Link>
                   </td>
                   <td className='hidden truncate px-3 text-right tabular-nums lg:table-cell'>
                     <Link className='block truncate' href={`/trade/${item.marketCode}`}>
-                      {formatTradeAmount(item.accTradePrice24h)}
+                      {item.formattedTradeAmount}
                     </Link>
                   </td>
                 </tr>
