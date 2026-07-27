@@ -1,89 +1,31 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-
 import { Skeleton } from "@/shared";
-import type { AlertRule } from "@dobbit/shared";
 
-import { useAlertRules, useCreateAlertRule, useDeleteAlertRule } from "../model";
-
-type Direction = "UP" | "DOWN";
-
-const DEFAULT_COOLDOWN_SECONDS = 3_600;
-
-const normalizeMarketCode = (value: string) => {
-  const marketCode = value.trim().toUpperCase();
-  return marketCode.startsWith("KRW-") ? marketCode : `KRW-${marketCode}`;
-};
-
-const getRuleDirection = (rule: AlertRule): Direction => {
-  if (rule.comparison === "LTE" || rule.threshold < 0) {
-    return "DOWN";
-  }
-
-  return "UP";
-};
+import { useNewsAlertSettings } from "../model";
+import { type NewsAlertDirection, getNewsAlertDirection } from "../utils";
 
 export function NewsAlertSettings() {
-  const [marketCode, setMarketCode] = useState("");
-  const [direction, setDirection] = useState<Direction>("DOWN");
-  const [threshold, setThreshold] = useState("0.4");
-  const [sendInApp, setSendInApp] = useState(true);
-  const [sendSlack, setSendSlack] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-
-  const alertRulesQuery = useAlertRules();
-  const createMutation = useCreateAlertRule();
-  const deleteMutation = useDeleteAlertRule();
-
-  const newsSentimentRules = useMemo(() => {
-    return alertRulesQuery.data?.filter((rule) => rule.type === "NEWS_SENTIMENT") ?? [];
-  }, [alertRulesQuery.data]);
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setStatusMessage(null);
-
-    const normalizedMarketCode = normalizeMarketCode(marketCode);
-    const absoluteThreshold = Math.abs(Number(threshold));
-
-    if (!normalizedMarketCode || normalizedMarketCode === "KRW-" || Number.isNaN(absoluteThreshold)) {
-      setStatusMessage("마켓 코드와 기준값을 확인해주세요.");
-      return;
-    }
-
-    createMutation.mutate(
-      {
-        marketCode: normalizedMarketCode,
-        type: "NEWS_SENTIMENT",
-        comparison: direction === "UP" ? "GTE" : "LTE",
-        threshold: direction === "UP" ? absoluteThreshold : -absoluteThreshold,
-        sendInApp,
-        sendSlack,
-        cooldownSeconds: DEFAULT_COOLDOWN_SECONDS,
-      },
-      {
-        onSuccess: () => {
-          setMarketCode("");
-          setThreshold("0.4");
-          setStatusMessage("뉴스 감성 알림 규칙이 저장되었습니다.");
-        },
-        onError: () => setStatusMessage("뉴스 감성 알림 규칙 저장에 실패했습니다."),
-      },
-    );
-  };
-
-  const handleDelete = (rule: AlertRule) => {
-    if (!window.confirm(`${rule.marketCode} 뉴스 감성 알림을 삭제할까요?`)) {
-      return;
-    }
-
-    setStatusMessage(null);
-    deleteMutation.mutate(rule.id, {
-      onSuccess: () => setStatusMessage("뉴스 감성 알림 규칙이 삭제되었습니다."),
-      onError: () => setStatusMessage("뉴스 감성 알림 규칙 삭제에 실패했습니다."),
-    });
-  };
+  const {
+    marketCode,
+    direction,
+    threshold,
+    sendInApp,
+    sendSlack,
+    statusMessage,
+    newsSentimentRules,
+    isRulesPending,
+    isRulesError,
+    isCreatePending,
+    isDeletingRule,
+    changeMarketCode,
+    changeDirection,
+    changeThreshold,
+    changeSendInApp,
+    changeSendSlack,
+    submitNewsAlert,
+    deleteNewsAlert,
+  } = useNewsAlertSettings();
 
   return (
     <section className='border-t border-border pt-5'>
@@ -92,18 +34,24 @@ export function NewsAlertSettings() {
         <p className='mt-1 text-sm text-muted-foreground'>뉴스 감성 점수가 기준을 넘으면 알림을 받습니다.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className='mt-4 space-y-3'>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitNewsAlert();
+        }}
+        className='mt-4 space-y-3'
+      >
         <div className='grid gap-3 md:grid-cols-[1fr_120px_120px]'>
           <input
             type='text'
             value={marketCode}
-            onChange={(event) => setMarketCode(event.target.value)}
+            onChange={(event) => changeMarketCode(event.target.value)}
             placeholder='BTC 또는 KRW-BTC'
             className='min-w-0 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary'
           />
           <select
             value={direction}
-            onChange={(event) => setDirection(event.target.value as Direction)}
+            onChange={(event) => changeDirection(event.target.value as NewsAlertDirection)}
             className='min-w-0 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-primary [&>option]:bg-card'
           >
             <option value='UP'>상승</option>
@@ -115,7 +63,7 @@ export function NewsAlertSettings() {
             max='1'
             step='0.01'
             value={threshold}
-            onChange={(event) => setThreshold(event.target.value)}
+            onChange={(event) => changeThreshold(event.target.value)}
             className='min-w-0 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary'
           />
         </div>
@@ -125,7 +73,7 @@ export function NewsAlertSettings() {
             <input
               type='checkbox'
               checked={sendInApp}
-              onChange={(event) => setSendInApp(event.target.checked)}
+              onChange={(event) => changeSendInApp(event.target.checked)}
               className='h-4 w-4'
             />
             앱 알림
@@ -134,7 +82,7 @@ export function NewsAlertSettings() {
             <input
               type='checkbox'
               checked={sendSlack}
-              onChange={(event) => setSendSlack(event.target.checked)}
+              onChange={(event) => changeSendSlack(event.target.checked)}
               className='h-4 w-4'
             />
             Slack
@@ -143,15 +91,15 @@ export function NewsAlertSettings() {
 
         <button
           type='submit'
-          disabled={!marketCode.trim() || createMutation.isPending}
+          disabled={!marketCode.trim() || isCreatePending}
           className='rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:cursor-not-allowed disabled:bg-primary/40 disabled:text-primary-foreground/60'
         >
-          {createMutation.isPending ? "저장 중" : "규칙 추가"}
+          {isCreatePending ? "저장 중" : "규칙 추가"}
         </button>
       </form>
 
       <div className='mt-4 space-y-2'>
-        {alertRulesQuery.isPending &&
+        {isRulesPending &&
           Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className='rounded-md border border-border p-3'>
               <div className='flex flex-wrap items-start justify-between gap-3'>
@@ -164,16 +112,14 @@ export function NewsAlertSettings() {
               </div>
             </div>
           ))}
-        {alertRulesQuery.isError && (
-          <p className='text-sm text-destructive'>뉴스 감성 알림 규칙을 불러오지 못했습니다.</p>
-        )}
-        {!alertRulesQuery.isPending && !alertRulesQuery.isError && newsSentimentRules.length === 0 && (
+        {isRulesError && <p className='text-sm text-destructive'>뉴스 감성 알림 규칙을 불러오지 못했습니다.</p>}
+        {!isRulesPending && !isRulesError && newsSentimentRules.length === 0 && (
           <p className='text-sm text-muted-foreground'>등록된 뉴스 감성 알림 규칙이 없습니다.</p>
         )}
-        {!alertRulesQuery.isPending &&
+        {!isRulesPending &&
           newsSentimentRules.map((rule) => {
-            const ruleDirection = getRuleDirection(rule);
-            const isDeleting = deleteMutation.isPending && deleteMutation.variables === rule.id;
+            const ruleDirection = getNewsAlertDirection(rule);
+            const isDeleting = isDeletingRule(rule.id);
 
             return (
               <div key={rule.id} className='rounded-md border border-border p-3'>
@@ -190,7 +136,7 @@ export function NewsAlertSettings() {
                   </div>
                   <button
                     type='button'
-                    onClick={() => handleDelete(rule)}
+                    onClick={() => deleteNewsAlert(rule)}
                     disabled={isDeleting}
                     className='rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:text-muted-foreground/50'
                   >
