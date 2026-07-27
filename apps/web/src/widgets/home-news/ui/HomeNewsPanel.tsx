@@ -2,29 +2,7 @@
 
 import Link from "next/link";
 
-import { useHomeSummary } from "@/features";
-import type { HomeNewsItem } from "@dobbit/shared";
-
-const formatRelativeTime = (publishedAt: string) => {
-  const minutes = Math.max(0, Math.floor((Date.now() - new Date(publishedAt).getTime()) / 60_000));
-
-  if (minutes < 1) return "방금 전";
-  if (minutes < 60) return `${minutes}분 전`;
-  if (minutes < 1_440) return `${Math.floor(minutes / 60)}시간 전`;
-  return `${Math.floor(minutes / 1_440)}일 전`;
-};
-
-const getSentimentClassName = (sentiment: HomeNewsItem["sentiment"]) => {
-  if (sentiment === "POSITIVE") return "text-increase";
-  if (sentiment === "NEGATIVE") return "text-decrease";
-  return "text-subtle-foreground";
-};
-
-const getSentimentLabel = (sentiment: HomeNewsItem["sentiment"]) => {
-  if (sentiment === "POSITIVE") return "호재";
-  if (sentiment === "NEGATIVE") return "악재";
-  return "중립";
-};
+import { useHomeNews } from "../model";
 
 const NewsSkeleton = () => (
   <div className='flex items-center justify-between gap-4 border-b border-border py-4'>
@@ -37,8 +15,7 @@ const NewsSkeleton = () => (
 );
 
 export const HomeNewsPanel = () => {
-  const homeSummaryQuery = useHomeSummary();
-  const news = homeSummaryQuery.data?.news.slice(0, 6) ?? [];
+  const { isLoading, news } = useHomeNews();
 
   return (
     <section className='lg:flex lg:h-full lg:min-h-0 lg:flex-col'>
@@ -52,7 +29,7 @@ export const HomeNewsPanel = () => {
         </Link>
       </div>
       <div className='min-h-0 rounded-lg border border-border bg-card px-5 py-3 lg:flex-1 lg:overflow-y-auto'>
-        {homeSummaryQuery.isLoading ? (
+        {isLoading ? (
           Array.from({ length: 6 }, (_, index) => <NewsSkeleton key={index} />)
         ) : news.length === 0 ? (
           <p className='py-12 text-center text-sm text-subtle-foreground'>아직 수집된 뉴스가 없어요</p>
@@ -68,12 +45,12 @@ export const HomeNewsPanel = () => {
                 >
                   {item.title}
                 </a>
-                <p className='mt-1 text-xs text-subtle-foreground'>{formatRelativeTime(item.publishedAt)}</p>
+                <p className='mt-1 text-xs text-subtle-foreground'>{item.relativeTime}</p>
               </div>
               <span
-                className={`shrink-0 rounded-md bg-surface-sunken px-2 py-1 text-xs font-semibold ${getSentimentClassName(item.sentiment)}`}
+                className={`shrink-0 rounded-md bg-surface-sunken px-2 py-1 text-xs font-semibold ${item.sentimentClassName}`}
               >
-                {getSentimentLabel(item.sentiment)}
+                {item.sentimentLabel}
               </span>
             </article>
           ))
