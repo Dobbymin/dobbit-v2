@@ -1,43 +1,22 @@
 "use client";
 
-import { useState } from "react";
-
-import { useSaveSlackIntegration, useSlackIntegration, useTestSlackIntegration } from "../model";
+import { useSlackIntegrationSettings } from "../model";
 
 export const SlackIntegrationSettings = () => {
-  const [webhookUrl, setWebhookUrl] = useState("");
-  const [channelName, setChannelName] = useState("");
-  const [enabled, setEnabled] = useState(true);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const slackQuery = useSlackIntegration();
-  const saveMutation = useSaveSlackIntegration();
-  const testMutation = useTestSlackIntegration();
-
-  const integration = slackQuery.data;
-
-  const handleSave = () => {
-    setStatusMessage(null);
-    saveMutation.mutate(
-      { webhookUrl, channelName: channelName || undefined, enabled },
-      {
-        onSuccess: () => {
-          setWebhookUrl("");
-          setStatusMessage("Slack Webhook이 저장되었습니다.");
-        },
-        onError: () => setStatusMessage("Slack Webhook 저장에 실패했습니다."),
-      },
-    );
-  };
-
-  const handleTest = () => {
-    setStatusMessage(null);
-    testMutation.mutate(undefined, {
-      onSuccess: (result) => {
-        setStatusMessage(result.success ? "테스트 메시지를 발송했습니다." : "테스트 메시지 발송에 실패했습니다.");
-      },
-      onError: () => setStatusMessage("테스트 메시지 발송에 실패했습니다."),
-    });
-  };
+  const {
+    integration,
+    webhookUrl,
+    channelName,
+    enabled,
+    statusMessage,
+    isSavePending,
+    isTestPending,
+    changeWebhookUrl,
+    changeChannelName,
+    changeEnabled,
+    saveSlackIntegration,
+    testSlackIntegration,
+  } = useSlackIntegrationSettings();
 
   return (
     <section className='border-t border-border pt-5'>
@@ -53,7 +32,7 @@ export const SlackIntegrationSettings = () => {
           <input
             type='checkbox'
             checked={enabled}
-            onChange={(event) => setEnabled(event.target.checked)}
+            onChange={(event) => changeEnabled(event.target.checked)}
             className='h-4 w-4'
           />
           활성화
@@ -64,14 +43,14 @@ export const SlackIntegrationSettings = () => {
         <input
           type='password'
           value={webhookUrl}
-          onChange={(event) => setWebhookUrl(event.target.value)}
+          onChange={(event) => changeWebhookUrl(event.target.value)}
           placeholder='Slack Incoming Webhook URL'
           className='min-w-0 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary'
         />
         <input
           type='text'
           value={channelName}
-          onChange={(event) => setChannelName(event.target.value)}
+          onChange={(event) => changeChannelName(event.target.value)}
           placeholder='채널명'
           className='min-w-0 rounded-md border border-border bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary'
         />
@@ -80,19 +59,19 @@ export const SlackIntegrationSettings = () => {
       <div className='mt-3 flex flex-wrap gap-2'>
         <button
           type='button'
-          onClick={handleSave}
-          disabled={!webhookUrl || saveMutation.isPending}
+          onClick={saveSlackIntegration}
+          disabled={!webhookUrl || isSavePending}
           className='rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:cursor-not-allowed disabled:bg-primary/40 disabled:text-primary-foreground/60'
         >
-          {saveMutation.isPending ? "저장 중" : "저장"}
+          {isSavePending ? "저장 중" : "저장"}
         </button>
         <button
           type='button'
-          onClick={handleTest}
-          disabled={testMutation.isPending || !integration?.enabled}
+          onClick={testSlackIntegration}
+          disabled={isTestPending || !integration?.enabled}
           className='rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:text-muted-foreground/50'
         >
-          {testMutation.isPending ? "발송 중" : "테스트 발송"}
+          {isTestPending ? "발송 중" : "테스트 발송"}
         </button>
       </div>
 
