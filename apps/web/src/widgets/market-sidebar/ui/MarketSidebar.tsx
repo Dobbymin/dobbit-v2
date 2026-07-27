@@ -1,20 +1,15 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-
-import { useMemo, useState } from "react";
-
-import { Input, useSidebarStore } from "@/shared";
-import { toMarketRow, useMarketTickers, useMarkets } from "@/features/market";
+import { Input } from "@/shared";
 import { ChevronsLeft, ChevronsRight, Flame, Heart, History, Search, Wallet } from "lucide-react";
+
+import { useMarketSidebar } from "../model";
 
 import { MyInvestmentPanel } from "./MyInvestmentPanel";
 import { RealtimeRankingPanel } from "./RealtimeRankingPanel";
 import { RecentlyViewedPanel } from "./RecentlyViewedPanel";
 import { SidebarCoinRow } from "./SidebarCoinRow";
 import { WatchlistPanel } from "./WatchlistPanel";
-
-type SidebarTab = "invest" | "watchlist" | "recent" | "realtime";
 
 const TABS = [
   ["invest", "내 투자", Wallet],
@@ -24,33 +19,20 @@ const TABS = [
 ] as const;
 
 export const MarketSidebar = () => {
-  const pathname = usePathname();
-  const [activeTab, setActiveTab] = useState<SidebarTab>("realtime");
-  const isOpen = useSidebarStore((state) => state.isOpen);
-  const setSidebarOpen = useSidebarStore((state) => state.setOpen);
-  const toggleSidebar = useSidebarStore((state) => state.toggle);
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const marketsQuery = useMarkets({ quote: "KRW", onlyActive: true });
-  const markets = useMemo(() => marketsQuery.data ?? [], [marketsQuery.data]);
-  const marketCodes = useMemo(() => markets.map((market) => market.code), [markets]);
-  const tickers = useMarketTickers(marketCodes);
-  const selectedMarketCode = pathname.match(/^\/trade\/([^/]+)$/)?.[1] ?? "";
-
-  const searchResults = useMemo(() => {
-    const keyword = searchKeyword.trim().toLowerCase();
-    if (!keyword) return [];
-    return markets
-      .filter(
-        (market) =>
-          market.code.toLowerCase().includes(keyword) ||
-          market.koreanName.toLowerCase().includes(keyword) ||
-          market.symbol.toLowerCase().includes(keyword),
-      )
-      .slice(0, 50)
-      .map((market) => toMarketRow(market, tickers[market.code]));
-  }, [markets, searchKeyword, tickers]);
-
-  const isSearching = searchKeyword.trim().length > 0;
+  const {
+    activeTab,
+    isLoading,
+    isOpen,
+    isSearching,
+    markets,
+    searchKeyword,
+    searchResults,
+    selectedMarketCode,
+    selectTab,
+    setSearchKeyword,
+    tickers,
+    toggleSidebar,
+  } = useMarketSidebar();
 
   return (
     <aside
@@ -93,7 +75,7 @@ export const MarketSidebar = () => {
               <MyInvestmentPanel selectedMarketCode={selectedMarketCode} />
             ) : activeTab === "watchlist" ? (
               <WatchlistPanel
-                isLoading={marketsQuery.isLoading}
+                isLoading={isLoading}
                 markets={markets}
                 selectedMarketCode={selectedMarketCode}
                 tickers={tickers}
@@ -102,7 +84,7 @@ export const MarketSidebar = () => {
               <RecentlyViewedPanel markets={markets} selectedMarketCode={selectedMarketCode} tickers={tickers} />
             ) : (
               <RealtimeRankingPanel
-                isLoading={marketsQuery.isLoading}
+                isLoading={isLoading}
                 markets={markets}
                 selectedMarketCode={selectedMarketCode}
                 tickers={tickers}
@@ -136,17 +118,14 @@ export const MarketSidebar = () => {
                   : "text-subtle-foreground hover:bg-card hover:text-foreground"
               }`}
               key={tab}
-              onClick={() => {
-                if (active && isOpen) {
-                  setSidebarOpen(false);
-                  return;
-                }
-                setActiveTab(tab);
-                setSidebarOpen(true);
-              }}
+              onClick={() => selectTab(tab)}
               type='button'
             >
-              <Icon aria-hidden='true' className={Icon === Heart || (active && Icon === Wallet) ? "fill-current" : undefined} size={20} />
+              <Icon
+                aria-hidden='true'
+                className={Icon === Heart || (active && Icon === Wallet) ? "fill-current" : undefined}
+                size={20}
+              />
               {label}
             </button>
           );
