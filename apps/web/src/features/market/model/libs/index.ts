@@ -8,3 +8,4 @@ export * from "./chart-series";
 export * from "./market-list-filter";
 export * from "./order-calculation";
 export * from "./market-list-view-model";
+export * from "./trade-history-row";

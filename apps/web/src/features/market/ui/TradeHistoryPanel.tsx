@@ -13,26 +13,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  formatCoinPrice,
-  formatPrice,
   useAuthStore,
 } from "@/shared";
-import dayjs from "dayjs";
 
-import { useMarkets, useTradeHistory } from "../model";
+import { toTradeHistoryRows, useMarkets, useTradeHistory } from "../model";
 
 export const TradeHistoryPanel = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const { data: trades = [], isLoading } = useTradeHistory();
   const { data: markets = [] } = useMarkets({ quote: "KRW", onlyActive: true });
 
-  const marketMap = useMemo(
-    () =>
-      new Map(
-        markets.map((market) => [`KRW-${market.symbol}`, { koreanName: market.koreanName, symbol: market.symbol }]),
-      ),
-    [markets],
-  );
+  const rows = useMemo(() => toTradeHistoryRows(trades, markets), [markets, trades]);
 
   if (!accessToken) {
     return (
@@ -77,30 +68,24 @@ export const TradeHistoryPanel = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {trades.map((trade) => {
-            const marketInfo = marketMap.get(trade.marketCode);
-            const koreanName = marketInfo?.koreanName || trade.marketCode.replace("KRW-", "");
-            const symbol = marketInfo?.symbol || trade.marketCode.replace("KRW-", "");
-
+          {rows.map((row) => {
             return (
-              <TableRow className='border-b border-border' key={trade.id}>
+              <TableRow className='border-b border-border' key={row.id}>
                 <TableCell className='text-xs text-muted-foreground' suppressHydrationWarning>
-                  {dayjs(trade.executedAt).format("MM.DD HH:mm")}
+                  {row.executedAt}
                 </TableCell>
                 <TableCell className='text-xs'>
                   <div>
-                    <p className='font-semibold text-foreground'>{koreanName}</p>
-                    <p className='text-muted-foreground'>{symbol}/KRW</p>
+                    <p className='font-semibold text-foreground'>{row.koreanName}</p>
+                    <p className='text-muted-foreground'>{row.symbolPair}</p>
                   </div>
                 </TableCell>
-                <TableCell className={trade.side === "BUY" ? "text-increase" : "text-decrease"}>
-                  {trade.side === "BUY" ? "매수" : "매도"}
+                <TableCell className={row.sideTone === "increase" ? "text-increase" : "text-decrease"}>
+                  {row.sideLabel}
                 </TableCell>
-                <TableCell className='text-right'>{formatCoinPrice(trade.price)}</TableCell>
-                <TableCell className='text-right'>
-                  {trade.quantity.toLocaleString(undefined, { maximumFractionDigits: 8 })}
-                </TableCell>
-                <TableCell className='text-right'>{formatPrice(trade.totalAmount)}</TableCell>
+                <TableCell className='text-right'>{row.price}</TableCell>
+                <TableCell className='text-right'>{row.quantity}</TableCell>
+                <TableCell className='text-right'>{row.totalAmount}</TableCell>
               </TableRow>
             );
           })}
