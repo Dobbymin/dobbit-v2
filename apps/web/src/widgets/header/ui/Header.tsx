@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/shared";
+
 import { useSidebarStore } from "@/shared/store";
 
 import { LogoButton } from "./LogoButton";
