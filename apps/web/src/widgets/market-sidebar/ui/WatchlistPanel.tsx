@@ -2,15 +2,13 @@
 
 import Link from "next/link";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 
-import { Button, ROUTES_PATH, cn, useIsAuth } from "@/shared";
-import { filterFavoriteMarkets, getTopMarketsByTradeVolume, toMarketRow } from "@/features/market";
+import { Button, ROUTES_PATH, cn } from "@/shared";
 import type { Market, MarketTickerUpdatedEvent } from "@dobbit/shared";
 import { ChevronDown, Heart, Sparkles } from "lucide-react";
 
-import { useFavorites } from "@/features/favorite";
-import { useNews } from "@/features/news";
+import { useWatchlistPanel } from "../model";
 
 import { SidebarCoinRow } from "./SidebarCoinRow";
 
@@ -22,38 +20,8 @@ type WatchlistPanelProps = {
 };
 
 export const WatchlistPanel = ({ markets, tickers, selectedMarketCode }: WatchlistPanelProps) => {
-  const { isAuthenticated } = useIsAuth();
-  const favoritesQuery = useFavorites();
-  const news = useNews({ limit: 10 });
   const [groupOpen, setGroupOpen] = useState(true);
-
-  const favoriteMarkets = useMemo(
-    () => filterFavoriteMarkets(markets, favoritesQuery.data ?? new Set()),
-    [favoritesQuery.data, markets],
-  );
-  const hasNoFavorites = isAuthenticated && favoritesQuery.data !== undefined && favoriteMarkets.length === 0;
-
-  const rows = useMemo(() => {
-    const source = hasNoFavorites ? getTopMarketsByTradeVolume(markets, tickers, 10) : favoriteMarkets;
-    return source.map((market) => toMarketRow(market, tickers[market.code]));
-  }, [favoriteMarkets, hasNoFavorites, markets, tickers]);
-
-  const headlines = useMemo(() => (news.data ?? []).map((item) => item.title).filter(Boolean), [news.data]);
-  const [headlineIndex, setHeadlineIndex] = useState(0);
-
-  useEffect(() => {
-    setHeadlineIndex(0);
-  }, [headlines.length]);
-
-  useEffect(() => {
-    if (headlines.length <= 1) return;
-    const timer = setInterval(() => {
-      setHeadlineIndex((previous) => (previous + 1) % headlines.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [headlines.length]);
-
-  const headline = headlines[headlineIndex];
+  const { hasNoFavorites, headline, headlineIndex, isAuthenticated, rows } = useWatchlistPanel(markets, tickers);
 
   return (
     <section className='flex min-h-0 flex-1 flex-col'>
@@ -69,7 +37,7 @@ export const WatchlistPanel = ({ markets, tickers, selectedMarketCode }: Watchli
           <span className='min-w-0'>
             <span className='block text-[11px] font-semibold text-primary'>Dobbit AI</span>
             <span
-              className='line-clamp-1 text-xs text-muted-foreground duration-500 animate-in fade-in'
+              className='line-clamp-1 animate-in text-xs text-muted-foreground duration-500 fade-in'
               key={headlineIndex}
             >
               {headline ?? "코인 뉴스 요약을 확인해보세요."}
