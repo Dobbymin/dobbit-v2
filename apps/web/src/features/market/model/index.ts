@@ -13,3 +13,4 @@ export * from "./useRecentlyViewed";
 export * from "./useOrderValues";
 export * from "./useMarketOrderForm";
 export * from "./useMarketList";
+export * from "./useMarketChart";
