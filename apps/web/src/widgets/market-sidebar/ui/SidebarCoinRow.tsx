@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { cn } from "@/shared";
+
 import type { MarketRowData } from "@/features/market";
 
 import { CoinIcon } from "@/entities/market";
@@ -38,7 +39,7 @@ export const SidebarCoinRow = ({ row, rank, active = false }: SidebarCoinRowProp
       <span className='min-w-0'>
         <span
           className={cn(
-            "line-clamp-2 text-sm font-semibold leading-tight",
+            "line-clamp-2 text-sm leading-tight font-semibold",
             active ? "text-primary" : "text-foreground",
           )}
         >

@@ -30,7 +30,9 @@ describe("useMarketOrderForm", () => {
     vi.clearAllMocks();
     mocks.buyPending = false;
     mocks.sellPending = true;
-    mocks.useAuthStore.mockImplementation((selector: (state: { accessToken: string }) => string) => selector({ accessToken: "token" }));
+    mocks.useAuthStore.mockImplementation((selector: (state: { accessToken: string }) => string) =>
+      selector({ accessToken: "token" }),
+    );
     mocks.useOrderableCash.mockReturnValue({ data: 30000 });
     mocks.useOrderValues.mockReturnValue({
       price: "10000",
@@ -54,7 +56,14 @@ describe("useMarketOrderForm", () => {
   });
 
   it("blocks invalid orders", () => {
-    mocks.useOrderValues.mockReturnValue({ price: "", amount: "", total: "", isValid: false, changePrice: mocks.changePrice, reset: mocks.reset });
+    mocks.useOrderValues.mockReturnValue({
+      price: "",
+      amount: "",
+      total: "",
+      isValid: false,
+      changePrice: mocks.changePrice,
+      reset: mocks.reset,
+    });
     const { result } = renderHook(() => useMarketOrderForm("KRW-BTC"));
 
     act(() => result.current.sell());

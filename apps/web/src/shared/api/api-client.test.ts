@@ -26,7 +26,9 @@ describe("apiClient", () => {
   });
 
   it("uses the JSON message for error responses", async () => {
-    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ message: "Favorite already exists" }), { status: 400 }));
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ message: "Favorite already exists" }), { status: 400 }),
+    );
 
     await expect(apiClient("/favorites")).rejects.toThrow("Favorite already exists");
   });

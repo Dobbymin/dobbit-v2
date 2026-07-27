@@ -4,14 +4,7 @@ import Link from "next/link";
 
 import { useState } from "react";
 
-import {
-  Button,
-  Input,
-  ROUTES_PATH,
-  cn,
-  formatPrice,
-  formatThousands,
-} from "@/shared";
+import { Button, Input, ROUTES_PATH, cn, formatPrice, formatThousands } from "@/shared";
 import { RotateCw } from "lucide-react";
 
 import { useMarketOrderForm } from "../model";
@@ -158,13 +151,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
               </div>
             </div>
             <div className='flex w-full gap-2 pt-2'>
-              <Button
-                className='h-10 w-[25%]'
-                disabled={isLoading}
-                onClick={reset}
-                type='button'
-                variant='outline'
-              >
+              <Button className='h-10 w-[25%]' disabled={isLoading} onClick={reset} type='button' variant='outline'>
                 <RotateCw className='size-4' />
                 초기화
               </Button>
