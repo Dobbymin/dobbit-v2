@@ -2,42 +2,15 @@
 
 import { Separator } from "@/shared";
 
-import type { NewsListItem } from "../api";
 import { DistributionBox, KeywordBox, NewsListHeader } from "../components";
+import type { NewsSummary } from "../model";
 
 type Props = {
-  newsItems: NewsListItem[];
+  summary: NewsSummary;
   isLoading?: boolean;
 };
 
-export const SummaryNewsSection = ({ newsItems, isLoading }: Props) => {
-  // 클라이언트 집계
-  const positive = newsItems.filter((item) => item.sentiment?.toUpperCase() === "POSITIVE").length;
-  const negative = newsItems.filter((item) => item.sentiment?.toUpperCase() === "NEGATIVE").length;
-  const neutral = newsItems.length - positive - negative;
-
-  const investmentScores = newsItems
-    .filter((item) => item.investmentScore !== null && item.investmentScore !== undefined)
-    .map((item) => item.investmentScore as number);
-  const avgScore =
-    investmentScores.length > 0 ? investmentScores.reduce((a, b) => a + b, 0) / investmentScores.length : null;
-  const avgInvestmentIndex = avgScore !== null ? Math.min(100, Math.max(0, (avgScore + 1) * 50)) : 50;
-
-  // 키워드 빈도 계산
-  const keywordMap = new Map<string, number>();
-  newsItems.forEach((item) => {
-    if (item.keywords && Array.isArray(item.keywords)) {
-      item.keywords.forEach((keyword) => {
-        keywordMap.set(keyword, (keywordMap.get(keyword) || 0) + 1);
-      });
-    }
-  });
-
-  const topKeywords = Array.from(keywordMap.entries())
-    .sort(([, countA], [, countB]) => countB - countA)
-    .slice(0, 5)
-    .map(([keyword]) => keyword);
-
+export const SummaryNewsSection = ({ summary, isLoading }: Props) => {
   const newsDate = new Date().toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "long",
@@ -48,22 +21,22 @@ export const SummaryNewsSection = ({ newsItems, isLoading }: Props) => {
     <section className='bg-card p-6'>
       <NewsListHeader
         newsDate={newsDate}
-        totalNews={newsItems.length}
-        investmentIndex={avgInvestmentIndex}
+        totalNews={summary.totalNews}
+        investmentIndex={summary.averageInvestmentIndex}
         isLoading={isLoading}
       />
 
       <DistributionBox
-        positive={positive}
-        neutral={neutral}
-        negative={negative}
-        totalNews={newsItems.length}
+        positive={summary.positive}
+        neutral={summary.neutral}
+        negative={summary.negative}
+        totalNews={summary.totalNews}
         isLoading={isLoading}
       />
 
       <Separator className='my-6 bg-foreground/20' />
 
-      <KeywordBox keywords={topKeywords} isLoading={isLoading} />
+      <KeywordBox keywords={summary.topKeywords} isLoading={isLoading} />
     </section>
   );
 };
