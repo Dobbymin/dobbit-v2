@@ -3,8 +3,9 @@
 import Link from "next/link";
 
 import { Button, ROUTES_PATH, cn, formatPrice, useIsAuth } from "@/shared";
-import { useHeldAssets, useWalletSummary } from "@/features/wallet";
 import { Wallet } from "lucide-react";
+
+import { useWalletInvestmentSummary } from "@/features/wallet";
 
 import { CoinIcon } from "@/entities/market";
 
@@ -12,15 +13,13 @@ type MyInvestmentPanelProps = {
   selectedMarketCode: string;
 };
 
-const toneOf = (value: number) =>
-  value > 0 ? "text-increase" : value < 0 ? "text-decrease" : "text-change-neutral";
+const toneOf = (value: number) => (value > 0 ? "text-increase" : value < 0 ? "text-decrease" : "text-change-neutral");
 
 const withSign = (value: number) => (value >= 0 ? "+" : "");
 
 export const MyInvestmentPanel = ({ selectedMarketCode }: MyInvestmentPanelProps) => {
   const { isAuthenticated } = useIsAuth();
-  const summary = useWalletSummary();
-  const heldAssets = useHeldAssets();
+  const summary = useWalletInvestmentSummary();
 
   if (!isAuthenticated) {
     return (
@@ -39,7 +38,7 @@ export const MyInvestmentPanel = ({ selectedMarketCode }: MyInvestmentPanelProps
     );
   }
 
-  const data = summary.data;
+  const { data } = summary;
 
   return (
     <section className='flex min-h-0 flex-1 flex-col'>
@@ -49,8 +48,10 @@ export const MyInvestmentPanel = ({ selectedMarketCode }: MyInvestmentPanelProps
       <div className='flex-1 overflow-y-auto'>
         <div className='border-y border-border px-4 py-4'>
           <p className='text-xs text-muted-foreground'>총 자산</p>
-          <p className='text-xl font-bold text-foreground tabular-nums'>{data ? formatPrice(data.totalAssetAmount) : "-"}원</p>
-          {data ? (
+          <p className='text-xl font-bold text-foreground tabular-nums'>
+            {summary.isSummaryAvailable ? formatPrice(data.totalAssetAmount) : "-"}원
+          </p>
+          {summary.isSummaryAvailable ? (
             <p className={cn("text-sm font-medium tabular-nums", toneOf(data.totalProfitAmount))}>
               {withSign(data.totalProfitAmount)}
               {formatPrice(data.totalProfitAmount)}원 ({withSign(data.totalProfitRate)}
@@ -59,13 +60,15 @@ export const MyInvestmentPanel = ({ selectedMarketCode }: MyInvestmentPanelProps
           ) : null}
           <div className='mt-3 flex items-center justify-between rounded-lg bg-surface-sunken px-3 py-2'>
             <span className='text-xs text-muted-foreground'>원화</span>
-            <span className='text-sm font-medium text-foreground tabular-nums'>{data ? formatPrice(data.cashAmount) : "-"}원</span>
+            <span className='text-sm font-medium text-foreground tabular-nums'>
+              {summary.isSummaryAvailable ? formatPrice(data.cashAmount) : "-"}원
+            </span>
           </div>
         </div>
-        {heldAssets.data.length === 0 ? (
+        {data.assets.length === 0 ? (
           <p className='px-4 py-8 text-sm text-muted-foreground'>보유 중인 코인이 없어요.</p>
         ) : (
-          heldAssets.data.map((asset) => {
+          data.assets.map((asset) => {
             const active = asset.marketCode === selectedMarketCode;
             return (
               <Link
@@ -78,7 +81,9 @@ export const MyInvestmentPanel = ({ selectedMarketCode }: MyInvestmentPanelProps
               >
                 <CoinIcon marketCode={asset.marketCode} size={28} />
                 <span className='min-w-0'>
-                  <span className={cn("line-clamp-1 text-sm font-semibold", active ? "text-primary" : "text-foreground")}>
+                  <span
+                    className={cn("line-clamp-1 text-sm font-semibold", active ? "text-primary" : "text-foreground")}
+                  >
                     {asset.koreanName}
                   </span>
                   <span className='block text-[11px] text-muted-foreground'>{asset.symbol}</span>
@@ -97,7 +102,7 @@ export const MyInvestmentPanel = ({ selectedMarketCode }: MyInvestmentPanelProps
                   ) : (
                     <>
                       <span className='text-xs font-medium text-foreground tabular-nums'>-</span>
-                      <span className='text-xs tabular-nums text-muted-foreground'>-</span>
+                      <span className='text-xs text-muted-foreground tabular-nums'>-</span>
                     </>
                   )}
                 </span>

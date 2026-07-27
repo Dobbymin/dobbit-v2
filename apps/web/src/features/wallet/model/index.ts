@@ -5,3 +5,5 @@ export * from "./useDeposit";
 export * from "./useWithdraw";
 export * from "./useWalletRealtime";
 export * from "./useHeldAssets";
+export * from "./wallet-investment-summary";
+export * from "./useWalletInvestmentSummary";
