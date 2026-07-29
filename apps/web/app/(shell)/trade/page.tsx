@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+import { TRADE_DEFAULT_PATH } from "@/shared";
+
 export default function Page() {
-  redirect("/trade/KRW-BTC");
+  redirect(TRADE_DEFAULT_PATH);
 }

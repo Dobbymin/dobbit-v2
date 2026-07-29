@@ -1,12 +1,10 @@
-import { AppLayout } from "@/widgets";
-
 import { NewsAlertSettings } from "@/features/alert";
 import { SlackIntegrationSettings } from "@/features/notification";
 import { ProfileSection, UserInfoSection } from "@/features/setting";
 
 export default function SettingPage() {
   return (
-    <AppLayout>
+    <div className='px-4 pb-6 lg:px-10'>
       <div className='flex w-full max-w-4xl flex-col gap-8 px-5 py-10'>
         <h1 className='text-2xl font-bold text-foreground'>프로필 설정</h1>
 
@@ -20,6 +18,6 @@ export default function SettingPage() {
           <NewsAlertSettings />
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 }

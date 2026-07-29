@@ -1,11 +1,9 @@
-import { AppLayout } from "@/widgets";
-
 import { HomePage } from "@/views/home";
 
 export default function Page() {
   return (
-    <AppLayout>
+    <div className='px-4 pb-6 lg:px-10'>
       <HomePage />
-    </AppLayout>
+    </div>
   );
 }
