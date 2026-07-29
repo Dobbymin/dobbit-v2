@@ -6,16 +6,16 @@ import { toTradeHistoryRows, useMarkets, useTradeHistory } from "@/features/mark
 import { Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared";
 
 export const TradeHistorySection = () => {
-  const { data: trades = [], isLoading: isTradesLoading } = useTradeHistory();
+  const { data: trades = [], isPending: isTradesPending } = useTradeHistory();
   const { data: markets = [], isLoading: isMarketsLoading } = useMarkets({ quote: "KRW", onlyActive: true });
   const rows = useMemo(() => toTradeHistoryRows(trades, markets), [markets, trades]);
-  const isLoading = isTradesLoading || isMarketsLoading;
+  const isPending = isTradesPending || isMarketsLoading;
 
   return (
     <section className='mt-2'>
       <h2 className='mb-4 text-lg font-semibold text-foreground'>거래 내역</h2>
 
-      {isLoading ? (
+      {isPending ? (
         <div className='w-full overflow-x-auto'>
           <Table className='w-full min-w-[640px] bg-card/20'>
             <TableHeader>
@@ -23,10 +23,10 @@ export const TradeHistorySection = () => {
                 <TableHead className='text-center text-foreground'>체결시각</TableHead>
                 <TableHead className='text-center text-foreground'>마켓</TableHead>
                 <TableHead className='text-center text-foreground'>구분</TableHead>
-                <TableHead className='text-center text-foreground'>체결가</TableHead>
-                <TableHead className='text-center text-foreground'>수량</TableHead>
-                <TableHead className='text-center text-foreground'>거래금액</TableHead>
-                <TableHead className='text-center text-foreground'>수수료</TableHead>
+                <TableHead className='text-right text-foreground'>체결가</TableHead>
+                <TableHead className='text-right text-foreground'>수량</TableHead>
+                <TableHead className='text-right text-foreground'>거래금액</TableHead>
+                <TableHead className='text-right text-foreground'>수수료</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -91,7 +91,7 @@ export const TradeHistorySection = () => {
                       <p className='text-xs text-muted-foreground'>{row.symbolPair}</p>
                     </div>
                   </TableCell>
-                  <TableCell className={row.sideTone === "increase" ? "text-increase" : "text-decrease"}>
+                  <TableCell className={`text-center ${row.sideTone === "increase" ? "text-increase" : "text-decrease"}`}>
                     {row.sideLabel}
                   </TableCell>
                   <TableCell className='text-right text-foreground'>{row.price}</TableCell>
