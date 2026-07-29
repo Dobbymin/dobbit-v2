@@ -1,7 +1,5 @@
 "use client";
 
-import { AppLayout } from "@/widgets";
-
 import { NewsListSection, SummaryNewsSection } from "@/features/news";
 import { useNewsSummary } from "@/features/news/model";
 
@@ -9,7 +7,7 @@ export default function NewsPage() {
   const { isLoading, summary } = useNewsSummary();
 
   return (
-    <AppLayout>
+    <div className='px-4 pb-6 lg:px-10'>
       <div className='space-y-6'>
         <div>
           <h1 className='text-2xl font-bold text-foreground'>뉴스 목록</h1>
@@ -20,6 +18,6 @@ export default function NewsPage() {
 
         <NewsListSection />
       </div>
-    </AppLayout>
+    </div>
   );
 }

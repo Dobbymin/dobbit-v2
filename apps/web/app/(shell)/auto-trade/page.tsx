@@ -1,9 +1,7 @@
-import { AppLayout } from "@/widgets";
-
 export default function AutoTradePage() {
   return (
-    <AppLayout>
+    <div className='px-4 pb-6 lg:px-10'>
       <div className='py-10'>AutoTradePage</div>
-    </AppLayout>
+    </div>
   );
 }

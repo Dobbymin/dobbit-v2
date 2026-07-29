@@ -2,8 +2,6 @@
 
 import { useMemo } from "react";
 
-import { AppLayout } from "@/widgets";
-
 import {
   MarketChartPanel,
   MarketOrderPanel,
@@ -32,18 +30,16 @@ export default function TradePage({ marketCode }: TradePageProps) {
   const selectedTicker = tickers[marketCode] ?? tickerQuery.data;
 
   return (
-    <AppLayout noMainPadding>
-      <div className='min-h-[calc(100vh-52px)] bg-background text-foreground'>
-        <div className='flex min-w-0 flex-col bg-background px-4 lg:min-h-[calc(100vh-52px)] lg:px-10'>
-          <MarketChartPanel
-            isLoading={tickerQuery.isLoading}
-            market={selectedMarket}
-            selectedMarketCode={marketCode}
-            ticker={selectedTicker}
-          />
-          <MarketOrderPanel marketCode={marketCode} />
-        </div>
+    <div className='min-h-[calc(100vh-52px)] bg-background text-foreground'>
+      <div className='flex min-w-0 flex-col bg-background px-4 lg:min-h-[calc(100vh-52px)] lg:px-10'>
+        <MarketChartPanel
+          isLoading={tickerQuery.isLoading}
+          market={selectedMarket}
+          selectedMarketCode={marketCode}
+          ticker={selectedTicker}
+        />
+        <MarketOrderPanel marketCode={marketCode} />
       </div>
-    </AppLayout>
+    </div>
   );
 }

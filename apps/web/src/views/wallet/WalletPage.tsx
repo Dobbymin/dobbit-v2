@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-import { AppLayout } from "@/widgets";
-
 import {
   CashHistorySection,
   CashSection,
@@ -38,11 +36,11 @@ export default function WalletPage() {
   } satisfies Record<WalletTab, React.ReactNode>;
 
   return (
-    <AppLayout>
+    <div className='px-4 pb-6 lg:px-10'>
       <div className='mx-auto flex w-full max-w-4xl flex-col gap-4 py-4'>
         <TabNavigationSection activeTab={activeTab} setActiveTab={setActiveTab} />
         {tabContent[activeTab]}
       </div>
-    </AppLayout>
+    </div>
   );
 }
