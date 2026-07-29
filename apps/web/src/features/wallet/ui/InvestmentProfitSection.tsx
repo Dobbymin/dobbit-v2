@@ -167,9 +167,9 @@ export const InvestmentProfitSection = () => {
         <h2 className='mb-4 text-lg font-semibold text-foreground'>자산 비중</h2>
         {summary.isLoading ? (
           <AllocationSkeleton />
-        ) : !assets.length ? (
+        ) : !allocation.length ? (
           <div className='flex h-40 items-center justify-center bg-card/20'>
-            <p className='text-sm text-muted-foreground'>보유 중인 코인이 없습니다.</p>
+            <p className='text-sm text-muted-foreground'>비중을 계산할 자산이 없습니다.</p>
           </div>
         ) : (
           <div className='space-y-4 bg-card/20 p-4'>
