@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { WalletService } from './wallet.service';
-import { CashBalanceResponse, WalletHolding, WalletSummaryResponse } from '@dobbit/shared';
+import { CashBalanceResponse, WalletCashHistoryResponse, WalletHolding, WalletSummaryResponse } from '@dobbit/shared';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 interface UserRequest extends Request {
@@ -40,6 +40,21 @@ export class WalletController {
   @Get('summary')
   async getSummary(@Req() req: UserRequest): Promise<WalletSummaryResponse> {
     return this.walletService.getAssetSummary(req.user.userId);
+  }
+
+  @Get('cash-history')
+  async getCashHistory(
+    @Req() req: UserRequest,
+    @Query('limit') limitStr?: string,
+    @Query('offset') offsetStr?: string,
+  ): Promise<WalletCashHistoryResponse> {
+    const parsedLimit = limitStr ? parseInt(limitStr, 10) : 50;
+    const limit = Math.min(Number.isNaN(parsedLimit) || parsedLimit < 0 ? 50 : parsedLimit, 100);
+
+    const parsedOffset = offsetStr ? parseInt(offsetStr, 10) : 0;
+    const offset = Number.isNaN(parsedOffset) || parsedOffset < 0 ? 0 : parsedOffset;
+
+    return this.walletService.getCashHistory(req.user.userId, limit, offset);
   }
 
   @Post('deposit')

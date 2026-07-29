@@ -1,3 +1,4 @@
+export * from "./CashHistorySection";
 export * from "./CashSection";
 export * from "./ChartAreaSection";
 export * from "./HeldAssetsListSection";

@@ -25,3 +25,18 @@ export interface WalletSummaryResponse {
 export interface WalletHoldingsResponse {
   items: WalletHolding[];
 }
+
+export interface WalletCashHistoryItem {
+  id: string;
+  type: "DEPOSIT" | "WITHDRAW";
+  amount: number;
+  reason: string | null;
+  createdAt: string;
+}
+
+export interface WalletCashHistoryResponse {
+  items: WalletCashHistoryItem[];
+  limit: number;
+  offset: number;
+  total: number;
+}

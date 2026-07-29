@@ -1,6 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
-import type { CashBalanceResponse, WalletHolding, WalletSummaryResponse } from '@dobbit/shared';
+import type {
+  CashBalanceResponse,
+  WalletCashHistoryResponse,
+  WalletHolding,
+  WalletSummaryResponse,
+} from '@dobbit/shared';
 import { MarketService } from '../market/market.service';
 
 @Injectable()
@@ -76,6 +81,35 @@ export class WalletService {
       totalEvaluatedAmount,
       totalProfitAmount,
       totalProfitRate,
+    };
+  }
+
+  async getCashHistory(userId: string, limit: number, offset: number): Promise<WalletCashHistoryResponse> {
+    const where = {
+      userId,
+      changeType: { in: ['DEPOSIT', 'WITHDRAW'] },
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.balanceHistory.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+      }),
+      this.prisma.balanceHistory.count({ where }),
+    ]);
+
+    return {
+      items: rows.map((row) => ({
+        id: row.id,
+        type: row.changeType as 'DEPOSIT' | 'WITHDRAW',
+        amount: Math.abs(Number(row.cashDelta)),
+        reason: row.reason,
+        createdAt: row.createdAt.toISOString(),
+      })),
+      limit,
+      offset,
+      total,
     };
   }
 
