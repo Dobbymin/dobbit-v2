@@ -5,6 +5,8 @@ import dayjs from "dayjs";
 export type TradeHistoryRow = {
   id: string;
   executedAt: string;
+  executedAtFull: string;
+  fee: string;
   koreanName: string;
   price: string;
   quantity: string;
@@ -25,6 +27,8 @@ export const toTradeHistoryRows = (trades: TradeResponse[], markets: Market[]): 
     return {
       id: trade.id,
       executedAt: dayjs(trade.executedAt).format("MM.DD HH:mm"),
+      executedAtFull: dayjs(trade.executedAt).format("YYYY.MM.DD HH:mm"),
+      fee: formatPrice(trade.fee),
       koreanName: market?.koreanName ?? symbol,
       price: formatCoinPrice(trade.price),
       quantity: trade.quantity.toLocaleString(undefined, { maximumFractionDigits: 8 }),

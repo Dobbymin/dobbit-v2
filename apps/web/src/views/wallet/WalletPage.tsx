@@ -11,6 +11,7 @@ import {
   HeldAssetsListSection,
   StatsAreaSection,
   TabNavigationSection,
+  TradeHistorySection,
   type WalletTab,
   useWalletRealtime,
 } from "@/features/wallet";
@@ -34,6 +35,8 @@ export default function WalletPage() {
           </>
         ) : activeTab === "입출금내역" ? (
           <CashHistorySection />
+        ) : activeTab === "거래내역" ? (
+          <TradeHistorySection />
         ) : (
           <section className='flex min-h-[300px] w-full items-center justify-center bg-card/20'>
             <p className='text-sm text-muted-foreground'>준비 중입니다.</p>
