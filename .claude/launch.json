@@ -17,13 +17,9 @@
     },
     {
       "name": "api",
-      "runtimeExecutable": "/Users/gimgangmin/.nvm/versions/node/v24.17.0/bin/node",
-      "runtimeArgs": [
-        "/Users/gimgangmin/Desktop/Dev/project/dobbit-v2/apps/api/node_modules/@nestjs/cli/bin/nest.js",
-        "start",
-        "--watch"
-      ],
-      "cwd": "/Users/gimgangmin/Desktop/Dev/project/dobbit-v2/apps/api",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/@nestjs/cli/bin/nest.js", "start", "--watch"],
+      "cwd": "apps/api",
       "port": 8080,
       "autoPort": false
     }

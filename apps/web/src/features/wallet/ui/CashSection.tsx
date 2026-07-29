@@ -42,7 +42,7 @@ export const CashSection = () => {
       <div className='flex w-full gap-2 sm:w-auto'>
         <Dialog open={withdrawOpen} onOpenChange={changeWithdrawOpen}>
           <DialogTrigger asChild>
-            <Button className='h-10 flex-1 sm:w-30 sm:flex-none' type='button' variant='outline'>
+            <Button className='h-11 flex-1 sm:h-10 sm:w-30 sm:flex-none' type='button' variant='outline'>
               KRW출금
             </Button>
           </DialogTrigger>
@@ -86,7 +86,7 @@ export const CashSection = () => {
 
         <Dialog open={depositOpen} onOpenChange={changeDepositOpen}>
           <DialogTrigger asChild>
-            <Button className='h-10 flex-1 sm:w-30 sm:flex-none' type='button'>
+            <Button className='h-11 flex-1 sm:h-10 sm:w-30 sm:flex-none' type='button'>
               KRW입금
             </Button>
           </DialogTrigger>
