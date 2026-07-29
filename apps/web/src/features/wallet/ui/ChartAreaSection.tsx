@@ -23,8 +23,8 @@ export const ChartAreaSection = () => {
   const background = allocation.length > 0 ? `conic-gradient(${stops})` : "#2a2a2a";
 
   return (
-    <aside className='flex h-full w-[30%] flex-col items-center justify-center gap-4 bg-card/20 p-6'>
-      <div className='relative h-[180px] w-[180px]'>
+    <aside className='flex h-auto w-full flex-col items-center justify-center gap-4 bg-card/20 p-6 lg:h-full lg:w-[30%]'>
+      <div className='relative h-[140px] w-[140px] sm:h-[180px] sm:w-[180px]'>
         {summary.isLoading ? (
           <Skeleton className='h-full w-full rounded-full' />
         ) : (

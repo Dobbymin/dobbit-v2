@@ -14,6 +14,14 @@
       ],
       "port": 3000,
       "autoPort": false
+    },
+    {
+      "name": "api",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/@nestjs/cli/bin/nest.js", "start", "--watch"],
+      "cwd": "apps/api",
+      "port": 8080,
+      "autoPort": false
     }
   ]
 }

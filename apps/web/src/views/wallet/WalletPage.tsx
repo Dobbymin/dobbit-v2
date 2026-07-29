@@ -25,7 +25,7 @@ export default function WalletPage() {
         {activeTab === "보유자산" ? (
           <>
             <CashSection />
-            <section className='flex w-full gap-4'>
+            <section className='flex w-full flex-col gap-4 lg:flex-row'>
               <StatsAreaSection />
               <ChartAreaSection />
             </section>

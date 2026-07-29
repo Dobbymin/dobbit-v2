@@ -37,12 +37,12 @@ export const CashSection = () => {
   } = useCashForm();
 
   return (
-    <section className='flex w-full items-center justify-between bg-card/20 p-5'>
-      <p className='text-lg text-foreground'>가상의 현금을 입금해보아요.</p>
-      <div className='flex gap-2'>
+    <section className='flex w-full flex-col items-stretch gap-3 bg-card/20 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0 sm:p-5'>
+      <p className='text-base text-foreground sm:text-lg'>가상의 현금을 입금해보아요.</p>
+      <div className='flex w-full gap-2 sm:w-auto'>
         <Dialog open={withdrawOpen} onOpenChange={changeWithdrawOpen}>
           <DialogTrigger asChild>
-            <Button className='h-10 w-30' type='button' variant='outline'>
+            <Button className='h-11 flex-1 sm:h-10 sm:w-30 sm:flex-none' type='button' variant='outline'>
               KRW출금
             </Button>
           </DialogTrigger>
@@ -86,7 +86,7 @@ export const CashSection = () => {
 
         <Dialog open={depositOpen} onOpenChange={changeDepositOpen}>
           <DialogTrigger asChild>
-            <Button className='h-10 w-30' type='button'>
+            <Button className='h-11 flex-1 sm:h-10 sm:w-30 sm:flex-none' type='button'>
               KRW입금
             </Button>
           </DialogTrigger>
