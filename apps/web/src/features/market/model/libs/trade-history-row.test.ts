@@ -29,6 +29,8 @@ describe("toTradeHistoryRows", () => {
       {
         id: "KRW-BTC-BUY",
         executedAt: "07.27 10:02",
+        executedAtFull: "2026.07.27 10:02",
+        fee: "0",
         koreanName: "비트코인",
         price: "12,345",
         quantity: "1.23456789",
