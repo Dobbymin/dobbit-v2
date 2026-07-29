@@ -5,9 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { TOAST_MESSAGES } from "@/shared/constants";
+
 import { favoriteKeys } from "./favorite-query-keys";
 import { useFavorites } from "./useFavorites";
-import { TOGGLE_FAVORITE_ERROR_MESSAGE, useToggleFavorite } from "./useToggleFavorite";
+import { useToggleFavorite } from "./useToggleFavorite";
 
 const mocks = vi.hoisted(() => ({
   addFavoriteApi: vi.fn(),
@@ -91,7 +93,7 @@ describe("favorite hooks", () => {
 
     await waitFor(() => {
       expect(queryClient.getQueryData(favoriteKeys.list())).toEqual(["KRW-BTC", "KRW-ETH"]);
-      expect(mocks.toastError).toHaveBeenCalledWith(TOGGLE_FAVORITE_ERROR_MESSAGE);
+      expect(mocks.toastError).toHaveBeenCalledWith(TOAST_MESSAGES.FAVORITE_TOGGLE_FAILED);
     });
   });
 

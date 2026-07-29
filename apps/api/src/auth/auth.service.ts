@@ -28,7 +28,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this username already exists');
+      throw new ConflictException('이미 사용 중인 아이디예요.');
     }
 
     // Hash password
@@ -63,14 +63,14 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid username or password');
+      throw new UnauthorizedException('아이디 또는 비밀번호가 일치하지 않아요.');
     }
 
     // Verify password
     const passwordMatch = await bcrypt.compare(request.password, user.passwordHash);
 
     if (!passwordMatch) {
-      throw new UnauthorizedException('Invalid username or password');
+      throw new UnauthorizedException('아이디 또는 비밀번호가 일치하지 않아요.');
     }
 
     // Generate JWT
@@ -92,7 +92,7 @@ export class AuthService {
     try {
       payload = this.jwtService.verify<TokenPayload>(token);
     } catch {
-      throw new UnauthorizedException('Invalid token');
+      throw new UnauthorizedException('세션이 만료됐어요. 다시 로그인해 주세요.');
     }
 
     // Get user from DB
@@ -101,7 +101,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('사용자를 찾을 수 없어요.');
     }
 
     // Generate new JWT
@@ -127,7 +127,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('사용자를 찾을 수 없어요.');
     }
 
     return this.toProfile(user);
@@ -137,7 +137,9 @@ export class AuthService {
     const trimmed = typeof nickname === 'string' ? nickname.trim() : '';
 
     if (trimmed.length < NICKNAME_MIN_LENGTH || trimmed.length > NICKNAME_MAX_LENGTH) {
-      throw new BadRequestException(`닉네임은 ${NICKNAME_MIN_LENGTH}자 이상 ${NICKNAME_MAX_LENGTH}자 이하여야 합니다.`);
+      throw new BadRequestException(
+        `닉네임은 ${NICKNAME_MIN_LENGTH}자 이상 ${NICKNAME_MAX_LENGTH}자 이하로 입력해 주세요.`,
+      );
     }
 
     const existing = await this.prisma.user.findUnique({
@@ -145,7 +147,7 @@ export class AuthService {
     });
 
     if (!existing) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('사용자를 찾을 수 없어요.');
     }
 
     const user = await this.prisma.user.update({

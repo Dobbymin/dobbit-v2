@@ -5,6 +5,8 @@ import type { NotificationCreatedEvent, NotificationDeliveryFailedEvent } from "
 import { useQueryClient } from "@tanstack/react-query";
 import type { Socket } from "socket.io-client";
 
+import { TOAST_MESSAGES } from "@/shared/constants";
+
 import { NOTIFICATION_QUERY_KEYS } from "./notification-query-keys";
 
 export type ToastItem = {
@@ -45,7 +47,7 @@ export const useNotificationToast = (socket: Socket | null) => {
     const deliveryFailedHandler = (event: NotificationDeliveryFailedEvent) => {
       const toast: ToastItem = {
         id: `${event.notificationId}:delivery-failed`,
-        title: "Slack 알림 발송 실패",
+        title: TOAST_MESSAGES.SLACK_DELIVERY_FAILED,
         message: event.reason,
         severity: "WARNING",
         createdAt: event.failedAt,
