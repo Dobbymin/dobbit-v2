@@ -9,6 +9,7 @@ import {
   CashSection,
   ChartAreaSection,
   HeldAssetsListSection,
+  InvestmentProfitSection,
   StatsAreaSection,
   TabNavigationSection,
   TradeHistorySection,
@@ -20,28 +21,27 @@ export default function WalletPage() {
   useWalletRealtime();
   const [activeTab, setActiveTab] = useState<WalletTab>("보유자산");
 
+  const tabContent = {
+    보유자산: (
+      <>
+        <CashSection />
+        <section className='flex w-full flex-col gap-4 lg:flex-row'>
+          <StatsAreaSection />
+          <ChartAreaSection />
+        </section>
+        <HeldAssetsListSection />
+      </>
+    ),
+    투자손익: <InvestmentProfitSection />,
+    거래내역: <TradeHistorySection />,
+    입출금내역: <CashHistorySection />,
+  } satisfies Record<WalletTab, React.ReactNode>;
+
   return (
     <AppLayout>
       <div className='mx-auto flex w-full max-w-4xl flex-col gap-4 py-4'>
         <TabNavigationSection activeTab={activeTab} setActiveTab={setActiveTab} />
-        {activeTab === "보유자산" ? (
-          <>
-            <CashSection />
-            <section className='flex w-full flex-col gap-4 lg:flex-row'>
-              <StatsAreaSection />
-              <ChartAreaSection />
-            </section>
-            <HeldAssetsListSection />
-          </>
-        ) : activeTab === "입출금내역" ? (
-          <CashHistorySection />
-        ) : activeTab === "거래내역" ? (
-          <TradeHistorySection />
-        ) : (
-          <section className='flex min-h-[300px] w-full items-center justify-center bg-card/20'>
-            <p className='text-sm text-muted-foreground'>준비 중입니다.</p>
-          </section>
-        )}
+        {tabContent[activeTab]}
       </div>
     </AppLayout>
   );
