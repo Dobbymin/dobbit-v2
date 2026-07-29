@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AppLayout } from "@/widgets";
 
 import {
+  CashHistorySection,
   CashSection,
   ChartAreaSection,
   HeldAssetsListSection,
@@ -31,6 +32,8 @@ export default function WalletPage() {
             </section>
             <HeldAssetsListSection />
           </>
+        ) : activeTab === "입출금내역" ? (
+          <CashHistorySection />
         ) : (
           <section className='flex min-h-[300px] w-full items-center justify-center bg-card/20'>
             <p className='text-sm text-muted-foreground'>준비 중입니다.</p>

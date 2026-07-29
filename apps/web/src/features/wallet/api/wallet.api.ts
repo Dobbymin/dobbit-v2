@@ -1,5 +1,5 @@
 import { apiClient } from "@/shared";
-import type { WalletHolding, WalletSummaryResponse } from "@dobbit/shared";
+import type { WalletCashHistoryResponse, WalletHolding, WalletSummaryResponse } from "@dobbit/shared";
 
 export type DepositRequest = {
   amount: number;
@@ -21,6 +21,25 @@ export const getWalletAssetsApi = (): Promise<WalletHolding[]> => apiClient<Wall
 
 export const getWalletSummaryApi = (): Promise<WalletSummaryResponse> =>
   apiClient<WalletSummaryResponse>("/wallet/summary");
+
+export const getWalletCashHistoryApi = (params?: {
+  limit?: number;
+  offset?: number;
+}): Promise<WalletCashHistoryResponse> => {
+  const searchParams = new URLSearchParams();
+
+  if (params?.limit !== undefined) {
+    searchParams.set("limit", String(params.limit));
+  }
+
+  if (params?.offset !== undefined) {
+    searchParams.set("offset", String(params.offset));
+  }
+
+  const query = searchParams.toString();
+
+  return apiClient<WalletCashHistoryResponse>(`/wallet/cash-history${query ? `?${query}` : ""}`);
+};
 
 export const depositApi = (request: DepositRequest): Promise<DepositResponse> =>
   apiClient<DepositResponse>("/wallet/deposit", {

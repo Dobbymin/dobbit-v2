@@ -1,5 +1,6 @@
 export * from "./wallet-query-keys";
 export * from "./useWalletAssets";
+export * from "./useWalletCashHistory";
 export * from "./useWalletSummary";
 export * from "./useDeposit";
 export * from "./useWithdraw";
