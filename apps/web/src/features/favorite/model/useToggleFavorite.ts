@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { TOAST_MESSAGES } from "@/shared/constants";
 import { useIsAuth } from "@/shared/store";
 
 import { addFavoriteApi, removeFavoriteApi } from "../api";
@@ -18,8 +19,6 @@ type ToggleFavoriteContext = {
   snapshot: string[] | undefined;
 };
 
-export const TOGGLE_FAVORITE_ERROR_MESSAGE = "관심 업데이트에 실패했어요.";
-
 export const useToggleFavorite = () => {
   const queryClient = useQueryClient();
   const { isAuthenticated } = useIsAuth();
@@ -27,7 +26,7 @@ export const useToggleFavorite = () => {
   return useMutation<void, Error, ToggleFavoriteVariables, ToggleFavoriteContext>({
     mutationFn: ({ marketCode, isFavorited }) => {
       if (!isAuthenticated) {
-        return Promise.reject(new Error("로그인이 필요합니다."));
+        return Promise.reject(new Error(TOAST_MESSAGES.LOGIN_REQUIRED));
       }
 
       return isFavorited ? removeFavoriteApi(marketCode) : addFavoriteApi(marketCode);
@@ -55,7 +54,7 @@ export const useToggleFavorite = () => {
         queryClient.setQueryData(favoriteKeys.list(), context.snapshot);
       }
 
-      toast.error(TOGGLE_FAVORITE_ERROR_MESSAGE);
+      toast.error(TOAST_MESSAGES.FAVORITE_TOGGLE_FAILED);
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: favoriteKeys.all }),
   });

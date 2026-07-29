@@ -81,7 +81,7 @@ export class WalletService {
 
   async deposit(userId: string, amount: number): Promise<{ cashBalance: number }> {
     if (!Number.isFinite(amount) || amount <= 0) {
-      throw new BadRequestException('입금액은 0보다 커야 합니다.');
+      throw new BadRequestException('입금액은 0보다 커야 해요.');
     }
 
     const result = await this.prisma.$transaction(async (tx) => {
@@ -116,7 +116,7 @@ export class WalletService {
 
   async withdraw(userId: string, amount: number): Promise<{ cashBalance: number }> {
     if (!Number.isFinite(amount) || amount <= 0) {
-      throw new BadRequestException('출금액은 0보다 커야 합니다.');
+      throw new BadRequestException('출금액은 0보다 커야 해요.');
     }
 
     const result = await this.prisma.$transaction(async (tx) => {
@@ -128,7 +128,7 @@ export class WalletService {
       const currentBalance = cashBalance ? Number(cashBalance.amount) : 0;
 
       if (currentBalance < amount) {
-        throw new BadRequestException('잔액이 부족합니다.');
+        throw new BadRequestException('잔액이 부족해요.');
       }
 
       const updated = await tx.cashBalance.update({

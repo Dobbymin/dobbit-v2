@@ -17,11 +17,11 @@ export class FavoritesService {
 
   async addFavorite(userId: string, marketCode: string): Promise<void> {
     if (typeof marketCode !== 'string' || !/^KRW-[A-Z0-9]+$/.test(marketCode)) {
-      throw new BadRequestException('유효하지 않은 마켓 코드입니다.');
+      throw new BadRequestException('올바르지 않은 마켓 코드예요.');
     }
 
     const market = await this.prisma.market.findUnique({ where: { code: marketCode } });
-    if (!market) throw new BadRequestException(`Market ${marketCode} not found`);
+    if (!market) throw new BadRequestException(`마켓을 찾을 수 없어요: ${marketCode}`);
 
     await this.prisma.favorite.upsert({
       where: { userId_marketCode: { userId, marketCode } },

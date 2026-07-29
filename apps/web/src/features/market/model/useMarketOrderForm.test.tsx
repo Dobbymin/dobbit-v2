@@ -2,6 +2,8 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { TOAST_MESSAGES } from "@/shared/constants";
+
 import { useMarketOrderForm } from "./useMarketOrderForm";
 
 const mocks = vi.hoisted(() => ({
@@ -67,7 +69,7 @@ describe("useMarketOrderForm", () => {
     const { result } = renderHook(() => useMarketOrderForm("KRW-BTC"));
 
     act(() => result.current.sell());
-    expect(mocks.toastError).toHaveBeenCalledWith("가격과 수량을 올바르게 입력해주세요.");
+    expect(mocks.toastError).toHaveBeenCalledWith(TOAST_MESSAGES.ORDER_INVALID_INPUT);
     expect(mocks.sellMutate).not.toHaveBeenCalled();
   });
 
@@ -79,7 +81,7 @@ describe("useMarketOrderForm", () => {
     callbacks.onSuccess();
     callbacks.onError(new Error("denied"));
 
-    expect(mocks.toastSuccess).toHaveBeenCalledWith("주문이 체결되었습니다.");
+    expect(mocks.toastSuccess).toHaveBeenCalledWith(TOAST_MESSAGES.SELL_ORDER_SUCCESS);
     expect(mocks.reset).toHaveBeenCalled();
     expect(mocks.toastError).toHaveBeenCalledWith("denied");
   });

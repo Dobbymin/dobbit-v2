@@ -44,7 +44,7 @@ export class AuthController {
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<AuthResponse> {
     const token = req.cookies?.['access_token'] as string | undefined;
     if (!token) {
-      throw new UnauthorizedException('Missing access token cookie');
+      throw new UnauthorizedException('로그인이 필요해요.');
     }
     const response = await this.authService.refresh(token);
     res.cookie('access_token', response.accessToken, ACCESS_TOKEN_COOKIE_OPTIONS);

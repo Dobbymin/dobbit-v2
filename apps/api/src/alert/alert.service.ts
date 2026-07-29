@@ -33,7 +33,7 @@ export class AlertService {
 
   async createRule(userId: string, request: CreateAlertRuleRequest): Promise<AlertRule> {
     const market = await this.prisma.market.findUnique({ where: { code: request.marketCode } });
-    if (!market) throw new NotFoundException(`Market ${request.marketCode} not found`);
+    if (!market) throw new NotFoundException(`마켓을 찾을 수 없어요: ${request.marketCode}`);
 
     const rule = await this.prisma.alertRule.create({
       data: {
@@ -54,12 +54,12 @@ export class AlertService {
 
   async updateRule(userId: string, ruleId: string, request: UpdateAlertRuleRequest): Promise<AlertRule> {
     const rule = await this.prisma.alertRule.findFirst({ where: { id: ruleId, userId } });
-    if (!rule) throw new NotFoundException('Alert rule not found');
+    if (!rule) throw new NotFoundException('알림 규칙을 찾을 수 없어요.');
 
     let marketId: string | undefined;
     if (request.marketCode) {
       const market = await this.prisma.market.findUnique({ where: { code: request.marketCode } });
-      if (!market) throw new NotFoundException(`Market ${request.marketCode} not found`);
+      if (!market) throw new NotFoundException(`마켓을 찾을 수 없어요: ${request.marketCode}`);
       marketId = market.id;
     }
 
@@ -83,7 +83,7 @@ export class AlertService {
 
   async deleteRule(userId: string, ruleId: string): Promise<void> {
     const rule = await this.prisma.alertRule.findFirst({ where: { id: ruleId, userId } });
-    if (!rule) throw new NotFoundException('Alert rule not found');
+    if (!rule) throw new NotFoundException('알림 규칙을 찾을 수 없어요.');
     await this.prisma.alertRule.delete({ where: { id: ruleId } });
   }
 
@@ -126,7 +126,7 @@ export class AlertService {
 
   async markNotificationRead(userId: string, notificationId: string): Promise<MarkNotificationReadResponse> {
     const notification = await this.prisma.notification.findFirst({ where: { id: notificationId, userId } });
-    if (!notification) throw new NotFoundException('Notification not found');
+    if (!notification) throw new NotFoundException('알림을 찾을 수 없어요.');
 
     const readAt = notification.readAt ?? new Date();
     await this.prisma.notification.update({
@@ -151,7 +151,7 @@ export class AlertService {
 
   async evaluateMarketSnapshot(request: AlertEvaluationRequest): Promise<AlertEvaluationResult> {
     const market = await this.prisma.market.findUnique({ where: { code: request.marketCode } });
-    if (!market) throw new NotFoundException(`Market ${request.marketCode} not found`);
+    if (!market) throw new NotFoundException(`마켓을 찾을 수 없어요: ${request.marketCode}`);
 
     const snapshotAt = request.snapshotAt ? new Date(request.snapshotAt) : new Date();
     await this.prisma.marketSnapshot.create({

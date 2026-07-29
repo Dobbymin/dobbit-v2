@@ -1,16 +1,13 @@
 "use client";
 
 import { useAuthStore } from "@/shared";
+import { TOAST_MESSAGES } from "@/shared/constants";
 import { toast } from "sonner";
 
 import { useBuyOrder } from "./useBuyOrder";
 import { useOrderValues } from "./useOrderValues";
 import { useOrderableCash } from "./useOrderableCash";
 import { useSellOrder } from "./useSellOrder";
-
-const INVALID_ORDER_MESSAGE = "가격과 수량을 올바르게 입력해주세요.";
-const ORDER_SUCCESS_MESSAGE = "주문이 체결되었습니다.";
-const ORDER_FAILURE_MESSAGE = "주문에 실패했습니다.";
 
 export const useMarketOrderForm = (marketCode: string) => {
   const orderValues = useOrderValues();
@@ -19,9 +16,9 @@ export const useMarketOrderForm = (marketCode: string) => {
   const sellOrder = useSellOrder();
   const { data: orderableCash = 0 } = useOrderableCash();
 
-  const submitOrder = (mutate: typeof buyOrder.mutate) => {
+  const submitOrder = (mutate: typeof buyOrder.mutate, successMessage: string) => {
     if (!orderValues.isValid) {
-      toast.error(INVALID_ORDER_MESSAGE);
+      toast.error(TOAST_MESSAGES.ORDER_INVALID_INPUT);
       return;
     }
 
@@ -33,18 +30,18 @@ export const useMarketOrderForm = (marketCode: string) => {
       },
       {
         onSuccess: () => {
-          toast.success(ORDER_SUCCESS_MESSAGE);
+          toast.success(successMessage);
           orderValues.reset();
         },
         onError: (error: Error) => {
-          toast.error(error.message || ORDER_FAILURE_MESSAGE);
+          toast.error(error.message || TOAST_MESSAGES.ORDER_FAILED);
         },
       },
     );
   };
 
-  const buy = () => submitOrder(buyOrder.mutate);
-  const sell = () => submitOrder(sellOrder.mutate);
+  const buy = () => submitOrder(buyOrder.mutate, TOAST_MESSAGES.BUY_ORDER_SUCCESS);
+  const sell = () => submitOrder(sellOrder.mutate, TOAST_MESSAGES.SELL_ORDER_SUCCESS);
 
   return {
     ...orderValues,
