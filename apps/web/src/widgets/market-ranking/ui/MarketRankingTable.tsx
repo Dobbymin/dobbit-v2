@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { FavoriteButton } from "@/features/favorite";
-import { useOrderbook } from "@/features/market/model";
+import { useMarketOrderbooks } from "@/features/market/model";
 
 import { useState } from "react";
 
@@ -47,14 +47,15 @@ const RankingRowsSkeleton = ({ isSummaryOpen }: { isSummaryOpen: boolean }) => (
 );
 
 export const MarketRankingTable = () => {
-  const { activeTab, isLoading, rows, setActiveTab } = useMarketRanking();
+  const { activeTab, isLoading, marketCodes, rows, setActiveTab } = useMarketRanking();
   const [isSummaryOpen, setIsSummaryOpen] = useState(true);
   const [hoveredMarketCode, setHoveredMarketCode] = useState<string>();
   const selectedMarketCode = rows.some((item) => item.marketCode === hoveredMarketCode)
     ? hoveredMarketCode
     : rows[0]?.marketCode;
-  const orderbookQuery = useOrderbook(selectedMarketCode);
+  const orderbooks = useMarketOrderbooks(marketCodes);
   const selectedRow = rows.find((item) => item.marketCode === selectedMarketCode);
+  const selectedOrderbook = selectedMarketCode ? orderbooks[selectedMarketCode] : undefined;
 
   return (
     <section className='w-full overflow-hidden rounded-lg border border-border bg-card'>
@@ -115,11 +116,8 @@ export const MarketRankingTable = () => {
                 <RankingRowsSkeleton isSummaryOpen={isSummaryOpen} />
               ) : (
                 rows.map((item) => {
-                  const isSelected = item.marketCode === selectedMarketCode;
-                  const ratio =
-                    isSelected && orderbookQuery.data?.marketCode === item.marketCode
-                      ? getOrderbookRatio(orderbookQuery.data.units)
-                      : null;
+                  const orderbook = orderbooks[item.marketCode];
+                  const ratio = orderbook ? getOrderbookRatio(orderbook.units) : null;
 
                   return (
                     <tr
@@ -189,8 +187,8 @@ export const MarketRankingTable = () => {
         </div>
         {isSummaryOpen && selectedRow && (
           <RankingSummaryPanel
-            isOrderbookLoading={orderbookQuery.isLoading}
-            orderbook={orderbookQuery.data}
+            isOrderbookLoading={!selectedOrderbook}
+            orderbook={selectedOrderbook}
             row={selectedRow}
           />
         )}

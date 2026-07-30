@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { getSocket } from "@/shared";
 import type { MarketTickerUpdatedEvent } from "@dobbit/shared";
 
-const marketSubscriptionCounts = new Map<string, number>();
+export const marketSubscriptionCounts = new Map<string, number>();
 
 export const useMarketTickers = (marketCodes: string[]): Record<string, MarketTickerUpdatedEvent> => {
   const [tickers, setTickers] = useState<Record<string, MarketTickerUpdatedEvent>>({});

@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getNewsApi } from "@/features/news/api";
 import { toCandleSeries, useCandles } from "@/features/market/model";
+import { CHART_COLORS } from "@/features/market/model/libs/chart-colors";
 import { Skeleton, formatCoinPrice } from "@/shared";
 import type { OrderbookResponse } from "@dobbit/shared";
 
@@ -67,6 +68,9 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
                 chart: { toolbar: { show: false } },
                 grid: { show: false },
                 legend: { show: false },
+                plotOptions: {
+                  candlestick: { colors: { upward: CHART_COLORS.candleUp, downward: CHART_COLORS.candleDown } },
+                },
                 xaxis: { type: "datetime", labels: { show: false }, axisBorder: { show: false }, axisTicks: { show: false } },
                 yaxis: { labels: { show: false } },
               }}

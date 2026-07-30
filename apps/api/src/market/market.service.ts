@@ -1,6 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
-import { Market, CurrentPrice, CandleResponse, MarketTickerUpdatedEvent, OrderbookResponse } from '@dobbit/shared';
+import {
+  Market,
+  CurrentPrice,
+  CandleResponse,
+  MarketTickerUpdatedEvent,
+  MarketOrderbookUpdatedEvent,
+  OrderbookResponse,
+} from '@dobbit/shared';
 import { UpbitApiClient } from './external/upbit-api.client';
 
 interface CandleInterval {
@@ -147,6 +154,40 @@ export class MarketService implements OnModuleInit {
     } catch (error) {
       this.logger.error(`Failed to get orderbook for ${code}:`, error);
       return null;
+    }
+  }
+
+  async getOrderbookEvents(codes: string[]): Promise<MarketOrderbookUpdatedEvent[]> {
+    try {
+      const raw = (await this.upbitApiClient.getOrderbook(codes)) as Array<{
+        market: string;
+        timestamp: number;
+        orderbook_units: Array<{
+          ask_price: number;
+          bid_price: number;
+          ask_size: number;
+          bid_size: number;
+        }>;
+      }> | null;
+
+      if (!raw || raw.length === 0) {
+        return [];
+      }
+
+      return raw.map((data) => ({
+        type: 'market.orderbook.updated' as const,
+        marketCode: data.market,
+        units: (data.orderbook_units ?? []).map((unit) => ({
+          askPrice: unit.ask_price,
+          bidPrice: unit.bid_price,
+          askSize: unit.ask_size,
+          bidSize: unit.bid_size,
+        })),
+        timestamp: new Date(data.timestamp).toISOString(),
+      }));
+    } catch (error) {
+      this.logger.error('Failed to get orderbook events:', error);
+      return [];
     }
   }
 

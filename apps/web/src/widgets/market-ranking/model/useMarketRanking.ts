@@ -31,5 +31,5 @@ export const useMarketRanking = () => {
     [rankings, tickers],
   );
 
-  return { activeTab, isLoading: homeSummaryQuery.isLoading, rows: toRankingDisplayRows(rows), setActiveTab };
+  return { activeTab, isLoading: homeSummaryQuery.isLoading, marketCodes, rows: toRankingDisplayRows(rows), setActiveTab };
 };
