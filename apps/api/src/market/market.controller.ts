@@ -3,7 +3,7 @@ import { MarketService } from './market.service';
 import { Market, CurrentPrice, CandleResponse, OrderbookResponse } from '@dobbit/shared';
 
 interface CandleInterval {
-  type: 'seconds' | 'minutes' | 'weeks' | 'months' | 'years';
+  type: 'seconds' | 'minutes' | 'days' | 'weeks' | 'months' | 'years';
   unit?: number;
 }
 
@@ -36,7 +36,7 @@ export class MarketController {
     @Query('count') count: string = '200',
   ): Promise<CandleResponse[]> {
     // 화이트리스트 검증
-    const validTypes: CandleType[] = ['seconds', 'minutes', 'weeks', 'months', 'years'];
+    const validTypes: CandleType[] = ['seconds', 'minutes', 'days', 'weeks', 'months', 'years'];
     const validMinutesUnits = [1, 5, 30, 60];
 
     const candleType: CandleType = validTypes.includes(type as CandleType) ? (type as CandleType) : 'minutes';

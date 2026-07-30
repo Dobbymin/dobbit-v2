@@ -4,7 +4,7 @@ import { Market, CurrentPrice, CandleResponse, MarketTickerUpdatedEvent, Orderbo
 import { UpbitApiClient } from './external/upbit-api.client';
 
 interface CandleInterval {
-  type: 'seconds' | 'minutes' | 'weeks' | 'months' | 'years';
+  type: 'seconds' | 'minutes' | 'days' | 'weeks' | 'months' | 'years';
   unit?: number;
 }
 
