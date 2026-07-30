@@ -6,7 +6,7 @@ import { useMemo } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { getNewsApi } from "@/features/news/api";
-import { toCandleSeries, useCandles } from "@/features/market/model";
+import { toCandleSeries, toVolumeSeries, useCandles } from "@/features/market/model";
 import { CHART_COLORS } from "@/features/market/model/libs/chart-colors";
 import { Skeleton, formatCoinPrice } from "@/shared";
 import type { OrderbookResponse } from "@dobbit/shared";
@@ -16,6 +16,7 @@ import { getChangeBadgeClassName } from "../model";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ApexCharts = dynamic(() => import("react-apexcharts"), { ssr: false }) as any;
+const SUMMARY_CANDLE_COUNT = 90;
 
 type RankingSummaryPanelProps = {
   row: RankingDisplayRow;
@@ -30,9 +31,102 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
     queryFn: () => getNewsApi({ marketCode: row.marketCode, limit: 3 }),
     staleTime: 30_000,
   });
+  const recentCandles = useMemo(
+    () => (candlesQuery.data ?? []).slice(-SUMMARY_CANDLE_COUNT),
+    [candlesQuery.data],
+  );
+  const axisLabels = useMemo(() => {
+    if (recentCandles.length === 0) return [];
+    const pick = [
+      recentCandles[0],
+      recentCandles[Math.floor(recentCandles.length / 2)],
+      recentCandles[recentCandles.length - 1],
+    ];
+    return pick.map((candle) => {
+      const date = new Date(candle!.candleDateTime);
+      return `${String(date.getFullYear()).slice(2)}년 ${date.getMonth() + 1}월`;
+    });
+  }, [recentCandles]);
   const candleSeries = useMemo(
-    () => [{ name: row.koreanName, data: toCandleSeries(candlesQuery.data ?? []) }],
-    [candlesQuery.data, row.koreanName],
+    () => [{ name: row.koreanName, data: toCandleSeries(recentCandles) }],
+    [recentCandles, row.koreanName],
+  );
+  const volumeSeries = useMemo(
+    () => [{ name: "거래량", data: toVolumeSeries(recentCandles) }],
+    [recentCandles],
+  );
+  const candleChartOptions = useMemo(
+    () => ({
+      chart: {
+        type: "candlestick",
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        background: "transparent",
+        animations: { enabled: false },
+        parentHeightOffset: 0,
+      },
+      theme: { mode: "dark" },
+      grid: {
+        show: true,
+        borderColor: CHART_COLORS.grid,
+        strokeDashArray: 0,
+        xaxis: { lines: { show: false } },
+        yaxis: { lines: { show: true } },
+        padding: { left: 2, right: 2, top: 0, bottom: 0 },
+      },
+      plotOptions: {
+        candlestick: {
+          colors: { upward: CHART_COLORS.candleUp, downward: CHART_COLORS.candleDown },
+          wick: { useFillColor: true },
+        },
+        bar: { columnWidth: "50%" },
+      },
+      xaxis: {
+        type: "datetime",
+        labels: { show: false },
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+        tooltip: { enabled: false },
+        crosshairs: { show: false },
+      },
+      yaxis: { labels: { show: false }, tickAmount: 3 },
+    }),
+    [],
+  );
+  const volumeChartOptions = useMemo(
+    () => ({
+      chart: {
+        type: "bar",
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        background: "transparent",
+        animations: { enabled: false },
+        parentHeightOffset: 0,
+      },
+      theme: { mode: "dark" },
+      dataLabels: { enabled: false },
+      stroke: { width: 0 },
+      grid: { show: false, padding: { left: 2, right: 2, top: 0, bottom: 0 } },
+      plotOptions: {
+        bar: {
+          columnWidth: "60%",
+          colors: {
+            ranges: [{ from: 0, to: Number.MAX_SAFE_INTEGER, color: CHART_COLORS.volumeBar }],
+          },
+        },
+      },
+      xaxis: {
+        type: "datetime",
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+        tooltip: { enabled: false },
+        crosshairs: { show: false },
+        labels: { show: false },
+      },
+      yaxis: { labels: { show: false }, max: (max: number) => max },
+      tooltip: { enabled: false },
+    }),
+    [],
   );
   const orderbookData = orderbook?.marketCode === row.marketCode ? orderbook : null;
   const bestOrderbookUnit = orderbookData?.units[0];
@@ -58,27 +152,38 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
         </header>
 
         <section>
-          <h4 className='mb-2 text-sm font-semibold text-foreground'>일봉 차트</h4>
+          <p className='mb-1 text-[11px] text-subtle-foreground'>일봉</p>
           {candlesQuery.isLoading ? (
-            <Skeleton className='h-40 w-full' />
+            <Skeleton className='h-[188px] w-full' />
+          ) : recentCandles.length ? (
+            <div>
+              <ApexCharts
+                key={`${row.marketCode}-candles`}
+                options={candleChartOptions}
+                series={candleSeries}
+                type='candlestick'
+                height={140}
+                width='100%'
+              />
+              {/* ApexCharts가 플롯 상단에 고정 30px 오프셋을 잡아 캔들과 거래량 사이가 벌어진다. 음수 마진으로 상쇄한다. */}
+              <div className='-mt-[30px]'>
+                <ApexCharts
+                  key={`${row.marketCode}-volume`}
+                  options={volumeChartOptions}
+                  series={volumeSeries}
+                  type='bar'
+                  height={86}
+                  width='100%'
+                />
+              </div>
+              <div className='-mt-[24px] flex justify-between px-1 text-[11px] text-subtle-foreground'>
+                {axisLabels.map((label, index) => (
+                  <span key={`${label}-${index}`}>{label}</span>
+                ))}
+              </div>
+            </div>
           ) : (
-            <ApexCharts
-              key={row.marketCode}
-              options={{
-                chart: { toolbar: { show: false } },
-                grid: { show: false },
-                legend: { show: false },
-                plotOptions: {
-                  candlestick: { colors: { upward: CHART_COLORS.candleUp, downward: CHART_COLORS.candleDown } },
-                },
-                xaxis: { type: "datetime", labels: { show: false }, axisBorder: { show: false }, axisTicks: { show: false } },
-                yaxis: { labels: { show: false } },
-              }}
-              series={candleSeries}
-              type='candlestick'
-              height={160}
-              width='100%'
-            />
+            <p className='text-xs text-subtle-foreground'>차트 데이터가 없습니다.</p>
           )}
         </section>
 
