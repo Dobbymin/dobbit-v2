@@ -99,7 +99,7 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
         </section>
 
         <section>
-          <h4 className='mb-2 text-sm font-semibold text-foreground'>관련 뉴스</h4>
+          <h4 className='mb-2 text-sm font-semibold text-foreground'>최신 뉴스</h4>
           {newsQuery.isLoading ? (
             <Skeleton className='h-16 w-full' />
           ) : newsQuery.data?.length ? (
@@ -114,7 +114,7 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
               ))}
             </ul>
           ) : (
-            <p className='text-xs text-subtle-foreground'>관련 뉴스가 없습니다.</p>
+            <p className='text-xs text-subtle-foreground'>최신 뉴스가 없습니다.</p>
           )}
         </section>
       </div>

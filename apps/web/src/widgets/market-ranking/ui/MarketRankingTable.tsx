@@ -50,8 +50,11 @@ export const MarketRankingTable = () => {
   const { activeTab, isLoading, rows, setActiveTab } = useMarketRanking();
   const [isSummaryOpen, setIsSummaryOpen] = useState(true);
   const [hoveredMarketCode, setHoveredMarketCode] = useState<string>();
-  const orderbookQuery = useOrderbook(hoveredMarketCode);
-  const selectedRow = rows.find((item) => item.marketCode === hoveredMarketCode) ?? rows[0];
+  const selectedMarketCode = rows.some((item) => item.marketCode === hoveredMarketCode)
+    ? hoveredMarketCode
+    : rows[0]?.marketCode;
+  const orderbookQuery = useOrderbook(selectedMarketCode);
+  const selectedRow = rows.find((item) => item.marketCode === selectedMarketCode);
 
   return (
     <section className='w-full overflow-hidden rounded-lg border border-border bg-card'>
@@ -75,7 +78,7 @@ export const MarketRankingTable = () => {
           );
         })}
         <button
-          className='ml-auto shrink-0 rounded-md px-3 py-1 text-[13px] font-semibold text-subtle-foreground transition-colors hover:bg-surface-sunken hover:text-foreground'
+          className='ml-auto hidden shrink-0 rounded-md px-3 py-1 text-[13px] font-semibold text-subtle-foreground transition-colors hover:bg-surface-sunken hover:text-foreground lg:inline-flex'
           onClick={() => setIsSummaryOpen((value) => !value)}
           type='button'
         >
@@ -112,9 +115,9 @@ export const MarketRankingTable = () => {
                 <RankingRowsSkeleton isSummaryOpen={isSummaryOpen} />
               ) : (
                 rows.map((item) => {
-                  const isHovered = item.marketCode === hoveredMarketCode;
+                  const isSelected = item.marketCode === selectedMarketCode;
                   const ratio =
-                    isHovered && orderbookQuery.data?.marketCode === item.marketCode
+                    isSelected && orderbookQuery.data?.marketCode === item.marketCode
                       ? getOrderbookRatio(orderbookQuery.data.units)
                       : null;
 
