@@ -93,11 +93,11 @@ export const MarketRankingTable = () => {
               <col className='w-[44px]' />
               <col className='w-[44px]' />
               <col />
-              <col className='w-[110px]' />
-              <col className='w-[88px]' />
-              <col className='hidden w-[96px] lg:table-column' />
-              {!isSummaryOpen && <col className='hidden w-[84px] lg:table-column' />}
-              <col className='w-[116px]' />
+              <col className='w-[100px]' />
+              <col className='w-[80px]' />
+              <col className='hidden w-[88px] lg:table-column' />
+              {!isSummaryOpen && <col className='hidden w-[160px] lg:table-column' />}
+              <col className={isSummaryOpen ? 'w-[150px]' : 'w-[176px]'} />
             </colgroup>
             <thead className='h-10 border-b border-border text-subtle-foreground'>
               <tr>
