@@ -6,6 +6,7 @@ import { RealtimeGateway } from './realtime.gateway';
 import { RealtimeService } from './realtime.service';
 import { WsJwtGuard } from './guards/ws-jwt.guard';
 import { MarketTickerPoller } from './market-ticker.poller';
+import { MarketOrderbookPoller } from './market-orderbook.poller';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { MarketTickerPoller } from './market-ticker.poller';
     }),
     MarketModule,
   ],
-  providers: [RealtimeGateway, RealtimeService, WsJwtGuard, MarketTickerPoller],
+  providers: [RealtimeGateway, RealtimeService, WsJwtGuard, MarketTickerPoller, MarketOrderbookPoller],
   exports: [RealtimeService],
 })
 export class RealtimeModule {}

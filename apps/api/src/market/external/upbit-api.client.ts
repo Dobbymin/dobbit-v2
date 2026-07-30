@@ -112,11 +112,17 @@ export class UpbitApiClient {
     }
   }
 
-  async getOrderbook(marketCode: string): Promise<unknown> {
+  async getOrderbook(marketCodes: string | string[]): Promise<unknown> {
+    const markets = Array.isArray(marketCodes) ? marketCodes.join(',') : marketCodes;
+
+    if (!markets) {
+      return [];
+    }
+
     try {
       const response = await firstValueFrom(
         this.http.get(`${this.baseUrl}/orderbook`, {
-          params: { markets: marketCode },
+          params: { markets },
         }),
       );
       return response.data;
