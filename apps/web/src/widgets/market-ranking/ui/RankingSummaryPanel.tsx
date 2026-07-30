@@ -123,7 +123,7 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
         crosshairs: { show: false },
         labels: { show: false },
       },
-      yaxis: { labels: { show: false } },
+      yaxis: { labels: { show: false }, max: (max: number) => max },
       tooltip: { enabled: false },
     }),
     [],
@@ -154,7 +154,7 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
         <section>
           <p className='mb-1 text-[11px] text-subtle-foreground'>일봉</p>
           {candlesQuery.isLoading ? (
-            <Skeleton className='h-[242px] w-full' />
+            <Skeleton className='h-[188px] w-full' />
           ) : recentCandles.length ? (
             <div>
               <ApexCharts
@@ -165,15 +165,18 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
                 height={140}
                 width='100%'
               />
-              <ApexCharts
-                key={`${row.marketCode}-volume`}
-                options={volumeChartOptions}
-                series={volumeSeries}
-                type='bar'
-                height={86}
-                width='100%'
-              />
-              <div className='flex justify-between px-1 text-[11px] text-subtle-foreground'>
+              {/* ApexCharts가 플롯 상단에 고정 30px 오프셋을 잡아 캔들과 거래량 사이가 벌어진다. 음수 마진으로 상쇄한다. */}
+              <div className='-mt-[30px]'>
+                <ApexCharts
+                  key={`${row.marketCode}-volume`}
+                  options={volumeChartOptions}
+                  series={volumeSeries}
+                  type='bar'
+                  height={86}
+                  width='100%'
+                />
+              </div>
+              <div className='-mt-[24px] flex justify-between px-1 text-[11px] text-subtle-foreground'>
                 {axisLabels.map((label, index) => (
                   <span key={`${label}-${index}`}>{label}</span>
                 ))}
