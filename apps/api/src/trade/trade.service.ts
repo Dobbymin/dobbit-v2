@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
+import { calculateTradeFee } from '@dobbit/shared';
 import type { TradeResponse } from '@dobbit/shared';
 import { TradeValidator } from './validators/trade.validator';
 import { MarketService } from '../market/market.service';
@@ -27,6 +28,8 @@ export class TradeService {
     }
 
     const totalAmount = price * quantity;
+    const fee = calculateTradeFee(totalAmount);
+    const requiredCash = totalAmount + fee;
 
     const trade = await this.prisma.$transaction(async (tx) => {
       // Query and validate cash balance inside transaction
@@ -35,14 +38,14 @@ export class TradeService {
       });
 
       const currentBalance = cashBalance ? Number(cashBalance.amount) : 0;
-      this.tradeValidator.validateCashBalance(currentBalance, totalAmount);
+      this.tradeValidator.validateCashBalance(currentBalance, requiredCash);
 
       // Deduct cash
       await tx.cashBalance.update({
         where: { userId },
         data: {
           amount: {
-            decrement: String(totalAmount),
+            decrement: String(requiredCash),
           },
         },
       });
@@ -85,7 +88,7 @@ export class TradeService {
           price: String(price),
           quantity: String(quantity),
           totalAmount: String(totalAmount),
-          fee: '0',
+          fee: String(fee),
           executedAt: new Date(),
         },
       });
@@ -97,7 +100,7 @@ export class TradeService {
           marketId: market.id,
           changeType: 'TRADE_BUY',
           quantityDelta: String(quantity),
-          cashDelta: String(-totalAmount),
+          cashDelta: String(-requiredCash),
           tradeId: createdTrade.id,
         },
       });
@@ -132,6 +135,8 @@ export class TradeService {
     }
 
     const totalAmount = price * quantity;
+    const fee = calculateTradeFee(totalAmount);
+    const settlementAmount = totalAmount - fee;
 
     const trade = await this.prisma.$transaction(async (tx) => {
       // Query and validate holdings inside transaction
@@ -151,11 +156,11 @@ export class TradeService {
         where: { userId },
         create: {
           userId,
-          amount: String(totalAmount),
+          amount: String(settlementAmount),
         },
         update: {
           amount: {
-            increment: String(totalAmount),
+            increment: String(settlementAmount),
           },
         },
       });
@@ -189,7 +194,7 @@ export class TradeService {
           price: String(price),
           quantity: String(quantity),
           totalAmount: String(totalAmount),
-          fee: '0',
+          fee: String(fee),
           executedAt: new Date(),
         },
       });
@@ -201,7 +206,7 @@ export class TradeService {
           marketId: market.id,
           changeType: 'TRADE_SELL',
           quantityDelta: String(-quantity),
-          cashDelta: String(totalAmount),
+          cashDelta: String(settlementAmount),
           tradeId: createdTrade.id,
         },
       });

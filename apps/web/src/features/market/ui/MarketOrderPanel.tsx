@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useState } from "react";
 
+import { calculateTradeFee } from "@dobbit/shared";
 import { Button, Input, ROUTES_PATH, cn, formatPrice, formatThousands } from "@/shared";
 import { RotateCw } from "lucide-react";
 
@@ -38,6 +39,8 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
     sell,
   } = useMarketOrderForm(marketCode);
   const coinSymbol = marketCode.replace("KRW-", "");
+  const orderTotal = Number(total) || 0;
+  const fee = calculateTradeFee(orderTotal);
 
   const handleSelectOrderbookPrice = (selectedPrice: number) => {
     // 거래내역 탭에서는 주문 폼이 보이지 않으므로 매수 탭으로 전환한다.
@@ -148,6 +151,15 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
                   type='text'
                   value={total === "" ? "" : formatThousands(String(total))}
                 />
+              </div>
+            </div>
+            <div className='flex items-center justify-between'>
+              <p className='text-sm text-muted-foreground'>{selectedTab === "매수" ? "총 주문금액" : "총 정산금액"}</p>
+              <div className='text-right'>
+                <p className='text-sm font-semibold text-foreground tabular-nums'>
+                  {formatPrice(selectedTab === "매수" ? orderTotal + fee : orderTotal - fee)} KRW
+                </p>
+                <p className='text-xs text-muted-foreground tabular-nums'>수수료 0.05% · {formatPrice(fee)} KRW</p>
               </div>
             </div>
             <div className='flex w-full gap-2 pt-2'>
