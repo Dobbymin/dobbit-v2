@@ -39,7 +39,7 @@ export const MarketOrderPanel = ({ marketCode }: MarketOrderPanelProps) => {
     sell,
   } = useMarketOrderForm(marketCode);
   const coinSymbol = marketCode.replace("KRW-", "");
-  const orderTotal = Number(total) || 0;
+  const orderTotal = (Number(price) || 0) * (Number(amount) || 0);
   const fee = calculateTradeFee(orderTotal);
 
   const handleSelectOrderbookPrice = (selectedPrice: number) => {
