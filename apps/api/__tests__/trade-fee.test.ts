@@ -76,6 +76,18 @@ describe('trade fee', () => {
     expect(tx.trade.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ fee: '500' }) }));
   });
 
+  it('includes buy fee in wallet cost and average price', async () => {
+    const { service, tx } = createService('1000500');
+
+    await service.buyOrder(userId, market.code, quantity, price);
+
+    expect(tx.wallet.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ totalCost: '1000500', averagePrice: '1000500' }),
+      }),
+    );
+  });
+
   it('adds sell settlement after fee to cash', async () => {
     const { service, tx } = createService('0', {
       id: 'wallet-1',

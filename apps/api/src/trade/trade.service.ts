@@ -58,7 +58,7 @@ export class TradeService {
       });
 
       const newQty = (existingWallet ? Number(existingWallet.quantity) : 0) + quantity;
-      const newTotalCost = (existingWallet ? Number(existingWallet.totalCost) : 0) + totalAmount;
+      const newTotalCost = (existingWallet ? Number(existingWallet.totalCost) : 0) + requiredCash;
       const newAveragePrice = newTotalCost / newQty;
 
       await tx.wallet.upsert({
