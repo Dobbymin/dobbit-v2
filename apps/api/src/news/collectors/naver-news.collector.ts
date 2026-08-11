@@ -15,6 +15,13 @@ interface NaverNewsResponse {
   items: NaverNewsItem[];
 }
 
+class NaverNewsRateLimitError extends Error {
+  constructor() {
+    super('Naver News API rate limit exceeded');
+    this.name = NaverNewsRateLimitError.name;
+  }
+}
+
 @Injectable()
 export class NaverNewsCollector extends NewsCollector {
   private readonly logger = new Logger(NaverNewsCollector.name);
@@ -45,12 +52,14 @@ export class NaverNewsCollector extends NewsCollector {
 
     const allItems: NewsItem[] = [];
     const seenUrls = new Set<string>();
+    let keywordIndex = 0;
 
     for (const { keywords, display } of [
       { keywords: this.keywords, display: this.display },
       { keywords: extraKeywords ?? [], display: this.coinDisplay },
     ]) {
       for (const keyword of keywords) {
+        keywordIndex += 1;
         try {
           const items = await this.searchNews(keyword, display);
           for (const item of items) {
@@ -60,6 +69,11 @@ export class NaverNewsCollector extends NewsCollector {
             }
           }
         } catch (error) {
+          if (error instanceof NaverNewsRateLimitError) {
+            this.logger.warn(`Rate limit hit at keyword ${keywordIndex} ("${keyword}"). Stopping collection.`);
+            return allItems;
+          }
+
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           this.logger.warn(`Failed to fetch news for keyword "${keyword}": ${errorMessage}`);
         }
@@ -89,8 +103,7 @@ export class NaverNewsCollector extends NewsCollector {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 429) {
-          this.logger.warn(`Rate limit hit for keyword "${keyword}". Stopping.`);
-          throw new Error('Rate limited');
+          throw new NaverNewsRateLimitError();
         }
       }
       throw error;
