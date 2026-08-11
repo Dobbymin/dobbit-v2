@@ -123,7 +123,7 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
         crosshairs: { show: false },
         labels: { show: false },
       },
-      yaxis: { labels: { show: false }, max: (max: number) => max },
+      yaxis: { labels: { show: false }, min: 0, max: (max: number) => max },
       tooltip: { enabled: false },
     }),
     [],
@@ -176,7 +176,7 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
                   width='100%'
                 />
               </div>
-              <div className='-mt-[24px] flex justify-between px-1 text-[11px] text-subtle-foreground'>
+              <div className='-mt-[12px] flex justify-between px-1 text-[11px] text-subtle-foreground'>
                 {axisLabels.map((label, index) => (
                   <span key={`${label}-${index}`}>{label}</span>
                 ))}
