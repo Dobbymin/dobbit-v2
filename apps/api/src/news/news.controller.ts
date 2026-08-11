@@ -22,13 +22,18 @@ export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 
   @Get('articles')
-  async getArticles(@Query('limit') limit: number = 20, @Query('offset') offset: number = 0): Promise<NewsItem[]> {
+  async getArticles(
+    @Query('limit') limit: number = 20,
+    @Query('offset') offset: number = 0,
+    @Query('marketCode') marketCode?: string,
+  ): Promise<NewsItem[]> {
     const parsedLimit = Math.floor(Number(limit));
     const parsedOffset = Math.floor(Number(offset));
     const safeLimit = Number.isNaN(parsedLimit) || parsedLimit < 0 ? 20 : Math.min(parsedLimit, 100);
     const safeOffset = Number.isNaN(parsedOffset) || parsedOffset < 0 ? 0 : parsedOffset;
+    const normalizedMarketCode = marketCode?.trim() || undefined;
 
-    return this.newsService.getArticles(safeLimit, safeOffset);
+    return this.newsService.getArticles(safeLimit, safeOffset, normalizedMarketCode);
   }
 
   @Post('ingest')
