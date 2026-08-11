@@ -20,7 +20,7 @@ export const LoginForm = () => {
               <FormItem>
                 <FormLabel>아이디</FormLabel>
                 <FormControl>
-                  <Input autoComplete='username' placeholder='dobbit_user' type='text' {...field} />
+                  <Input autoComplete='username' placeholder='아이디' type='text' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
