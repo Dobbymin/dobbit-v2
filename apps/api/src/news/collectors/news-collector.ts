@@ -10,5 +10,5 @@ export interface NewsItem {
 
 @Injectable()
 export abstract class NewsCollector {
-  abstract collect(): Promise<NewsItem[]>;
+  abstract collect(extraKeywords?: string[]): Promise<NewsItem[]>;
 }

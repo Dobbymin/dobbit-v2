@@ -92,14 +92,16 @@ const createService = ({
   configValues,
   hermesAnalyze,
   geminiAnalyze,
+  items = [newsItem],
 }: {
   configValues: Record<string, string | undefined>;
   hermesAnalyze: ReturnType<typeof vi.fn>;
   geminiAnalyze: ReturnType<typeof vi.fn>;
+  items?: typeof newsItem[];
 }) => {
   const prisma = createPrisma();
   const naverCollector = {
-    collect: vi.fn().mockResolvedValue([newsItem]),
+    collect: vi.fn().mockResolvedValue(items),
   } as unknown as NaverNewsCollector;
   const hermesAnalyzer = {
     analyze: hermesAnalyze,
@@ -121,12 +123,15 @@ const createService = ({
     createConfig(configValues),
   );
 
-  vi.spyOn(service as unknown as { logger: { warn: (message: string) => void } }, 'logger', 'get').mockReturnValue({
+  const logger = {
     warn: vi.fn(),
     error: vi.fn(),
-  } as never);
+  };
+  vi.spyOn(service as unknown as { logger: { warn: (message: string) => void } }, 'logger', 'get').mockReturnValue(
+    logger as never,
+  );
 
-  return { service, prisma, naverCollector };
+  return { service, prisma, naverCollector, alertService, logger };
 };
 
 describe('NewsService analyzer provider routing', () => {
@@ -354,5 +359,47 @@ describe('NewsService analyzer provider routing', () => {
     expect(hermesAnalyze).toHaveBeenCalledOnce();
     expect(result.successCount).toBe(1);
     expect(result.failedCount).toBe(0);
+  });
+
+  it('caps LLM analysis while saving and deterministically tagging remaining articles', async () => {
+    const secondItem = {
+      ...newsItem,
+      title: '비트코인 신규 뉴스',
+      url: 'https://news.example.com/btc-second',
+      content: '비트코인 관련 신규 소식',
+    };
+    const hermesAnalyze = vi.fn().mockResolvedValue(analysisResult);
+    const geminiAnalyze = vi.fn().mockResolvedValue(analysisResult);
+    const { service, prisma, naverCollector, alertService, logger } = createService({
+      configValues: {
+        NEWS_ANALYSIS_PROVIDER: 'hermes',
+        NEWS_ANALYSIS_MAX_ARTICLES: '1',
+      },
+      hermesAnalyze,
+      geminiAnalyze,
+      items: [newsItem, secondItem],
+    });
+    vi.mocked(prisma.market.findMany).mockResolvedValue([
+      { id: 'btc-id', symbol: 'BTC', koreanName: '비트코인' },
+      { id: 'cyber-id', symbol: 'CYBER', koreanName: '사이버' },
+      { id: 'short-id', symbol: 'ONE', koreanName: '원' },
+    ] as never);
+    vi.mocked(prisma.newsMarketTag.upsert).mockResolvedValue({
+      market: { id: 'btc-id', code: 'KRW-BTC' },
+    } as never);
+
+    const result = await service.ingest('TEST');
+
+    expect(naverCollector.collect).toHaveBeenCalledWith(['비트코인 코인']);
+    expect(prisma.newsArticle.upsert).toHaveBeenCalledTimes(2);
+    expect(prisma.newsMarketTag.upsert).toHaveBeenCalledOnce();
+    expect(hermesAnalyze).toHaveBeenCalledOnce();
+    expect(prisma.newsAnalysis.upsert).toHaveBeenCalledOnce();
+    expect(alertService.evaluateNewsSentiment).not.toHaveBeenCalled();
+    expect(result.successCount).toBe(2);
+    expect(result.failedCount).toBe(0);
+    expect(logger.warn).toHaveBeenCalledWith(
+      'LLM 분석 상한(1) 도달로 1건은 분석 없이 저장·태깅만 수행했습니다.',
+    );
   });
 });

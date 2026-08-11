@@ -22,6 +22,7 @@ export class NaverNewsCollector extends NewsCollector {
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly display: number;
+  private readonly coinDisplay: number;
   private readonly keywords = ['비트코인', '이더리움', '가상자산', '암호화폐', '블록체인'];
 
   constructor(private readonly configService: ConfigService) {
@@ -29,13 +30,14 @@ export class NaverNewsCollector extends NewsCollector {
     this.clientId = this.configService.get<string>('NAVER_CLIENT_ID') || '';
     this.clientSecret = this.configService.get<string>('NAVER_CLIENT_SECRET') || '';
     this.display = this.getDisplayCount();
+    this.coinDisplay = this.getCoinDisplayCount();
     this.http = axios.create({
       timeout: 10000,
       baseURL: 'https://openapi.naver.com',
     });
   }
 
-  async collect(): Promise<NewsItem[]> {
+  async collect(extraKeywords?: string[]): Promise<NewsItem[]> {
     if (!this.clientId || !this.clientSecret) {
       this.logger.warn('NAVER_CLIENT_ID or NAVER_CLIENT_SECRET not configured. Returning empty result.');
       return [];
@@ -44,30 +46,35 @@ export class NaverNewsCollector extends NewsCollector {
     const allItems: NewsItem[] = [];
     const seenUrls = new Set<string>();
 
-    for (const keyword of this.keywords) {
-      try {
-        const items = await this.searchNews(keyword);
-        for (const item of items) {
-          if (!seenUrls.has(item.url)) {
-            seenUrls.add(item.url);
-            allItems.push(item);
+    for (const { keywords, display } of [
+      { keywords: this.keywords, display: this.display },
+      { keywords: extraKeywords ?? [], display: this.coinDisplay },
+    ]) {
+      for (const keyword of keywords) {
+        try {
+          const items = await this.searchNews(keyword, display);
+          for (const item of items) {
+            if (!seenUrls.has(item.url)) {
+              seenUrls.add(item.url);
+              allItems.push(item);
+            }
           }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          this.logger.warn(`Failed to fetch news for keyword "${keyword}": ${errorMessage}`);
         }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        this.logger.warn(`Failed to fetch news for keyword "${keyword}": ${errorMessage}`);
       }
     }
 
     return allItems;
   }
 
-  private async searchNews(keyword: string): Promise<NewsItem[]> {
+  private async searchNews(keyword: string, display: number): Promise<NewsItem[]> {
     try {
       const response = await this.http.get<NaverNewsResponse>('/v1/search/news.json', {
         params: {
           query: keyword,
-          display: this.display,
+          display,
           start: 1,
           sort: 'date',
         },
@@ -115,6 +122,15 @@ export class NaverNewsCollector extends NewsCollector {
     const configured = Number(this.configService.get<string | number>('NEWS_NAVER_DISPLAY', 20));
     if (!Number.isFinite(configured)) {
       return 20;
+    }
+
+    return Math.min(100, Math.max(1, Math.floor(configured)));
+  }
+
+  private getCoinDisplayCount(): number {
+    const configured = Number(this.configService.get<string | number>('NEWS_NAVER_COIN_DISPLAY', 2));
+    if (!Number.isFinite(configured)) {
+      return 2;
     }
 
     return Math.min(100, Math.max(1, Math.floor(configured)));
