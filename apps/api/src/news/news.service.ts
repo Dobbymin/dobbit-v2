@@ -9,7 +9,7 @@ import { AnalysisResult, DEFAULT_HERMES_MODEL } from './analyzers/news-analyzer'
 import { NewsAnalysisResponse, PredictionDirection, PredictionReviewResponse, NewsItem } from '@dobbit/shared';
 import { Decimal as PrismaDecimal } from '@prisma/client/runtime/library';
 import { UpbitApiClient } from '../market/external/upbit-api.client';
-import { buildCoinSearchKeywords, findMarketsInText } from './libs';
+import { buildCoinSearchKeywords, findMarketsInText, hasMarketEvidence } from './libs';
 
 const REVIEW_TIME_HORIZON = '1D';
 const REVIEW_TIME_HORIZON_MS = 24 * 60 * 60 * 1000;
@@ -124,6 +124,7 @@ export class NewsService {
       let failedCount = 0;
       let analysisCount = 0;
       let skippedAnalysisCount = 0;
+      let skippedUnsupportedMarketTagCount = 0;
 
       for (const item of items) {
         try {
@@ -228,6 +229,11 @@ export class NewsService {
                 where: { symbol },
               });
               if (market) {
+                if (!hasMarketEvidence(`${item.title}\n${item.content}`, market)) {
+                  skippedUnsupportedMarketTagCount++;
+                  continue;
+                }
+
                 const tag = await this.prisma.newsMarketTag.upsert({
                   where: {
                     newsArticleId_marketId: {
@@ -310,6 +316,10 @@ export class NewsService {
         this.logger.warn(
           `LLM 분석 상한(${this.analysisMaxArticles}) 도달로 ${skippedAnalysisCount}건은 분석 없이 저장·태깅만 수행했습니다.`,
         );
+      }
+
+      if (skippedUnsupportedMarketTagCount > 0) {
+        this.logger.debug(`근거 없는 LLM 마켓 태그 ${skippedUnsupportedMarketTagCount}건을 건너뛰었습니다.`);
       }
 
       const totalCount = items.length;

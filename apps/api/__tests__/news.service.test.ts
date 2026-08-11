@@ -1,4 +1,5 @@
 import type { ConfigService } from '@nestjs/config';
+import { Decimal as PrismaDecimal } from '@prisma/client/runtime/library';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AlertService } from '../src/alert/alert.service';
 import type { PrismaService } from '../src/common/prisma/prisma.service';
@@ -124,6 +125,7 @@ const createService = ({
   );
 
   const logger = {
+    debug: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
   };
@@ -400,6 +402,55 @@ describe('NewsService analyzer provider routing', () => {
     expect(result.failedCount).toBe(0);
     expect(logger.warn).toHaveBeenCalledWith(
       'LLM 분석 상한(1) 도달로 1건은 분석 없이 저장·태깅만 수행했습니다.',
+    );
+  });
+
+  it('skips relatedMarkets tags without article evidence', async () => {
+    const relatedMarketsAnalysis = { ...analysisResult, relatedMarkets: ['ETH'] };
+    const hermesAnalyze = vi.fn().mockResolvedValue(relatedMarketsAnalysis);
+    const geminiAnalyze = vi.fn().mockResolvedValue(relatedMarketsAnalysis);
+    const { service, prisma, logger } = createService({
+      configValues: { NEWS_ANALYSIS_PROVIDER: 'hermes' },
+      hermesAnalyze,
+      geminiAnalyze,
+    });
+    vi.mocked(prisma.market.findUnique).mockResolvedValue({
+      id: 'eth-id',
+      symbol: 'ETH',
+      koreanName: '이더리움',
+    } as never);
+
+    await service.ingest('TEST');
+
+    expect(prisma.newsMarketTag.upsert).not.toHaveBeenCalled();
+    expect(logger.debug).toHaveBeenCalledWith('근거 없는 LLM 마켓 태그 1건을 건너뛰었습니다.');
+  });
+
+  it('tags relatedMarkets with article evidence at confidence 0.8', async () => {
+    const relatedMarketsAnalysis = { ...analysisResult, relatedMarkets: ['BTC'] };
+    const hermesAnalyze = vi.fn().mockResolvedValue(relatedMarketsAnalysis);
+    const geminiAnalyze = vi.fn().mockResolvedValue(relatedMarketsAnalysis);
+    const { service, prisma } = createService({
+      configValues: { NEWS_ANALYSIS_PROVIDER: 'hermes' },
+      hermesAnalyze,
+      geminiAnalyze,
+    });
+    vi.mocked(prisma.market.findUnique).mockResolvedValue({
+      id: 'btc-id',
+      symbol: 'BTC',
+      koreanName: '비트코인',
+    } as never);
+    vi.mocked(prisma.newsMarketTag.upsert).mockResolvedValue({
+      market: { id: 'btc-id', code: 'KRW-BTC' },
+    } as never);
+
+    await service.ingest('TEST');
+
+    expect(prisma.newsMarketTag.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update: { confidence: new PrismaDecimal(0.8) },
+        create: expect.objectContaining({ confidence: new PrismaDecimal(0.8) }),
+      }),
     );
   });
 });
