@@ -9,6 +9,7 @@ import { AnalysisResult, DEFAULT_HERMES_MODEL } from './analyzers/news-analyzer'
 import { NewsAnalysisResponse, PredictionDirection, PredictionReviewResponse, NewsItem } from '@dobbit/shared';
 import { Decimal as PrismaDecimal } from '@prisma/client/runtime/library';
 import { UpbitApiClient } from '../market/external/upbit-api.client';
+import { findMarketsInText } from './libs';
 
 const REVIEW_TIME_HORIZON = '1D';
 const REVIEW_TIME_HORIZON_MS = 24 * 60 * 60 * 1000;
@@ -113,6 +114,10 @@ export class NewsService {
 
     try {
       const items = await this.naverCollector.collect();
+      const markets = await this.prisma.market.findMany({
+        where: { isActive: true },
+        select: { id: true, symbol: true, koreanName: true },
+      });
       let successCount = 0;
       let failedCount = 0;
 
@@ -132,6 +137,35 @@ export class NewsService {
               collectedAt: new Date(),
             },
           });
+
+          const taggedMarkets: Array<{ id: string; code: string }> = [];
+
+          for (const market of findMarketsInText(`${item.title}\n${item.content}`, markets)) {
+            try {
+              const tag = await this.prisma.newsMarketTag.upsert({
+                where: {
+                  newsArticleId_marketId: {
+                    newsArticleId: article.id,
+                    marketId: market.id,
+                  },
+                },
+                update: { confidence: new PrismaDecimal(0.6) },
+                create: {
+                  newsArticleId: article.id,
+                  marketId: market.id,
+                  symbol: market.symbol,
+                  confidence: new PrismaDecimal(0.6),
+                },
+                include: { market: true },
+              });
+              if (!taggedMarkets.some((taggedMarket) => taggedMarket.id === tag.market.id)) {
+                taggedMarkets.push({ id: tag.market.id, code: tag.market.code });
+              }
+            } catch (tagErr) {
+              const message = tagErr instanceof Error ? tagErr.message : '알 수 없는 에러';
+              this.logger.warn(`결정론적 마켓 태깅 실패 (${market.symbol}): ${message}`);
+            }
+          }
 
           let analysis: AnalysisResult | null = null;
           let provider: 'HERMES' | 'GEMINI' = 'HERMES';
@@ -176,8 +210,6 @@ export class NewsService {
             failedCount++;
             continue;
           }
-
-          const taggedMarkets: Array<{ id: string; code: string }> = [];
 
           if (analysis.relatedMarkets && analysis.relatedMarkets.length > 0) {
             for (const symbol of analysis.relatedMarkets) {
@@ -307,11 +339,18 @@ export class NewsService {
     }
   }
 
-  async getArticles(limit = 20, offset = 0): Promise<NewsItem[]> {
+  async getArticles(limit = 20, offset = 0, marketCode?: string): Promise<NewsItem[]> {
     const articles = await this.prisma.newsArticle.findMany({
       take: limit,
       skip: offset,
       orderBy: { publishedAt: 'desc' },
+      ...(marketCode
+        ? {
+            where: {
+              marketTags: { some: { market: { code: marketCode } } },
+            },
+          }
+        : {}),
       include: {
         analyses: {
           orderBy: { analyzedAt: 'desc' },

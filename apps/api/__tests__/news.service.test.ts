@@ -68,6 +68,7 @@ const createPrisma = () => {
       }),
     },
     market: {
+      findMany: vi.fn().mockResolvedValue([]),
       findUnique: vi.fn(),
     },
     newsMarketTag: {

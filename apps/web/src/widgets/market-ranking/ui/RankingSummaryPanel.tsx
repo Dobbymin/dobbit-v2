@@ -223,7 +223,7 @@ export const RankingSummaryPanel = ({ row, orderbook, isOrderbookLoading }: Rank
               ))}
             </ul>
           ) : (
-            <p className='text-xs text-subtle-foreground'>최신 뉴스가 없습니다.</p>
+            <p className='text-xs text-subtle-foreground'>관련 뉴스가 없습니다.</p>
           )}
         </section>
       </div>
