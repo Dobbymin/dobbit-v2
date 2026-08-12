@@ -195,6 +195,11 @@ export class MarketService implements OnModuleInit {
     try {
       const markets = await this.getMarkets();
 
+      if (markets.length === 0) {
+        this.logger.warn('Skipping market deactivation because Upbit returned no KRW markets');
+        return;
+      }
+
       let syncedCount = 0;
       for (const market of markets) {
         await this.prisma.market.upsert({
@@ -214,6 +219,22 @@ export class MarketService implements OnModuleInit {
           },
         });
         syncedCount++;
+      }
+
+      const activeCodes = markets.map((market) => market.code);
+      const deactivatedMarkets = await this.prisma.market.findMany({
+        where: { code: { notIn: activeCodes }, isActive: true },
+        select: { code: true },
+      });
+      const result = await this.prisma.market.updateMany({
+        where: { code: { notIn: activeCodes }, isActive: true },
+        data: { isActive: false },
+      });
+
+      if (result.count > 0) {
+        this.logger.log(
+          `Deactivated ${result.count} delisted markets: ${deactivatedMarkets.map((market) => market.code).join(', ')}`,
+        );
       }
 
       this.logger.log(`Successfully synced ${syncedCount} markets from Upbit`);
